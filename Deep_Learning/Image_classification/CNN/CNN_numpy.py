@@ -7,19 +7,21 @@ Things to improve for next time:
     - make batch for CNN
     - look up if it is better with numpy or scipy (i think numpy)"""
 
+
+"""Do a function that tries from 1 initialisation for a number of steps and then guard the weights 
+redo the process many times and then choose the n best,
+then do the same with the n best and find m best ... 
+that way less proba to get stuck on local minimum"""
+
 #GENERAL
 import pickle
 from tqdm import tqdm
 
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.signal import convolve2d
-# CONV
-from scipy.signal import correlate2d
-from skimage.measure import block_reduce
 
 # ORGANIZACION
-from Deep_Learning.CNN.CNN1.Import_data import processdata
+from Deep_Learning.Image_classification.CNN.Import_data import processdata
 from Parameters import Parametros
 from Drawing import Draw
 from Helpers import printbasesimple, printgray, printimage, flatening, paddington
@@ -29,9 +31,7 @@ from Functions import geterrorfunc, getfct
 # - batch para convolucion
 # - Dropout layer
 # - try to draw continuo que no se cierre la pestaña
-# - import directamente en la clase para que sea mas facil
 # - mejorar estructura
-# - guardar mejor modelo directamente la instance con pickle
 # - opti learning rate
 # - verifier que cost diminue
 
@@ -59,22 +59,6 @@ class CNN:
         self.dimkernels = [] #dimensions des filtres
         self.dimconvbiais = [] #dimensions biais convolution
 
-        # QUELLES FCTS UTILISER
-        if par.poolnp:
-            self.pooling = self.poolingnp
-        else:
-            self.pooling = self.poolingskim
-
-        if par.convnp:
-            self.convolution = self.convolutionnp
-        else:
-            self.convolution = self.convolutionscp
-
-        if par.backconvnp:
-            self.backconvolution = self.backconvolutionnp
-        else:
-            self.backconvolution = self.backconvolutionscp
-
         par.infoconvlay = [(1 if self.base=="mnist" or self.base=="fashion" else 3, "input")] + par.infoconvlay
 
         d = 28 if self.base=="mnist" or self.base=="fashion" else par.pix[0].shape[1]
@@ -100,7 +84,6 @@ class CNN:
         self.vales = par.vales #val de train
         self.labels = par.labels
 
-
         # BASE DE DONNÉES POUR LES TESTS
         # self.qcmpix = self.processdata(par.qcmpix, par.pix.shape[0]==3072, True, self.nbconv>0)
         self.qcmpix = processdata(self.base, par.qcmpix,True, self.nbconv > 0)
@@ -115,15 +98,6 @@ class CNN:
 
         self.aprentissagedynamique = par.apprentissagedynamique # estce qu'il apprned au fur et à mesure qu'il passe le qcm
         self.tauxfiniter = par.tauxfiniter # faire ou non a la fin de chaque itération un calcul de taux d'erreur
-
-        # PARA LEARNING RATE ADAPTATIF (basé sur RMSprop) (ne fonctionne pas totalement encore)
-        self.RMSprop = par.RMSprop  # si l'autre est activé on le désactive
-        self.beta = par.beta # decay rate
-        #POUR GARDER LES MOYENNES DES GRADIENTS DES PARAMETRES
-        self.moyencl = [np.zeros(i) for i in self.dimkernels]
-        self.moyencb = [np.zeros(i) for i in self.dimconvbiais]
-        self.moyenw = [np.zeros(i) for i in self.dimweights]
-        self.moyenb = [np.zeros(i) for i in self.dimbiais]
 
         self.convlay = par.infoconvlay
         self.lay = par.infolay
@@ -159,7 +133,7 @@ class CNN:
 
         return param
 
-    def convolutionnp(self, image, kernel, *, mode="valid", reverse=False):  # 2 casos dependiendo de shape kernel y imagen
+    def convolution(self, image, kernel, *, mode="valid", reverse=False):  # 2 casos dependiendo de shape kernel y imagen
             lenkernel = kernel.shape  # Csortie, Centree, H,L
 
             if mode == "full":
@@ -189,45 +163,9 @@ class CNN:
 
             return output
 
-    def convolutionscp(self, image, kernel, *, dimout=None, mode=None, reverse=None):
-
-        lenkernel = kernel.shape  # (sortie, entree, hauteur,largeur)
-
-        if dimout is None:  # calcul dim sortie
-            dimout = (lenkernel[0], int((image.shape[1] - self.lenkernel) / self.stride) + 1, int((image.shape[2] - self.lenkernel) / self.stride) + 1)
-
-        output = np.zeros(dimout)
-
-        for d in range(dimout[0]): #parcours
-            for ce in range(image.shape[0]):
-                output[d] += correlate2d(image[ce], kernel[d,ce], mode="valid")[::self.stride,::self.stride]
-
-        return output
-
-    def poolingnp(self, image):
+    def pooling(self, image):
         division = np.lib.stride_tricks.sliding_window_view(image, (self.lenkernelpool, self.lenkernelpool), axis=(1, 2))[:, ::self.lenkernelpool, ::self.lenkernelpool]
         return np.average(division, axis=(3, 4))
-
-    def poolingskim(self, image):
-        d, h, l = image.shape
-
-        if h % self.lenkernelpool == 0:
-            newdims = (d, int((h - self.lenkernelpool) / self.lenkernelpool) + 1, int((l - self.lenkernelpool) / self.lenkernelpool) + 1)
-
-            output = np.zeros(newdims)
-
-            for c in range(newdims[0]):
-                output[c] += block_reduce(image[c], (self.lenkernelpool, self.lenkernelpool), func=np.mean)
-
-        else:
-            newdims = (d, int((h - self.lenkernelpool) / self.lenkernelpool) + 1, int((l - self.lenkernelpool) / self.lenkernelpool) + 1)
-
-            output = np.zeros(newdims)
-
-            for c in range(d):
-                output[c] = block_reduce(image[c], (self.lenkernelpool, self.lenkernelpool), func=np.mean)[:newdims[1], :newdims[2]]
-
-        return output
 
     def forwardprop(self, input): #forward all the layers until output
         outlast = input
@@ -279,7 +217,7 @@ class CNN:
 
         return outlast, zslay, zsconv, activationslay, activationsconv #out last c'est la prediction et vieux c'est pour backprop
 
-    def backpoolnp(self, dapres, dimsortie): # REVENIR AUX MEMES DIMENSIONS QU'AVANT POOLING
+    def backpool(self, dapres, dimsortie): # REVENIR AUX MEMES DIMENSIONS QU'AVANT POOLING
         moyenne = dapres / (self.lenkernelpool * self.lenkernelpool)
 
         if dimsortie[1] % self.lenkernelpool == 0: #si pile
@@ -302,19 +240,7 @@ class CNN:
 
         return output
 
-    def backconvolutionscp(self, activation, dapres, filtre):
-        gradc = np.zeros(filtre.shape)
-
-        newdelta = np.zeros(activation.shape)
-
-        for d in range(gradc.shape[0]):
-            for c in range(activation.shape[0]):
-                gradc[d, c] += correlate2d(activation[c, ::self.stride, ::self.stride], dapres[d], mode="valid")
-                newdelta[c] += convolve2d(dapres[d], filtre[d,c], mode="full")
-
-        return gradc, newdelta
-
-    def backconvolutionnp(self, activation, dapres, filtre): # FAIRE LA BACKPROP DE CONVOLUTION
+    def backconvolution(self, activation, dapres, filtre): # FAIRE LA BACKPROP DE CONVOLUTION
         #pad image pour delta
         #convolution comme avant mais en inversant kernel
 
@@ -361,7 +287,7 @@ class CNN:
             delta = (np.dot(ultimoweight.T, delta) * ultimadif).reshape(s[3], s[1],s[1]) #calcular ultimo error de nn
 
             if self.parameters["pool" + str(self.nbconv-1)]:
-                delta = self.backpoolnp(delta, (s[3], s[0], s[0])) #recuperar misma talla que input de pooling
+                delta = self.backpool(delta, (s[3], s[0], s[0])) #recuperar misma talla que input de pooling
 
             gradc, newdelta = self.backconvolution(activationsconv[self.nbconv - 1], delta, self.parameters["cl" + str(self.nbconv - 1)])
 
@@ -377,7 +303,7 @@ class CNN:
 
                 #backpool
                 if self.parameters["pool" + str(c)]:
-                    delta = self.backpoolnp(delta, (s[3], s[0], s[0]))  # recuperar misma talla que input de pooling
+                    delta = self.backpool(delta, (s[3], s[0], s[0]))  # recuperar misma talla que input de pooling
 
                 gradc, newdelta = self.backconvolution(activationsconv[c], delta, self.parameters["cl" + str(c)])
 
@@ -388,33 +314,13 @@ class CNN:
 
     def actualiseweights(self, dw, db, nbinput, dc=None, dcb=None):
         coef = self.cvcoef / nbinput
-        eps = 1e-6
-        if not self.RMSprop:
-            for w in range(max(self.nblay,self.nbconv)):
-                if w < self.nblay:
-                    self.parameters["w" + str(w)] -= coef * dw[w]
-                    self.parameters["b" + str(w)] -= coef * db[w]
-                if w < self.nbconv:
-                    self.parameters["cl" + str(w)] -= coef * dc[w]
-                    self.parameters["cb" + str(w)] -= coef * dcb[w]
-        else: #RMSprop
-            for w in range(max(self.nblay, self.nbconv)):
-                if w < self.nblay:
-
-                    self.moyenw[w] = self.moyennemobile(self.moyenw[w], dw[w])
-                    self.parameters["w" + str(w)] -= (coef * dw[w])/ np.sqrt(self.moyenw[w] + eps)
-
-                    self.moyenb[w] = self.moyennemobile(self.moyenb[w], db[w])
-                    self.parameters["b" + str(w)] -= (coef * db[w])/ np.sqrt(self.moyenb[w] + eps)
-
-                if w < self.nbconv:
-
-                    self.moyencl[w] = self.moyennemobile(self.moyencl[w], dc[w])
-                    self.parameters["cl" + str(w)] -= (coef * dc[w])/ np.sqrt(self.moyencl[w] + eps)
-
-                    self.moyencb[w] = self.moyennemobile(self.moyencb[w], dcb[w])
-                    self.parameters["cb" + str(w)] -= (coef * dcb[w])/ np.sqrt(self.moyencb[w] + eps)
-
+        for w in range(max(self.nblay,self.nbconv)):
+            if w < self.nblay:
+                self.parameters["w" + str(w)] -= coef * dw[w]
+                self.parameters["b" + str(w)] -= coef * db[w]
+            if w < self.nbconv:
+                self.parameters["cl" + str(w)] -= coef * dc[w]
+                self.parameters["cb" + str(w)] -= coef * dcb[w]
         return
 
     def moyennemobile(self, moyenne, grad): #calculer moyenne mobile pour le learning rate adaptatif
@@ -457,7 +363,6 @@ class CNN:
                 C.append(np.average(L))
 
         else:
-            ecart = 5000 if len(self.pix) < 10000 else 15000
             C = []
             for i in range(self.iter):
                 L = []

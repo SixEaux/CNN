@@ -1,6 +1,6 @@
 from Deep_Learning.CNN.CNN1.Import_data import takeinputs
 from Parameters import Parametros
-from CNN import CNN
+from Deep_Learning.Image_classification.CNN.CNN_numpy import CNN
 import time
 
 base = "mnist"
