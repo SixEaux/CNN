@@ -17,10 +17,10 @@ Deep_Learning/Image_classification/CNN/BestModels/
 Deep_Learning/Image_classification/Perceptron/ 
 # maybe change this above
 
-Deep_Learning/Image_classification/CNN/CNN_scipy.py
-Deep_Learning/Image_classification/CNN/CNN_numpy2.py
+Deep_Learning/Image_classification/CNN2/
 # maybe change this above
 
+Deep_Learning/RNN/
 
 __pycache__
 

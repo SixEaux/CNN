@@ -32,12 +32,3 @@ class Parametros:
     kernelpool: int = 2 # DIMENSION FILTRE DE POOLING
     padding: int = 0 # RESTE A ZERO POUR L'INSTANT
     stride: int = 1 # RESTE A 1 POUR L'INSTANT
-
-    # LAISSER A TRUE CEST LES FONCTIONS PLUS OPTIMISÉES
-    poolnp: bool = True
-    convnp: bool = True
-    backconvnp: bool = True
-
-    # ADAPTATIVE AVANCÉ
-    RMSprop: bool = False # BASÉ SUR LES MOYENNE MOBILE DES COUTS MAIS NE MARCHE PAS ENCORE
-    beta: float = 0.9
