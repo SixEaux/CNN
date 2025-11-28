@@ -1,9 +1,8 @@
-# Learn AI
+# CNN from scratch in Python
 
-The idea of this project is to learn the basis of AI from scratch. 
-
-I have started by coding a CNN from scratch to classify images 
+I have coded a CNN from scratch to classify images 
 from Mnist dataset of hand-written numbers and other images.
-It is being coded again more organized and in different files.
-There is some stuff that doesn't work yet but it is a work in progress.
+I have decided that I wasn't satisfied therefore it is being coded again more organized and with less problems I hope.
+
+When I fnished coding it I would like to do optimisation in gradient descent and also apply it to more complex images such as Ciphar-10.
 
