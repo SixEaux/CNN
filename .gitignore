@@ -1,28 +1,26 @@
-Deep_Learning/Image_classification/Datas/Geoguessr/
+Datas/Geoguessr/
 
-Deep_Learning/Image_classification/Datas/Ciphar-10/cifar-10-batches-py/
+Datas/fashion-mnist/fashion-mnist_test.csv
 
-Deep_Learning/Image_classification/Datas/Ciphar-10/cifar-10-python.tar.gz
+Datas/Mnist/mnist_test.csv
 
-Deep_Learning/Image_classification/Datas/fashion-mnist/fashion-mnist_test.csv
+Datas/Mnist/mnist_train.csv
 
-Deep_Learning/Image_classification/Datas/Mnist/mnist_test.csv
+Datas/Ciphar-10/
 
-Deep_Learning/Image_classification/Datas/Mnist/mnist_train.csv
+CNN/BestModels/
 
-Deep_Learning/Image_classification/Datas/Ciphar-10/
-
-Deep_Learning/Image_classification/CNN/BestModels/
-
-Deep_Learning/Image_classification/Perceptron/ 
+Perceptron/ 
 # maybe change this above
 
-Deep_Learning/Image_classification/CNN2/
+CNN2/
 # maybe change this above
 
-Deep_Learning/RNN/
+Datas2/
 
-Deep_Learning/Datas2/
+Datas/Modify_ciphar.ipynb
+
+Datas/modify_data.ipynb
 
 __pycache__
 
