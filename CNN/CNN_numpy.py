@@ -1,8 +1,4 @@
-"""This CNN is not very well coded i am conscious.
-It is a work in progress, it was more to try to code it without insight just trying to make it work.
-I am recoding it more clearly and well structured.
-
-Things to improve for next time:
+"""Things to improve for next time:
     - improve how the parameters are passed (arguments are too difficult)
     - make batch for CNN
     - look up if it is better with numpy or scipy (i think numpy)"""
@@ -322,9 +318,6 @@ class CNN:
                 self.parameters["cl" + str(w)] -= coef * dc[w]
                 self.parameters["cb" + str(w)] -= coef * dcb[w]
         return
-
-    def moyennemobile(self, moyenne, grad): #calculer moyenne mobile pour le learning rate adaptatif
-        return self.beta * moyenne + (1 - self.beta) * np.square(np.clip(grad, 1e-150, None))
 
     def choix(self, y):
         return np.argmax(y,axis=0)
