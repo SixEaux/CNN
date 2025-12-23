@@ -1,8 +1,7 @@
 """Things to improve for next time:
     - improve how the parameters are passed (arguments are too difficult)
     - make batch for CNN
-    - look up if it is better with numpy or scipy (i think numpy)"""
-
+    - do graphs to see if everything is fine/works"""
 
 """Do a function that tries from 1 initialisation for a number of steps and then guard the weights 
 redo the process many times and then choose the n best,
@@ -17,7 +16,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # ORGANIZACION
-from Deep_Learning.Image_classification.CNN.Import_data import processdata
+from Import_data import processdata
 from Parameters import Parametros
 from Drawing import Draw
 from Helpers import printbasesimple, printgray, printimage, flatening, paddington
@@ -152,7 +151,7 @@ class CNN:
 
                 mapa = np.lib.stride_tricks.sliding_window_view(newimage, (lenkernel[1], lenkernel[2]), axis=(1, 2))
 
-                output = np.tensordot(mapa, kernel, axes=([3, 4], [1, 2])).transpose(3,0,1,2)
+                output = np.tensordot(mapa, kernel, axes=([3, 4], [1, 2])).transpose((3,0,1,2))
 
             else:
                 raise ValueError("Problem with the shapes they are not good")

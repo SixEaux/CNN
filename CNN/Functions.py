@@ -43,16 +43,6 @@ def getfct(acti, cvcoef):
             return 1 - np.square(np.tanh(x))
         return [tan, tandiff]
 
-    elif acti == 'softmaxaprox':
-        def softmaxaprox(x):
-            x = x - np.max(x, axis=0, keepdims=True)
-            return np.exp(x) / np.sum(np.exp(x), axis=0, keepdims=True)
-
-        def softmaxaproxdif(output):
-            return output * (1 - output)
-
-        return [softmaxaprox, softmaxaproxdif]
-
     elif acti == 'softmax':
         def softmax(x):
             x = x - np.max(x, axis=0, keepdims=True)
@@ -72,15 +62,6 @@ def getfct(acti, cvcoef):
             return jacob
 
         return [softmax, softmaxdif]
-
-    elif acti == "leakyrelu":
-        def leakyrelu(x):
-            return np.maximum(cvcoef * x, 0)
-
-        def leakyreludif(x):
-            return np.where(x > 0, cvcoef, 0)
-
-        return [leakyrelu, leakyreludif]
 
     else:
         raise "You forgot to specify the activation function"

@@ -2,4 +2,7 @@ numpy
 pandas
 tqdm
 matplotlib
-
+tabulate
+scipy
+dataclasses
+typing
