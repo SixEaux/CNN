@@ -2,8 +2,6 @@
 
 import numpy as np
 
-
-
 class Model:
     """Model NN.
 
