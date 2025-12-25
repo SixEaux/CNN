@@ -1,1 +1,1 @@
-Datas2/ filter=lfs diff=lfs merge=lfs -text
+Datas2/** filter=lfs diff=lfs merge=lfs -text
