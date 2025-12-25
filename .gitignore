@@ -13,11 +13,6 @@ CNN/BestModels/
 Perceptron/ 
 # maybe change this above
 
-CNN2/
-# maybe change this above
-
-Datas2/
-
 Datas/Modify_ciphar.ipynb
 
 Datas/modify_data.ipynb
@@ -29,3 +24,7 @@ __pycache__
 .venv
 
 .vscode
+
+CNN2/tests.ipynb
+
+Datas2/
