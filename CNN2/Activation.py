@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.special import expit
 
-
 class Activation:
     """Activation layer.
 

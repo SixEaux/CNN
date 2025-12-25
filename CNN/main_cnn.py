@@ -1,6 +1,6 @@
-from Deep_Learning.CNN.CNN1.Import_data import takeinputs
+from Import_data import takeinputs
 from Parameters import Parametros
-from Deep_Learning.Image_classification.CNN.CNN_numpy import CNN
+from CNN_numpy import CNN
 import time
 
 base = "mnist"
@@ -8,12 +8,13 @@ inputs = takeinputs(base) #"mnist" #"fashion" #ciphar-10
 
 val, pix, qcmval, qcmpix, labels = inputs
 
-convlay = [(10, "relu", True)]
+convlay = []
 
-lay = [(32, "sigmoid"), (10, "softmax")]
+lay = [(20, "sigmoid"), (10, "softmax")]
 
 parametros = Parametros(pix=pix, vales=val, qcmpix=qcmpix, qcmval=qcmval, labels=labels,
-                        infolay=lay, infoconvlay=convlay, iterations=1, coefcv=0.01, base=base)
+                        infolay=lay, infoconvlay=convlay, iterations=1, coefcv=0.1, base=base, 
+                        batch=1)
 
 g = CNN(parametros)
 

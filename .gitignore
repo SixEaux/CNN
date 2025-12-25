@@ -26,3 +26,5 @@ __pycache__
 .vscode
 
 CNN2/tests.ipynb
+
+CNN2/data_modifications_mnist.ipynb

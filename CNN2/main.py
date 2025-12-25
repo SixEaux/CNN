@@ -16,21 +16,27 @@ As a convention when i use:
 """
 
 
+from Testing import Testing
+from Training import Training
+from Loss import Loss
+from Activation import Activation
 from Model import Model
 from Dense import Dense
-from Activation import Activation
-from Loss import Loss
-from Training import Training
-from Testing import Testing
 
-lr = 0.1
-layers = [Dense(20, lr), Activation("sigmoid"), Dense(10, lr)]
+lr = 0.001
+layers = [Dense(32, lr), Activation("sigmoid"), Dense(10, lr)]
 
 model = Model(layers, Loss("CEL"), "mnist")
 
-train = Training("mnist", model)
-
 test = Testing("mnist", model)
 
-train.training_simple(5)
+train = Training("mnist", model, test)
+
+print(test.exam())
+
+train.training_simple(10)
+
+train.plot_smthg(train.losses)
+train.plot_smthg(train.accuracies)
+
 print(test.exam())

@@ -42,12 +42,11 @@ class Model:
         return  exp_x / np.sum(exp_x, axis=0, keepdims=True)
 
     def forward(self, x, expected):
-        #TODO : see later for minibatch
         """Forward propagation through all the layers. 
 
         Args:
             x (ndarray): input to model (will be either one image or mini-batch). DIM = (flattened_input_shape,) 
-            expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (flattened_input_shape,)
+            expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes,)
 
         Returns:
             float: loss value of the iteration
@@ -63,16 +62,32 @@ class Model:
         """
         delta = self.loss.backward()
 
-        for l in range(1, len(self.layers)):
-            delta = self.layers[-l].backward(delta)
+        for l in reversed(self.layers):
+            delta = l.backward(delta)
     
     def choice(self, proba_vector):
+        """Choose from outputs the one with higher "probability" (logits or smthg like this).
+
+        Args:
+            proba_vector (ndarray): vector of "probabilities"
+
+        Returns:
+            int: position of highest probability
+        """
         return np.argmax(proba_vector)
     
-    def prediction(self, x, expected):
+    def prediction(self, x):
+        """Prediction for an image.
+
+        Args:
+            x (ndarray): input image
+
+        Returns:
+            int: prediction
+        """
         out = x
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
-        return 1 if self.choice(self.softmax(out)) == expected else 0
+        return self.choice(out)
 
 

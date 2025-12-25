@@ -334,8 +334,8 @@ class CNN:
         elif self.lenbatch == 1:
             self.trainsimple()
 
-        if self.tauxerreur()>self.tauxinitial:
-            self.exportmodel("BestModels/bestmodel" + self.base)
+        # if self.tauxerreur()>self.tauxinitial:
+        #     self.exportmodel("BestModels/bestmodel" + self.base)
         return
 
     def trainsimple(self):

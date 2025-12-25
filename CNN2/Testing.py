@@ -1,16 +1,24 @@
 from Import_data2 import import_data
 import numpy as np
-from tqdm import trange
+from Model import Model
 
 class Testing:
-    def __init__(self, dataset, model):
-        _, _, self.testing_images, self.testing_values = import_data(dataset)
+    def __init__(self, dataset:str, model:Model):
+        """Test the accuracy of the model.
+
+        Args:
+            dataset (str): dataset used
+            model (Model): model to test
+        """
+        _, _, self.testing_images, self.testing_values = import_data(dataset) # import data needed
         self.model = model
     
     def exam(self):
-        well_predicted = 0
-        for p in trange(self.testing_images.shape[0]):
-            image = self.testing_images[p].reshape(-1, 1)
-            pred = self.model.prediction(image, self.testing_values[p])
-            well_predicted += pred
-        return well_predicted * 100 / self.testing_images.shape[0]
+        """Test accuracy of the model.
+
+        Returns:
+            float: accuracy of the model
+        """
+        preds = [self.model.prediction(img.reshape(-1, 1)) for img in self.testing_images]
+        accuracy = np.mean(np.array(preds).reshape(-1, 1) == self.testing_values) * 100
+        return accuracy
