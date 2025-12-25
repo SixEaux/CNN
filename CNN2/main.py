@@ -20,27 +20,28 @@ As a convention when i use:
 # TODO : I might need to create a validation sample also
 # TODO : maybe quickly do a little bit of lr opti
 
+from Dense import Dense
+from Model import Model
+from Activation import Activation
+from Loss import Loss
 from Testing import Testing
 from Training import Training
-from Loss import Loss
-from Activation import Activation
-from Model import Model
-from Dense import Dense
 
 lr = 0.18
-layers = [Dense(100, lr), Activation("sigmoid"), Dense(50, lr), Activation("sigmoid"), Dense(10, lr)]
+layers = [Dense(100, lr), Activation("sigmoid"), Dense(
+    50, lr), Activation("sigmoid"), Dense(10, lr)]
 
 model = Model(layers, Loss("CEL"), "mnist")
 
 test = Testing("mnist", model)
 
-train = Training("mnist", model, test)
+trainer = Training("mnist", model, test)
 
 print(test.exam())
 
-train.training_simple(20)
+trainer.train(10) # 4.44 / 94.55
 
-train.plot_smthg(train.losses, x_title="Epochs", y_title="Loss")
-train.plot_smthg(train.accuracies, x_title="Epochs", y_title="Accuracy")
+trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
+trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")
 
 print(test.exam())

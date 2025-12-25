@@ -5,6 +5,7 @@ import numpy as np
 from Model import Model
 from Testing import Testing
 
+
 class Training:
     """Training a model.
 
@@ -18,12 +19,12 @@ class Training:
     def __init__(self, dataset: str, model: Model, testing: Testing, normalize: str = "division"):
         self.dataset = dataset
         self.training_images, self.training_values, _, _ = import_data(
-            self.dataset) # import data needed
+            self.dataset)  # import data needed
         self.model = model
         self.testing = testing
 
-        self.losses = [] # to keep track of the losses of each iteration
-        self.accuracies = [] # to keep track of the accuracy of each iteration
+        self.losses = []  # to keep track of the losses of each iteration
+        self.accuracies = []  # to keep track of the accuracy of each iteration
 
         self.normalization(normalize)
 
@@ -46,27 +47,28 @@ class Training:
         else:
             raise ValueError("Type of normalization not known.")
 
-    def training_simple(self, epoch=5):
+    def train(self, epoch=5):
         """Training the model without batches.
 
         Args:
             epoch (int, optional): number of iterations through the dataset. Defaults to 5.
         """
         for e in trange(epoch, desc="Epochs"):
-            mean_losses = [] # keep track of the losses of each image
+            mean_losses = []  # keep track of the losses of each image
             for p in trange(self.training_images.shape[0], desc="Images"):
                 image = self.training_images[p].reshape(-1, 1)
 
                 mean_losses.append(self.model.forward(
-                    image, self.training_values[p])) # add the loss
+                    image, self.training_values[p]))  # add the loss
 
                 self.model.backward()
 
-            self.losses.append(np.mean(mean_losses)) # add the mean of the losses of this iteration
+            # add the mean of the losses of this iteration
+            self.losses.append(np.mean(mean_losses))
             accuracy = self.testing.exam()
             print("\n", accuracy, "\n")
-            self.accuracies.append(accuracy) # add the accuracy after this iteration
-
+            # add the accuracy after this iteration
+            self.accuracies.append(accuracy)
 
     def plot_smthg(self, smthg, title="", x_title="", y_title=""):
         plt.figure(figsize=(10, 6))

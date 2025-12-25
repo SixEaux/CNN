@@ -377,7 +377,7 @@ class CNN:
 
     def trainbatch(self):
         if self.nbconv == 0:
-            for _ in range(self.iter):
+            for _ in tqdm(range(self.iter)):
                 nbbatch = self.pix.shape[1] // self.lenbatch
                 for bat in range(nbbatch):
                     matrice = self.pix[:, bat*self.lenbatch:(bat+1)*self.lenbatch].reshape(-1, self.lenbatch)

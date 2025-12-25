@@ -20,10 +20,10 @@ class Loss:
         """Softmax function.
 
         Args:
-            x (ndarray): input. DIM = (number_neurons_last_layer,)
+            x (ndarray): input. DIM = (number_neurons_last_layer, 1)
 
         Returns:
-            ndarray: output. DIM = (number_neurons_last_layer,)
+            ndarray: output. DIM = (number_neurons_last_layer, 1)
         """
         x = x - np.max(x, axis=0, keepdims=True)
         exp_x = np.exp(x)
@@ -33,19 +33,20 @@ class Loss:
         """Transform to one hot vector (vector with one where it was expected)
 
         Args:
-            expected (int): expected output
+            expected (int or list): expected output
 
         Returns:
             ndarray: DIM = (number_classes,)
         """
+        
         return np.eye(10)[expected].T
     
     def forward(self, obs, exp, nbinput=1):
         """Calculate loss.
 
         Args:
-            obs (ndarray): observed output. DIM = (number_calsses,)
-            exp (ndarray): expected output. DIM = (number_calsses,)
+            obs (ndarray): observed output. DIM = (number_calsses, 1)
+            exp (ndarray): expected output. DIM = (number_calsses, 1)
             nbinput (int): batch size
 
         Returns:

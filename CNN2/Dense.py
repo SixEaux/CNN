@@ -1,5 +1,6 @@
 """IMPORTANT INFO : 
     - input data is (batch_size, height, width, number_channels)
+    - then when flattened becomes (batch_size, height * width * number_channels) (if without batches => batch_size = 1)
     - following this the data when imported will be (number_images, height, width, number_channels)
 """
 
@@ -14,7 +15,7 @@ class Dense:
         """
     def __init__(self, number_neurons:int, learning_rate:float):
         self.w = None # weights of (number neurons, number inputs)
-        self.b = None # biais of (number neurons,)
+        self.b = None # biais of (number neurons, 1)
         self.input = None # input to layer
         self.learning_rate = learning_rate
         self.number_neurons = number_neurons
@@ -32,10 +33,10 @@ class Dense:
         """Forward propagation dense layer.
 
         Args:
-            x (ndarray): input to the layer
+            x (ndarray): input to the layer. DIM = (batch_size, shape_input_flattened)
 
         Returns:
-            ndrray: output of the layer. DIM = (number_neurons,)
+            ndrray: output of the layer. DIM = (number_neurons, 1)
         """
         self.input = x
         return self.w @ x + self.b
@@ -44,13 +45,13 @@ class Dense:
         """Recover gradient layer before and actualise weights.
 
         Args:
-            dL_dout (ndarray): gradient next layer. DIM = (number_neurons,) 
+            dL_dout (ndarray): gradient next layer. DIM = (number_neurons, 1) 
 
         Returns:
-            ndarray: gradient for layer before. DIM = (number_inputs,)
+            ndarray: gradient for layer before. DIM = (number_inputs, 1)
         """
         dC_dw = np.outer(dL_dout, self.input) # same as np.dot(dL_dout, self.input.T) 
-        dC_db = dL_dout # here i need a sum for batch i think
+        dC_db = np.sum(dL_dout, axis=0) # here i need a sum for batch i think
 
         dL_dout = self.w.T @ dL_dout #gradient for layer before
         

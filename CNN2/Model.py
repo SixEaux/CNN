@@ -43,7 +43,7 @@ class Model:
         """Forward propagation through all the layers. 
 
         Args:
-            x (ndarray): input to model (will be either one image or mini-batch). DIM = (flattened_input_shape,) 
+            x (ndarray): input to model (will be either one image or mini-batch). DIM = (batch_size, flattened_input_shape) 
             expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes,)
 
         Returns:
@@ -72,7 +72,7 @@ class Model:
         Returns:
             int: position of highest probability
         """
-        return np.argmax(proba_vector)
+        return np.argmax(proba_vector, axis=0)
     
     def prediction(self, x):
         """Prediction for an image.
