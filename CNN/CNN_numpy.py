@@ -6,7 +6,8 @@
 """Do a function that tries from 1 initialisation for a number of steps and then guard the weights 
 redo the process many times and then choose the n best,
 then do the same with the n best and find m best ... 
-that way less proba to get stuck on local minimum"""
+that way less proba to get stuck on local minimum
+Maybe like genetic algorithm, mutations, taking the best ones with a little bit of the worse..."""
 
 #GENERAL
 import pickle

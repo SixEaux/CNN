@@ -5,7 +5,6 @@ import numpy as np
 from Model import Model
 from Testing import Testing
 
-
 class Training:
     """Training a model.
 
@@ -64,12 +63,17 @@ class Training:
                 self.model.backward()
 
             self.losses.append(np.mean(mean_losses)) # add the mean of the losses of this iteration
-            self.accuracies.append(self.testing.exam()) # add the accuracy after this iteration
+            accuracy = self.testing.exam()
+            print("\n", accuracy, "\n")
+            self.accuracies.append(accuracy) # add the accuracy after this iteration
 
-    def plot_smthg(self, smthg, title=""):
+
+    def plot_smthg(self, smthg, title="", x_title="", y_title=""):
         plt.figure(figsize=(10, 6))
         plt.plot(smthg)
         plt.title(title)
         plt.xlabel("Iteration / Epoch")
         plt.ylabel("Loss")
+        plt.xlabel(x_title)
+        plt.ylabel(y_title)
         plt.show()

@@ -1,5 +1,3 @@
-# TODO : changes for batch
-
 import numpy as np
 
 class Model:
