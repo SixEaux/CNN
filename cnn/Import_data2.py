@@ -9,7 +9,7 @@ def import_data(name:str):
     """
 
     if name == "mnist":
-        paths = ["Datas2\Mnist\mnist_train_images", "Datas2\Mnist\mnist_train_values", "Datas2\Mnist\mnist_test_images", "Datas2\Mnist\mnist_test_values"]
+        paths = ["data\Mnist\mnist_train_images", "data\Mnist\mnist_train_values", "data\Mnist\mnist_test_images", "data\Mnist\mnist_test_values"]
 
         with open(paths[0], "rb") as f:
             train_images = pickle.load(f) # 60000 x 28 x 28 x 1
