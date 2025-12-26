@@ -1,3 +1,5 @@
+import numpy as np
+
 class Flattening:
     def __init__(self):
         self.x = None
@@ -5,7 +7,7 @@ class Flattening:
     def initial_param(self, dim_in): # just so every layer has one
         return
 
-    def forward(self, x):
+    def forward(self, x:np.ndarray):
         """Reshape input for fully connected layer.
 
         Args:

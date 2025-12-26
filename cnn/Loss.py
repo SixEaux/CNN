@@ -8,7 +8,7 @@ class Loss:
             function (str): what error function to use: MSE or CE (CE directly uses softmax).
     """
 
-    def __init__(self, function):
+    def __init__(self, function:str):
         self.function = function
         self.expected = None
         self.observed = None
@@ -16,7 +16,7 @@ class Loss:
     def initial_param(self, dim_in): # just so every layer has one
         return
 
-    def softmax(self, x):
+    def softmax(self, x:np.ndarray):
         """Softmax function.
 
         Args:
@@ -32,7 +32,7 @@ class Loss:
         exp_x = np.exp(x)
         return  exp_x / np.sum(exp_x, axis=1, keepdims=True) 
 
-    def one_hot_vector(self, expected):
+    def one_hot_vector(self, expected:np.ndarray):
         """Transform to one hot vector (vector with one where it was expected)
 
         Args:
@@ -44,7 +44,7 @@ class Loss:
 
         return np.eye(10)[expected.squeeze()]
     
-    def forward(self, obs, exp):
+    def forward(self, obs:np.ndarray, exp:np.ndarray):
         """Calculate loss.
 
         Args:

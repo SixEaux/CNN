@@ -2,9 +2,9 @@ from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
 
-from CNN2.Import_data2 import import_data
-from CNN2.Model import Model
-from CNN2.Testing import Testing
+from cnn.Import_data2 import import_data
+from cnn.Model import Model
+from cnn.Testing import Testing
 
 
 class Training:
@@ -17,7 +17,7 @@ class Training:
             normalize (str, optional): type of normalization. Defaults to "division".
         """
 
-    def __init__(self, dataset: str, model: Model, testing: Testing, normalize: str = "division", batch_size:int = 1):
+    def __init__(self, dataset: str, model: Model, testing: Testing, normalize: str = "division", batch_size: int = 1):
         self.dataset = dataset
         self.training_images, self.training_values, _, _ = import_data(
             self.dataset)  # import data needed
@@ -44,11 +44,12 @@ class Training:
         elif type == "division":
             self.training_images = self.training_images / 255
         elif type == "center-reduction":
-            self.training_images = (self.training_images - np.mean(self.training_images)) / np.std(self.training_images)
+            self.training_images = (
+                self.training_images - np.mean(self.training_images)) / np.std(self.training_images)
         else:
             raise ValueError("Type of normalization not known.")
 
-    def SGD(self, epoch=5):
+    def SGD(self, epoch: int = 5):
         """Training the model wiht or without batches (if no batches self.batch_size = 1).
 
         Args:
@@ -58,13 +59,16 @@ class Training:
             mean_losses = []  # keep track of the losses of each image
             num_batches = (self.training_images.shape[0] // self.batch_size)
             for batch in range(num_batches):
-                x_batch = self.training_images[batch*self.batch_size:(batch+1)*self.batch_size]
-                exp_batch = self.training_values[batch*self.batch_size:(batch+1)*self.batch_size]
+                x_batch = self.training_images[batch *
+                                               self.batch_size:(batch+1)*self.batch_size]
+                exp_batch = self.training_values[batch *
+                                                 self.batch_size:(batch+1)*self.batch_size]
 
-                mean_losses.append(self.model.forward(x_batch, exp_batch))  # add the loss
+                mean_losses.append(self.model.forward(
+                    x_batch, exp_batch))  # add the loss
 
                 self.model.backward(self.batch_size)
-            
+
             # add the mean of the losses of this iteration
             self.losses.append(np.mean(mean_losses))
             accuracy = self.testing.exam()

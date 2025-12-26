@@ -14,7 +14,7 @@ class Dense:
         self.learning_rate = learning_rate
         self.number_neurons = number_neurons
 
-    def initial_param(self, dim_in):
+    def initial_param(self, dim_in:int):
         """Initialize the parameters.
 
         Args:
@@ -23,7 +23,7 @@ class Dense:
         self.w = np.random.uniform(-1, 1, (self.number_neurons, dim_in))
         self.b = np.random.uniform(-1, 1, (1, self.number_neurons))
 
-    def forward(self, x):
+    def forward(self, x:np.ndarray):
         """Forward propagation dense layer.
 
         Args:
@@ -35,7 +35,7 @@ class Dense:
         self.input = x
         return x @ self.w.T + self.b #bias broadcasted across batch
     
-    def backward(self, dL_dout, batch_size=1):
+    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
         """Recover gradient layer before and actualise weights.
 
         Args:

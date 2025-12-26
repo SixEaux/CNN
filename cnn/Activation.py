@@ -9,14 +9,14 @@ class Activation:
             sigmoid, relu, tanh.
         """
 
-    def __init__(self, function):
+    def __init__(self, function:str):
         self.function = function
         self.input = None
 
     def initial_param(self, dim_in): # just so every layer has one
         return
 
-    def forward(self, x):
+    def forward(self, x:np.ndarray):
         """Apply activation function to input.
 
         Args:
@@ -40,7 +40,7 @@ class Activation:
         else:
             raise ValueError("Activation function is not valid.")
     
-    def backward(self, dL, batch_size=1):
+    def backward(self, dL:np.ndarray, batch_size=1):
         """Recover gradient for backward propagation.
 
         Args:

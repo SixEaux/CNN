@@ -20,13 +20,13 @@ As a convention when i use:
 # TODO : I might need to create a validation sample also
 # TODO : maybe quickly do a little bit of lr opti
 
-from CNN2.Model import Model
-from CNN2.Flattening import Flattening
-from CNN2.Dense import Dense
-from CNN2.Activation import Activation
-from CNN2.Loss import Loss
-from CNN2.Testing import Testing
-from CNN2.Training import Training
+from cnn.Training import Training
+from cnn.Testing import Testing
+from cnn.Loss import Loss
+from cnn.Activation import Activation
+from cnn.Dense import Dense
+from cnn.Model import Model
+from cnn.Flattening import Flattening
 
 lr = 5
 dataset = "mnist"

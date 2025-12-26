@@ -5,7 +5,9 @@
 """
 
 import numpy as np
-from CNN2.Loss import Loss
+
+from cnn.Loss import Loss
+
 
 class Model:
     """Model NN.
@@ -16,24 +18,25 @@ class Model:
             dataset (str): dataset used
             batch_size (int): size of batch used
         """
-    def __init__(self, layers:list, loss:Loss, dataset:str):
+
+    def __init__(self, layers: list, loss: Loss, dataset: str):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
-        
 
         self.model_initial()
 
     def model_initial(self):
         """Initialize the model based on dimensions input.
         """
-        dims_dataset = {"mnist":(28,28,1)}
+        dims_dataset = {"mnist": (28, 28, 1)}
         last_dim_out = dims_dataset[self.dataset]
         last_dim_out = last_dim_out[0] * last_dim_out[1]
 
         for l in self.layers:
             l.initial_param(last_dim_out)
-            last_dim_out = l.number_neurons if hasattr(l, "number_neurons") else last_dim_out
+            last_dim_out = l.number_neurons if hasattr(
+                l, "number_neurons") else last_dim_out
 
     def forward(self, x, expected):
         """Forward propagation through all the layers. 
@@ -57,9 +60,10 @@ class Model:
         """
         delta = self.loss.backward()
 
-        for l in reversed(self.layers[1:]): #TODO this needs changing but for the moment works with flattening layer
-            delta = l.backward(delta, batch_size = batch_size)
-    
+        # TODO this needs changing but for the moment works with flattening layer
+        for l in reversed(self.layers[1:]):
+            delta = l.backward(delta, batch_size=batch_size)
+
     def choice(self, probabilities):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
 
@@ -71,7 +75,7 @@ class Model:
         """
 
         return np.argmax(probabilities, axis=1, keepdims=True)
-    
+
     def prediction(self, x):
         """Prediction for an image.
 
@@ -85,4 +89,3 @@ class Model:
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
         return self.choice(out)
-
