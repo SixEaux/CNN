@@ -1,7 +1,7 @@
 import numpy as np
 
-from cnn.Import_data2 import import_data
-from cnn.Model import Model
+from cnn.import_data import import_data
+from cnn.model import Model
 
 
 class Testing:

@@ -20,15 +20,15 @@ As a convention when i use:
 # TODO : I might need to create a validation sample also
 # TODO : maybe quickly do a little bit of lr opti
 
-from cnn.Training import Training
-from cnn.Testing import Testing
-from cnn.Loss import Loss
-from cnn.Activation import Activation
-from cnn.Dense import Dense
-from cnn.Model import Model
-from cnn.Flattening import Flattening
+from cnn.training import Training
+from cnn.testing import Testing
+from cnn.loss import Loss
+from cnn.activation import Activation
+from cnn.dense import Dense
+from cnn.model import Model
+from cnn.flattening import Flattening
 
-lr = 5
+lr = 0.01
 dataset = "mnist"
 
 layers = [
@@ -42,7 +42,7 @@ model = Model(layers, Loss("CEL"), dataset)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=60000)
+trainer = Training(dataset, model, test, batch_size=32)
 
 print(test.exam())
 

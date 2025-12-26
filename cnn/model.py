@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from cnn.Loss import Loss
+from cnn.loss import Loss
 
 
 class Model:

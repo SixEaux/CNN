@@ -2,9 +2,9 @@ from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cnn.Import_data2 import import_data
-from cnn.Model import Model
-from cnn.Testing import Testing
+from cnn.import_data import import_data
+from cnn.model import Model
+from cnn.testing import Testing
 
 
 class Training:
