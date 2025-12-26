@@ -28,7 +28,7 @@ from cnn.dense import Dense
 from cnn.model import Model
 from cnn.flattening import Flattening
 
-lr = 0.01
+lr = 0.08
 dataset = "mnist"
 
 layers = [
@@ -42,11 +42,11 @@ model = Model(layers, Loss("CEL"), dataset)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=32)
+trainer = Training(dataset, model, test, batch_size=100)
 
 print(test.exam())
 
-trainer.SGD(10)
+trainer.SGD(50)
 
 trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
 trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")
