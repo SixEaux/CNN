@@ -17,10 +17,11 @@ class Training:
             normalize (str, optional): type of normalization. Defaults to "division".
         """
 
-    def __init__(self, dataset: str, model: Model, testing: Testing, normalize: str = "division"):
+    def __init__(self, dataset: str, model: Model, testing: Testing, normalize: str = "division", batch_size:int = 1):
         self.dataset = dataset
         self.training_images, self.training_values, _, _ = import_data(
             self.dataset)  # import data needed
+        self.batch_size = batch_size
         self.model = model
         self.testing = testing
 
@@ -43,27 +44,27 @@ class Training:
         elif type == "division":
             self.training_images = self.training_images / 255
         elif type == "center-reduction":
-            self.training_images = (
-                self.training_images - np.mean(self.training_images)) / np.std(self.training_images)
+            self.training_images = (self.training_images - np.mean(self.training_images)) / np.std(self.training_images)
         else:
             raise ValueError("Type of normalization not known.")
 
-    def train(self, epoch=5):
-        """Training the model without batches.
+    def SGD(self, epoch=5):
+        """Training the model wiht or without batches (if no batches self.batch_size = 1).
 
         Args:
             epoch (int, optional): number of iterations through the dataset. Defaults to 5.
         """
         for e in trange(epoch, desc="Epochs"):
             mean_losses = []  # keep track of the losses of each image
-            for p in trange(self.training_images.shape[0], desc="Images"):
-                image = self.training_images[p].reshape(-1, 1)
+            num_batches = (self.training_images.shape[0] // self.batch_size)
+            for batch in trange(num_batches, desc="Batch"):
+                x_batch = self.training_images[batch*self.batch_size:(batch+1)*self.batch_size]
+                exp_batch = self.training_values[batch*self.batch_size:(batch+1)*self.batch_size]
 
-                mean_losses.append(self.model.forward(
-                    image, self.training_values[p]))  # add the loss
+                mean_losses.append(self.model.forward(x_batch, exp_batch))  # add the loss
 
-                self.model.backward()
-
+                self.model.backward(self.batch_size)
+            
             # add the mean of the losses of this iteration
             self.losses.append(np.mean(mean_losses))
             accuracy = self.testing.exam()

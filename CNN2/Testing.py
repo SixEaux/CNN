@@ -20,6 +20,6 @@ class Testing:
         Returns:
             float: accuracy of the model
         """
-        preds = [self.model.prediction(img.reshape(-1, 1)) for img in self.testing_images]
-        accuracy = np.mean(np.array(preds).reshape(-1, 1) == self.testing_values) * 100
+        preds = self.model.prediction(self.testing_images.reshape(self.testing_images.shape[0], -1))
+        accuracy = np.mean(preds == self.testing_values) * 100
         return accuracy

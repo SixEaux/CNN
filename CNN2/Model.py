@@ -1,5 +1,5 @@
 """IMPORTANT INFO : 
-    - input data is (batch_size, height, width, number_channels)
+    - input data is (batch_size, height, width, number_channels) (if no channels number_cahnnels = 1)
     - then when flattened becomes (batch_size, height * width * number_channels) (if without batches => batch_size = 1)
     - following this the data when imported will be (number_images, height, width, number_channels)
 """
@@ -14,11 +14,13 @@ class Model:
             layers (list[Layers]): list of layers (objects)
             loss (Loss): loss object 
             dataset (str): dataset used
+            batch_size (int): size of batch used
         """
     def __init__(self, layers:list, loss:Loss, dataset:str):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
+        
 
         self.model_initial()
 
@@ -45,55 +47,42 @@ class Model:
         """
 
         out = x
-        for l in range(len(self.layers)):
-            out = self.layers[l].forward(out)
+        for l in self.layers:
+            out = l.forward(out)
         loss = self.loss.forward(out, expected)
         return loss
 
-    def backward(self):
+    def backward(self, batch_size):
         """Backward propagation through the layers.
         """
         delta = self.loss.backward()
 
-        for l in reversed(self.layers):
-            delta = l.backward(delta)
+        for l in reversed(self.layers[1:]): #TODO this needs changing but for the moment works with flattening layer
+            delta = l.backward(delta, batch_size = batch_size)
     
-    def choice(self, proba_vector):
+    def choice(self, probabilities):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
 
         Args:
-            proba_vector (ndarray): vector of "probabilities". DIM = (number_classes, 1)
+            probabilities (ndarray): vector of "probabilities". DIM = (batch_size, number_classes)
 
         Returns:
-            int: position of highest probability
+            ndarray: position of highest probability. DIM = (batch_size, 1)
         """
-        return np.argmax(proba_vector, axis=0)
+
+        return np.argmax(probabilities, axis=1, keepdims=True)
     
     def prediction(self, x):
         """Prediction for an image.
 
         Args:
-            x (ndarray): input image. DIM = input_shape
+            x (ndarray): input image. DIM = input_shape 
 
         Returns:
-            int: prediction
+            ndarray: prediction. DIM = (batch_size, 1)
         """
         out = x
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
         return self.choice(out)
-    
-    def softmax(self, x): # if i want to inspect the probabilities
-        """Softmax function.
-
-        Args:
-            x (ndarray): input. DIM = (number_neurons_last_layer,)
-
-        Returns:
-            ndarray: output. DIM = (number_neurons_last_layer,)
-        """
-        x = x - np.max(x, axis=0, keepdims=True)
-        exp_x = np.exp(x)
-        return  exp_x / np.sum(exp_x, axis=0, keepdims=True)
-
 

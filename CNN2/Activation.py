@@ -20,30 +20,27 @@ class Activation:
         """Apply activation function to input.
 
         Args:
-            x (ndarray): input from last layer. DIM = (length_input, 1)
+            x (ndarray): input from last layer. DIM = input_shape
 
         Raises:
             ValueError: if the activation function is not known
 
         Returns:
-            ndarray: activated output. DIM = (length_input, 1)
+            ndarray: activated output. DIM = input_shape
         """
         if self.function == "sigmoid":
             self.input = x
-            a = expit(x)
-            return a
+            return expit(x)
         elif self.function == "relu":
             self.input = x
-            a = np.maximum(x, 0)
-            return a
+            return np.maximum(x, 0)  
         elif self.function == "tanh":
             self.input = x
-            a = np.tanh(x)
-            return a
+            return np.tanh(x)
         else:
             raise ValueError("Activation function is not valid.")
     
-    def backward(self, dL):
+    def backward(self, dL, batch_size=1):
         """Recover gradient for backward propagation.
 
         Args:

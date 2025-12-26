@@ -8,8 +8,8 @@ class Dense:
             learning_rate (float): learning rate
         """
     def __init__(self, number_neurons:int, learning_rate:float):
-        self.w = None # weights of (number neurons, number inputs)
-        self.b = None # biais of (number neurons, 1)
+        self.w = None # weights of (number_neurons, length_input)
+        self.b = None # biais of (1, number neurons)
         self.input = None # input to layer
         self.learning_rate = learning_rate
         self.number_neurons = number_neurons
@@ -21,7 +21,7 @@ class Dense:
             dim_in (int): dimensions entering the layer.
         """
         self.w = np.random.uniform(-1, 1, (self.number_neurons, dim_in))
-        self.b = np.random.uniform(-1, 1, (self.number_neurons,1))
+        self.b = np.random.uniform(-1, 1, (1, self.number_neurons))
 
     def forward(self, x):
         """Forward propagation dense layer.
@@ -30,28 +30,28 @@ class Dense:
             x (ndarray): input to the layer. DIM = (batch_size, shape_input_flattened)
 
         Returns:
-            ndrray: output of the layer. DIM = (number_neurons, 1)
+            ndrray: output of the layer. DIM = (batch_size, number_neurons)
         """
         self.input = x
-        return self.w @ x + self.b
+        return x @ self.w.T + self.b #bias broadcasted across batch
     
-    def backward(self, dL_dout):
+    def backward(self, dL_dout, batch_size=1):
         """Recover gradient layer before and actualise weights.
 
         Args:
-            dL_dout (ndarray): gradient next layer. DIM = (number_neurons, 1) 
+            dL_dout (ndarray): gradient next layer. DIM = (batch_size, number_neurons) 
 
         Returns:
-            ndarray: gradient for layer before. DIM = (number_inputs, 1)
+            ndarray: gradient for layer before. DIM = (batch_size, length_input)
         """
-        dC_dw = np.outer(dL_dout, self.input) # same as np.dot(dL_dout, self.input.T) # (number_neurons, length_input)
-        dC_db = dL_dout # here i need a sum for batch i think
-        print(dC_db.shape)
 
-        dL_dout = self.w.T @ dL_dout #gradient for layer before
+        dC_dw = dL_dout.T @ self.input # (number_neurons, length_input) 
+        dC_db = np.sum(dL_dout, axis=0, keepdims=True) # here i need a sum across batches
+
+        dL_dout = dL_dout @ self.w #gradient for layer before
         
         # actualise weights and bias
-        self.w -= self.learning_rate * dC_dw
-        self.b -= self.learning_rate * dC_db
+        self.w -= self.learning_rate * dC_dw / batch_size
+        self.b -= self.learning_rate * dC_db / batch_size
 
         return dL_dout

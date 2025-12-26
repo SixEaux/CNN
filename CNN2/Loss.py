@@ -2,7 +2,7 @@ import numpy as np
 
 class Loss:
     """
-    Loss "layer". Might in the future delete class and add it directly to NN.
+    Loss "layer".
 
         Args:
             function (str): what error function to use: MSE or CE (CE directly uses softmax).
@@ -20,68 +20,73 @@ class Loss:
         """Softmax function.
 
         Args:
-            x (ndarray): input. DIM = (number_neurons_last_layer, 1)
+            x (ndarray): input. DIM = input_shape (normally (batch_size, number_neurons_last_layer))
 
         Returns:
-            ndarray: output. DIM = (number_neurons_last_layer, 1)
+            ndarray: output. DIM = input_shape (normally (batch_size, number_neurons_last_layer))
         """
-        x = x - np.max(x, axis=0, keepdims=True)
+
+        #the sum and the max are internally in each sample
+
+        x = x - np.max(x, axis=1, keepdims=True)
         exp_x = np.exp(x)
-        return  exp_x / np.sum(exp_x, axis=0, keepdims=True)
+        return  exp_x / np.sum(exp_x, axis=1, keepdims=True) 
 
     def one_hot_vector(self, expected):
         """Transform to one hot vector (vector with one where it was expected)
 
         Args:
-            expected (int or list): expected output
+            expected (ndarray): expected output. DIM = (batch_size,)
 
         Returns:
-            ndarray: DIM = (number_classes,)
+            ndarray: DIM = (batch_size, number_classes)
         """
-        return np.eye(10)[expected].T
+
+        return np.eye(10)[expected.squeeze()]
     
-    def forward(self, obs, exp, batch_size=1):
+    def forward(self, obs, exp):
         """Calculate loss.
 
         Args:
-            obs (ndarray): observed output. DIM = (number_classes, 1)
-            exp (ndarray): expected output. DIM = (1, )
-            nbinput (int): batch size
+            obs (ndarray): observed output. DIM = (batch_size, number_classes)
+            exp (ndarray): expected output. DIM = (batch_size,) TODO verify
+            batch_size (int): batch size
 
         Returns:
-            ndarray: loss value of size batch. Dim = (1,)
+            ndarray: loss value. Dim = (batch_size, 1)
         """
 
-        exp = self.one_hot_vector(exp) # (number_classes, 1)
+        exp = self.one_hot_vector(exp) # (batch_size, number_classes)
 
         if self.function == "CEL": # does the softmax also directly
             self.observed = self.softmax(obs)
             self.expected = exp
-            loss = -np.sum(exp * np.log(self.observed + 1e-12), axis=0) 
+            loss = -np.sum(exp * np.log(self.observed + 1e-12), axis=1, keepdims=True) 
             return loss
         elif self.function == "MSEL":
             self.observed = obs
             self.expected = exp
-            loss = (np.sum((obs - exp) ** 2, axis=0))/ 2
+            loss = (np.sum((obs - exp) ** 2, axis=1, keepdims=True)) / 2
             return loss
         else:
             raise ValueError("Not a valid loss function.")
 
-    def backward(self, batch_size=1):
+    def backward(self):
         """Recover gradient for layer before.
 
         Args:
-            nbinput (int): batch size
+            
 
         Raises:
             ValueError: if the loss function unknown
 
         Returns:
-            ndarray: gradient wrt output layer before (z if CEL or a if MSEL). DIM = (number_classes, 1)
+            ndarray: gradient wrt output layer before (z if CEL or a if MSEL). DIM = (batch_size, number_classes)
         """
+
         if self.function == "CEL":
-            return (self.observed - self.expected) / batch_size
+            return (self.observed - self.expected)
         elif self.function == "MSEL":
-            return (self.observed - self.expected) / batch_size
+            return (self.observed - self.expected)
         else:
             raise ValueError("Not a valid loss function.")
