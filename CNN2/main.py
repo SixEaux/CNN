@@ -28,23 +28,25 @@ from CNN2.Loss import Loss
 from CNN2.Testing import Testing
 from CNN2.Training import Training
 
-lr = 0.005
+lr = 5
+dataset = "mnist"
+
 layers = [
     Flattening(),
     Dense(64, lr),
-    Activation("relu"),
+    Activation("sigmoid"),
     Dense(10, lr)
 ]
 
-model = Model(layers, Loss("CEL"), "mnist")
+model = Model(layers, Loss("CEL"), dataset)
 
-test = Testing("mnist", model)
+test = Testing(dataset, model)
 
-trainer = Training("mnist", model, test, batch_size=32)
+trainer = Training(dataset, model, test, batch_size=60000)
 
 print(test.exam())
 
-trainer.SGD(10) 
+trainer.SGD(10)
 
 trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
 trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")

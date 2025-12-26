@@ -57,7 +57,7 @@ class Training:
         for e in trange(epoch, desc="Epochs"):
             mean_losses = []  # keep track of the losses of each image
             num_batches = (self.training_images.shape[0] // self.batch_size)
-            for batch in trange(num_batches, desc="Batch"):
+            for batch in range(num_batches):
                 x_batch = self.training_images[batch*self.batch_size:(batch+1)*self.batch_size]
                 exp_batch = self.training_values[batch*self.batch_size:(batch+1)*self.batch_size]
 
@@ -68,7 +68,6 @@ class Training:
             # add the mean of the losses of this iteration
             self.losses.append(np.mean(mean_losses))
             accuracy = self.testing.exam()
-            print("\n", accuracy, "\n")
             # add the accuracy after this iteration
             self.accuracies.append(accuracy)
 

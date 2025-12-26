@@ -10,11 +10,11 @@ val, pix, qcmval, qcmpix, labels = inputs
 
 convlay = []
 
-lay = [(100, "sigmoid"), (50, "sigmoid"), (10, "softmax")]
+lay = [(128, "sigmoid"), (64, "sigmoid"), (10, "softmax")]
 
 parametros = Parametros(pix=pix, vales=val, qcmpix=qcmpix, qcmval=qcmval, labels=labels,
-                        infolay=lay, infoconvlay=convlay, iterations=10, coefcv=0.18, base=base, 
-                        batch=1)
+                        infolay=lay, infoconvlay=convlay, iterations=30, coefcv=0.005, base=base, 
+                        batch=32)
 
 g = CNN(parametros)
 
