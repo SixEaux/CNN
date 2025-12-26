@@ -38,22 +38,21 @@ class Loss:
         Returns:
             ndarray: DIM = (number_classes,)
         """
-        
         return np.eye(10)[expected].T
     
-    def forward(self, obs, exp, nbinput=1):
+    def forward(self, obs, exp, batch_size=1):
         """Calculate loss.
 
         Args:
-            obs (ndarray): observed output. DIM = (number_calsses, 1)
-            exp (ndarray): expected output. DIM = (number_calsses, 1)
+            obs (ndarray): observed output. DIM = (number_classes, 1)
+            exp (ndarray): expected output. DIM = (1, )
             nbinput (int): batch size
 
         Returns:
-            float: loss value of size batch (it can be divised by nbinput to have the mean but not necessary)
+            ndarray: loss value of size batch. Dim = (1,)
         """
 
-        exp = self.one_hot_vector(exp)
+        exp = self.one_hot_vector(exp) # (number_classes, 1)
 
         if self.function == "CEL": # does the softmax also directly
             self.observed = self.softmax(obs)
@@ -68,7 +67,7 @@ class Loss:
         else:
             raise ValueError("Not a valid loss function.")
 
-    def backward(self, nbinput=1):
+    def backward(self, batch_size=1):
         """Recover gradient for layer before.
 
         Args:
@@ -78,11 +77,11 @@ class Loss:
             ValueError: if the loss function unknown
 
         Returns:
-            ndarray: gradient wrt output layer before (z if CEL or a if MSEL). DIM = (number_classes,)
+            ndarray: gradient wrt output layer before (z if CEL or a if MSEL). DIM = (number_classes, 1)
         """
         if self.function == "CEL":
-            return (self.observed - self.expected) / nbinput
+            return (self.observed - self.expected) / batch_size
         elif self.function == "MSEL":
-            return (self.observed - self.expected) / nbinput
+            return (self.observed - self.expected) / batch_size
         else:
             raise ValueError("Not a valid loss function.")

@@ -1,4 +1,11 @@
+"""IMPORTANT INFO : 
+    - input data is (batch_size, height, width, number_channels)
+    - then when flattened becomes (batch_size, height * width * number_channels) (if without batches => batch_size = 1)
+    - following this the data when imported will be (number_images, height, width, number_channels)
+"""
+
 import numpy as np
+from CNN2.Loss import Loss
 
 class Model:
     """Model NN.
@@ -8,7 +15,7 @@ class Model:
             loss (Loss): loss object 
             dataset (str): dataset used
         """
-    def __init__(self, layers:list, loss, dataset:str):
+    def __init__(self, layers:list, loss:Loss, dataset:str):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
@@ -26,19 +33,6 @@ class Model:
             l.initial_param(last_dim_out)
             last_dim_out = l.number_neurons if hasattr(l, "number_neurons") else last_dim_out
 
-    def softmax(self, x):
-        """Softmax function.
-
-        Args:
-            x (ndarray): input. DIM = (number_neurons_last_layer,)
-
-        Returns:
-            ndarray: output. DIM = (number_neurons_last_layer,)
-        """
-        x = x - np.max(x, axis=0, keepdims=True)
-        exp_x = np.exp(x)
-        return  exp_x / np.sum(exp_x, axis=0, keepdims=True)
-
     def forward(self, x, expected):
         """Forward propagation through all the layers. 
 
@@ -49,6 +43,7 @@ class Model:
         Returns:
             float: loss value of the iteration
         """
+
         out = x
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
@@ -67,7 +62,7 @@ class Model:
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
 
         Args:
-            proba_vector (ndarray): vector of "probabilities"
+            proba_vector (ndarray): vector of "probabilities". DIM = (number_classes, 1)
 
         Returns:
             int: position of highest probability
@@ -78,7 +73,7 @@ class Model:
         """Prediction for an image.
 
         Args:
-            x (ndarray): input image
+            x (ndarray): input image. DIM = input_shape
 
         Returns:
             int: prediction
@@ -87,5 +82,18 @@ class Model:
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
         return self.choice(out)
+    
+    def softmax(self, x): # if i want to inspect the probabilities
+        """Softmax function.
+
+        Args:
+            x (ndarray): input. DIM = (number_neurons_last_layer,)
+
+        Returns:
+            ndarray: output. DIM = (number_neurons_last_layer,)
+        """
+        x = x - np.max(x, axis=0, keepdims=True)
+        exp_x = np.exp(x)
+        return  exp_x / np.sum(exp_x, axis=0, keepdims=True)
 
 

@@ -1,9 +1,10 @@
-from Import_data2 import import_data
 from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
-from Model import Model
-from Testing import Testing
+
+from CNN2.Import_data2 import import_data
+from CNN2.Model import Model
+from CNN2.Testing import Testing
 
 
 class Training:

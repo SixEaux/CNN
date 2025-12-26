@@ -20,13 +20,13 @@ class Activation:
         """Apply activation function to input.
 
         Args:
-            x (ndarray): input from last layer
+            x (ndarray): input from last layer. DIM = (length_input, 1)
 
         Raises:
             ValueError: if the activation function is not known
 
         Returns:
-            ndarray: activated output
+            ndarray: activated output. DIM = (length_input, 1)
         """
         if self.function == "sigmoid":
             self.input = x

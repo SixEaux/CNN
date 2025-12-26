@@ -1,6 +1,5 @@
 import pickle
 import numpy as np
-from helpers import printgray
 
 def import_data(name:str):
     """Import the data based on which one used.

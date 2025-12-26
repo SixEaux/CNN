@@ -1,6 +1,7 @@
-from Import_data2 import import_data
 import numpy as np
-from Model import Model
+
+from CNN2.Import_data2 import import_data
+from CNN2.Model import Model
 
 class Testing:
     def __init__(self, dataset:str, model:Model):

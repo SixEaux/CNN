@@ -8,7 +8,7 @@ To facilitate passing parameters -> to create a model you need to:
 """
 As a convention when i use:
 - x it is an input
-- C cost / loss
+- C or L cost / loss
 - w weights
 - b biais
 - z = wx + b
@@ -20,16 +20,15 @@ As a convention when i use:
 # TODO : I might need to create a validation sample also
 # TODO : maybe quickly do a little bit of lr opti
 
-from Dense import Dense
-from Model import Model
-from Activation import Activation
-from Loss import Loss
-from Testing import Testing
-from Training import Training
+from CNN2.Dense import Dense
+from CNN2.Model import Model
+from CNN2.Activation import Activation
+from CNN2.Loss import Loss
+from CNN2.Testing import Testing
+from CNN2.Training import Training
 
-lr = 0.18
-layers = [Dense(100, lr), Activation("sigmoid"), Dense(
-    50, lr), Activation("sigmoid"), Dense(10, lr)]
+lr = 0.1
+layers = [Dense(50, lr), Activation("sigmoid"), Dense(10, lr)]
 
 model = Model(layers, Loss("CEL"), "mnist")
 
@@ -39,7 +38,7 @@ trainer = Training("mnist", model, test)
 
 print(test.exam())
 
-trainer.train(10) # 4.44 / 94.55
+trainer.train(5) 
 
 trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
 trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")

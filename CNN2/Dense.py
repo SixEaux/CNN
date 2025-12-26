@@ -1,9 +1,3 @@
-"""IMPORTANT INFO : 
-    - input data is (batch_size, height, width, number_channels)
-    - then when flattened becomes (batch_size, height * width * number_channels) (if without batches => batch_size = 1)
-    - following this the data when imported will be (number_images, height, width, number_channels)
-"""
-
 import numpy as np
 
 class Dense:
@@ -50,8 +44,9 @@ class Dense:
         Returns:
             ndarray: gradient for layer before. DIM = (number_inputs, 1)
         """
-        dC_dw = np.outer(dL_dout, self.input) # same as np.dot(dL_dout, self.input.T) 
-        dC_db = np.sum(dL_dout, axis=0) # here i need a sum for batch i think
+        dC_dw = np.outer(dL_dout, self.input) # same as np.dot(dL_dout, self.input.T) # (number_neurons, length_input)
+        dC_db = dL_dout # here i need a sum for batch i think
+        print(dC_db.shape)
 
         dL_dout = self.w.T @ dL_dout #gradient for layer before
         

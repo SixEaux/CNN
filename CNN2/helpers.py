@@ -11,7 +11,6 @@ def paddington(image, padavant, padapres): #padavant ce qu'on ajoute a la ligne 
 def choix(self, y):
         return np.argmax(y,axis=0)
 
-
 def vecteur(self, val):
         if self.lenbatch == 1:
             newval = [val]
