@@ -8,8 +8,8 @@ class Dense:
             learning_rate (float): learning rate
         """
     def __init__(self, number_neurons:int, learning_rate:float):
-        self.w = None # weights of (number_neurons, length_input)
-        self.b = None # biais of (1, number neurons)
+        self.weight = None # weights of (number_neurons, length_input)
+        self.bias = None # bias of (1, number neurons)
         self.input = None # input to layer
         self.learning_rate = learning_rate
         self.number_neurons = number_neurons
@@ -20,8 +20,8 @@ class Dense:
         Args:
             dim_in (int): dimensions entering the layer.
         """
-        self.w = np.random.uniform(-1, 1, (self.number_neurons, dim_in))
-        self.b = np.random.uniform(-1, 1, (1, self.number_neurons))
+        self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in))
+        self.bias = np.random.uniform(-1, 1, (1, self.number_neurons))
 
     def forward(self, x:np.ndarray):
         """Forward propagation dense layer.
@@ -33,7 +33,7 @@ class Dense:
             ndrray: output of the layer. DIM = (batch_size, number_neurons)
         """
         self.input = x
-        return x @ self.w.T + self.b #bias broadcasted across batch
+        return x @ self.weight.T + self.bias #bias broadcasted across batch
     
     def backward(self, dL_dout:np.ndarray, batch_size:int=1):
         """Recover gradient layer before and actualise weights.
@@ -48,10 +48,10 @@ class Dense:
         dC_dw = dL_dout.T @ self.input # (number_neurons, length_input) 
         dC_db = np.sum(dL_dout, axis=0, keepdims=True) # here i need a sum across batches
 
-        dL_dout = dL_dout @ self.w #gradient for layer before
+        dL_dout = dL_dout @ self.weight #gradient for layer before
         
         # actualise weights and bias
-        self.w -= self.learning_rate * dC_dw / batch_size
-        self.b -= self.learning_rate * dC_db / batch_size
+        self.weight -= self.learning_rate * dC_dw / batch_size
+        self.bias -= self.learning_rate * dC_db / batch_size
 
         return dL_dout

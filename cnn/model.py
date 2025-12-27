@@ -7,6 +7,11 @@
 import numpy as np
 
 from cnn.loss import Loss
+from cnn.dense import Dense
+from cnn.convolution import Convolutional
+from cnn.flattening import Flattening
+from cnn.pooling import MaxPool
+
 
 
 class Model:
@@ -26,17 +31,23 @@ class Model:
 
         self.model_initial()
 
-    def model_initial(self):
+    def model_initial(self): #TODO
         """Initialize the model based on dimensions input.
         """
         dims_dataset = {"mnist": (28, 28, 1)}
         last_dim_out = dims_dataset[self.dataset]
-        last_dim_out = last_dim_out[0] * last_dim_out[1]
 
         for l in self.layers:
             l.initial_param(last_dim_out)
-            last_dim_out = l.number_neurons if hasattr(
-                l, "number_neurons") else last_dim_out
+
+            if isinstance(l, Dense):
+                last_dim_out = l.number_neurons
+            elif isinstance(l, Convolutional):
+                last_dim_out = l.out_dim
+            elif isinstance(l, MaxPool):
+                last_dim_out = l.out_dim
+            elif isinstance(l, Flattening):
+                last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
 
     def forward(self, x, expected):
         """Forward propagation through all the layers. 
