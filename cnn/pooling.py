@@ -49,7 +49,7 @@ class MaxPool:
         w = np.lib.stride_tricks.sliding_window_view(p, (self.size_kernel, self.size_kernel), axis=(1,2)) #window view
         # i need to track max indices for backprop
 
-        w = w[:, ::self.stride, ::self.stride, :] #apply stride
+        w = w[:, ::self.stride, ::self.stride, :] #apply stride      
 
         return np.max(w, axis=(4, 5))
     
@@ -71,7 +71,6 @@ class MeanPool:
         self.size_kernel = size_kernel
         self.out_dim = None
         self.input = None
-        self.max_indices = None
 
         self.stride = stride
         self.padding = padding

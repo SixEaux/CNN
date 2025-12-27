@@ -1,20 +1,3 @@
-"""
-To facilitate passing parameters -> to create a model you need to:
-    Model(
-    layers = [Convolutional(), Activation(), Flatening(), Pooling(), Dense()], 
-    other_parameters)
-"""
-
-"""
-As a convention when i use:
-- x it is an input
-- C or L cost / loss
-- w weights
-- b biais
-- z = wx + b
-- a = activ(z)
-"""
-
 # TODO : I need to explore initializations (try different techniques)
 # TODO : I might need to create a validation sample also
 # TODO : do a little bit of lr opti
@@ -35,7 +18,7 @@ dataset = "mnist"
 layers = [
     Convolutional(20, 2, lr),
     Activation("sigmoid"),
-    MaxPool(3, 3),
+    MeanPool(3, 3),
     Flattening(),
     Dense(10, lr)
 ]
@@ -53,8 +36,6 @@ print(test.exam())
 
 # model.forward(
 #     x_batch, exp_batch)
-
-
 
 # print(test.exam())
 

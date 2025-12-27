@@ -3,6 +3,22 @@
     - then when flattened becomes (batch_size, height * width * number_channels) (if without batches => batch_size = 1)
     - following this the data when imported will be (number_images, height, width, number_channels)
 """
+"""
+To facilitate passing parameters -> to create a model you need to:
+    Model(
+    layers = [Convolutional(), Activation(), Flatening(), Pooling(), Dense()], 
+    other_parameters)
+"""
+
+"""
+As a convention when i use:
+- x it is an input
+- C or L cost / loss
+- w weights
+- b biais
+- z = wx + b
+- a = activ(z)
+"""
 
 import numpy as np
 
@@ -10,7 +26,7 @@ from cnn.loss import Loss
 from cnn.dense import Dense
 from cnn.convolution import Convolutional
 from cnn.flattening import Flattening
-from cnn.pooling import MaxPool
+from cnn.pooling import MaxPool, MeanPool
 
 
 
@@ -44,7 +60,7 @@ class Model:
                 last_dim_out = l.number_neurons
             elif isinstance(l, Convolutional):
                 last_dim_out = l.out_dim
-            elif isinstance(l, MaxPool):
+            elif isinstance(l, MaxPool) or isinstance(l, MeanPool):
                 last_dim_out = l.out_dim
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
