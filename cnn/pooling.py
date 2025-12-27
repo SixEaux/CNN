@@ -1,4 +1,5 @@
 import numpy as np
 
 class Pooling:
-    pass
+    def __init__(self):
+        pass

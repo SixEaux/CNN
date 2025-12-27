@@ -1,6 +1,10 @@
 # old CNN project
 OLD/
 
+
+test/try.py
+
+# cache and venv stuff
 cnn/__pycache__
 .idea
 .venv
