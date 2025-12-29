@@ -3,6 +3,10 @@ OLD/
 
 
 test/__pycache__
+test/test_1.py
+test/test_claude.py
+
+outputs/
 
 # cache and venv stuff
 cnn/__pycache__

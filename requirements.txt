@@ -4,4 +4,4 @@ tqdm
 matplotlib
 tabulate
 scipy
-
+numba
