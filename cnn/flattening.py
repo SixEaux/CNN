@@ -19,5 +19,14 @@ class Flattening:
         self.input = x
         return x.reshape((x.shape[0], -1))
     
-    def backward(self, dL_dout):
+    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
+        """Reshape for backpropagation.
+
+        Args:
+            dL_dout (np.ndarray): gradient error from next layer
+            batch_size (int, optional): size of the batch. Defaults to 1.
+
+        Returns:
+            np.ndarray: gradient error with same shape as input
+        """
         return dL_dout.reshape(self.input.shape)

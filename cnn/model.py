@@ -21,6 +21,7 @@ As a convention when i use:
 """
 
 import numpy as np
+import pickle
 
 from cnn.loss import Loss
 from cnn.dense import Dense
@@ -115,3 +116,8 @@ class Model:
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
         return self.choice(out)
+    
+    def export_model(self, filename:str):
+        safe = {"layers":self.layers, "loss":self.loss, "dataset":self.dataset}
+        with open("trained_models/" + filename, "wb") as f:
+            pickle.dump(safe, f)

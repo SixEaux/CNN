@@ -18,7 +18,7 @@ class Convolutional:
 
         self.number_kernels = number_kernels
         self.size_kernel = size_kernel
-        self.out_dim = None
+        self.out_dim = None # (height_out_conv, width_out_conv, number_kernels)
         self.kernel = None # (size_kernel, size_kernel, channels_in, number_kernels)
         self.bias = None # (1, height_out_conv, width_out_conv, number_kernels)
 
@@ -34,16 +34,15 @@ class Convolutional:
             dim_in (tuple): dimensions entering the layer.
         """
         h_in, w_in, channels_in = dim_in
-        self.kernel = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels))
+        self.kernel = np.random.uniform(-0.1, 0.1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels))
 
         #for now supposing same height and width in out and same padding all around
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
-        self.bias = np.random.uniform(-1, 1, (1, out_dim, out_dim, self.number_kernels))
-
+        self.bias = np.zeros((1, out_dim, out_dim, self.number_kernels))
 
     def convolution_forward(self, x:np.ndarray):
-        """Convolution forward pass (one kernel for the moment).
+        """Convolution forward pass.
 
         For output height and width (I) : O = ((I - K + P_start + P_end) / S) + 1 
 
@@ -83,38 +82,85 @@ class Convolutional:
         return self.convolution_forward(x) + self.bias       
 
 
-    def convolution_backward_weights(self, dL_dout):
-        # insert zeros for stride and for padding
-        d_b, d_h, d_w, d_k = dL_dout.shape
+    def backward_filter(self, dL_dout:np.ndarray):
+        """Get the gradient of the error wrt the filter to adjust weights.
+        For this gradient I need to compute the convolution(input, error_gradient).
+        If I understood correctly you don't take here into account stride and pad,
+        this is only taken into account for the computation of the error wrt the input.
 
-        assert d_k == self.input.shape[3], "Channel dimension mismatch" 
+        Args:
+            dL_dout (np.ndarray): gradient from next layer
 
-        w = np.lib.stride_tricks.sliding_window_view(self.input, (d_h, d_w), axis=(1,2)) #window view
+        Returns:
+            np.ndarray: _description_
+        """
+        k_h, k_w, k_c, number_k = self.kernel.shape
 
-        c = np.tensordot(w, dL_dout, axes=[(3, 4, 5), (2, 0, 1)]) #reduction
+        if self.padding > 0:
+            x = np.pad(self.input, ((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0))) # pad the image
+        else:
+            x = self.input
 
-        return c
+        w = np.lib.stride_tricks.sliding_window_view(x, (k_h, k_w), axis=(1,2)) #window view
+
+        w = w[:, ::self.stride, ::self.stride, :, :, :] #apply stride
+
+        c = np.tensordot(w, dL_dout, axes=[(0, 1, 2), (0, 1, 2)]) #reduction
+
+        return c.transpose(1,2,0,3)
     
-    def backward(self, dL_dout):
-        pass
+    def backward_input(self, dL_dout:np.ndarray):
+        """Get the gradient of the error wrt the input.
+        For this gradient I need to compute the convolution(180_flip(kernel), error_gradient).
+        If I understood correctly here I need to dilate (add rows and columns of zeros in-between) the error_gradient of stride-1 rows and columns.
+        And I also need to pad the error of kernel_size-1-pad (to get good full convolution) and then do a valid convolution.
 
+        Args:
+            dL_dout (np.ndarray): gradient from next layer
 
-
-
-
-    
-
-
-
-    #TODO stride = kernel size and pad=0
-    def back_pad_stride(self,dL_dout):
+        Returns:
+            np.ndarray: gradient for layer before
+        """
+        #recover correct sizes from stride and pad
         b, h, w, c = dL_dout.shape
-        new_h, new_w = h + (h-1)*(self.stride-1), w + (w-1)*(self.stride-1)
+
+        pad_value = self.size_kernel - 1 - self.padding
+
+        new_h, new_w = h + (h-1)*(self.stride-1) + 2*pad_value, w + (w-1)*(self.stride-1) + 2*pad_value
 
         out = np.zeros((b, new_h, new_w, c))
 
-        out[:, ::self.stride, ::self.stride, :] = dL_dout
+        out[:, pad_value:new_h-pad_value:self.stride, pad_value:new_w-pad_value:self.stride, :] = dL_dout
 
-        return out
+        #Valid convolution with filter rotated
+
+        k_h, k_w, k_c, number_k = self.kernel.shape
+
+        rot_kernel = np.rot90(self.kernel, k=2, axes=(0,1))
+
+        w = np.lib.stride_tricks.sliding_window_view(out, (k_h, k_w), axis=(1,2)) #window view
+
+        c = np.tensordot(w, rot_kernel, axes=[(3, 4, 5), (3, 0, 1)]) #reduction
+
+        return c
+    
+    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
+        """Chef backpropagation convolutional layer. It also adjustes the filters and biases
+
+        Args:
+            dL_dout (np.ndarray): gradient from next layer
+            batch_size (int, optional): size of the batch. Defaults to 1.
+
+        Returns:
+            np.ndarray: gradient error wrt input for layer before
+        """        
+        dL_df = self.backward_filter(dL_dout)
+        dL_db = np.sum(dL_dout, axis=0, keepdims=True) #sum accross batches
+
+        dL_dx = self.backward_input(dL_dout)
         
+        self.kernel -= self.learning_rate * dL_df / batch_size
+        self.bias -= self.learning_rate * dL_db / batch_size
+
+        return dL_dx
         

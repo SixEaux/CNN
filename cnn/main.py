@@ -12,13 +12,13 @@ from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 
-lr = 0.08
+lr = 0.01
 dataset = "mnist"
 
 layers = [
-    Convolutional(20, 2, lr),
+    Convolutional(5, 4, lr, stride=2),
     Activation("sigmoid"),
-    MaxPool(3, 3),
+    MaxPool(2),
     Flattening(),
     Dense(10, lr)
 ]
@@ -27,21 +27,13 @@ model = Model(layers, Loss("CEL"), dataset)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=1)
+trainer = Training(dataset, model, test, batch_size=32)
 
-x_batch = trainer.training_images[0:5]
-exp_batch = trainer.training_values[0:5]
+print("Initial test", test.exam())
 
-print(test.exam())
+trainer.SGD(1)
 
-# model.forward(
-#     x_batch, exp_batch)
-
-# print(test.exam())
-
-# trainer.SGD(1)
+print("After training test", test.exam())
 
 # trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
 # trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")
-
-# print(test.exam())

@@ -2,7 +2,6 @@
 OLD/
 
 
-test/try.py
 test/__pycache__
 
 # cache and venv stuff
