@@ -34,12 +34,12 @@ class Convolutional:
             dim_in (tuple): dimensions entering the layer.
         """
         h_in, w_in, channels_in = dim_in
-        self.kernel = np.random.uniform(-0.1, 0.1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels))
+        self.kernel = np.random.uniform(-0.1, 0.1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
 
         #for now supposing same height and width in out and same padding all around
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
-        self.bias = np.zeros((1, out_dim, out_dim, self.number_kernels))
+        self.bias = np.zeros((1, out_dim, out_dim, self.number_kernels)).astype(np.float32)
 
     def convolution_forward(self, x:np.ndarray):
         """Convolution forward pass.
@@ -80,7 +80,6 @@ class Convolutional:
         """
         self.input = x
         return self.convolution_forward(x) + self.bias       
-
 
     def backward_filter(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the filter to adjust weights.
@@ -163,4 +162,3 @@ class Convolutional:
         self.bias -= self.learning_rate * dL_db / batch_size
 
         return dL_dx
-        

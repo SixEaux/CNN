@@ -20,8 +20,8 @@ class Dense:
         Args:
             dim_in (int): dimensions entering the layer.
         """
-        self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in))
-        self.bias = np.zeros((1, self.number_neurons))
+        self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in)).astype(np.float32)
+        self.bias = np.zeros((1, self.number_neurons)).astype(np.float32)
 
     def forward(self, x:np.ndarray):
         """Forward propagation dense layer.

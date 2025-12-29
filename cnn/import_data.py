@@ -25,7 +25,7 @@ def import_data(name:str):
 
         perm_train = np.random.permutation(train_images.shape[0])
 
-        return train_images[perm_train], train_values[perm_train], test_images, test_values
+        return train_images[perm_train].astype(np.float32), train_values[perm_train], test_images.astype(np.float32), test_values
 
     else:
         raise ValueError("Not a known dataset.")

@@ -80,6 +80,7 @@ class Model:
         out = x
         for l in self.layers:
             out = l.forward(out)
+            assert out.dtype == np.float32
         loss = self.loss.forward(out, expected)
         return loss
 
