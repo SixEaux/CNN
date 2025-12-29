@@ -37,7 +37,7 @@ class Convolutional:
         self.kernel = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels))
 
         #for now supposing same height and width in out and same padding all around
-        out_dim = int(((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
+        out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
         self.bias = np.random.uniform(-1, 1, (1, out_dim, out_dim, self.number_kernels))
 
@@ -80,10 +80,41 @@ class Convolutional:
             np.ndarray: output DIM = (batch_size, output_height, output_width, number_kernels)
         """
         self.input = x
-        return self.convolution_forward(x) + self.bias 
+        return self.convolution_forward(x) + self.bias       
+
+
+    def convolution_backward_weights(self, dL_dout):
+        # insert zeros for stride and for padding
+        d_b, d_h, d_w, d_k = dL_dout.shape
+
+        assert d_k == self.input.shape[3], "Channel dimension mismatch" 
+
+        w = np.lib.stride_tricks.sliding_window_view(self.input, (d_h, d_w), axis=(1,2)) #window view
+
+        c = np.tensordot(w, dL_dout, axes=[(3, 4, 5), (2, 0, 1)]) #reduction
+
+        return c
     
     def backward(self, dL_dout):
         pass
 
+
+
+
+
+    
+
+
+
+    #TODO stride = kernel size and pad=0
+    def back_pad_stride(self,dL_dout):
+        b, h, w, c = dL_dout.shape
+        new_h, new_w = h + (h-1)*(self.stride-1), w + (w-1)*(self.stride-1)
+
+        out = np.zeros((b, new_h, new_w, c))
+
+        out[:, ::self.stride, ::self.stride, :] = dL_dout
+
+        return out
         
         

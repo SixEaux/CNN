@@ -49,7 +49,7 @@ class Loss:
 
         Args:
             obs (ndarray): observed output. DIM = (batch_size, number_classes)
-            exp (ndarray): expected output. DIM = (batch_size,) TODO verify
+            exp (ndarray): expected output. DIM = (batch_size,)
             batch_size (int): batch size
 
         Returns:

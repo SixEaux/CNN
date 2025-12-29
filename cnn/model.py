@@ -47,7 +47,7 @@ class Model:
 
         self.model_initial()
 
-    def model_initial(self): #TODO
+    def model_initial(self): 
         """Initialize the model based on dimensions input.
         """
         dims_dataset = {"mnist": (28, 28, 1)}
@@ -87,8 +87,7 @@ class Model:
         """
         delta = self.loss.backward()
 
-        # TODO this needs changing but for the moment works with flattening layer
-        for l in reversed(self.layers[1:]):
+        for l in reversed(self.layers):
             delta = l.backward(delta, batch_size=batch_size)
 
     def choice(self, probabilities):

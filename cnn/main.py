@@ -18,7 +18,7 @@ dataset = "mnist"
 layers = [
     Convolutional(20, 2, lr),
     Activation("sigmoid"),
-    MeanPool(3, 3),
+    MaxPool(3, 3),
     Flattening(),
     Dense(10, lr)
 ]

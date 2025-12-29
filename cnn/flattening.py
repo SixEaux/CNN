@@ -2,7 +2,7 @@ import numpy as np
 
 class Flattening:
     def __init__(self):
-        self.x = None
+        self.input = None
     
     def initial_param(self, dim_in): # just so every layer has one
         return
@@ -16,8 +16,8 @@ class Flattening:
         Returns:
             ndarray: reshaped to (batch_size, h*w*c)
         """
-        self.x = x
+        self.input = x
         return x.reshape((x.shape[0], -1))
     
-    def backward(self):
-        pass
+    def backward(self, dL_dout):
+        return dL_dout.reshape(self.input.shape)
