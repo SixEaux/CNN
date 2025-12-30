@@ -37,6 +37,7 @@ class Convolutional:
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
         self.bias = np.zeros((1, out_dim, out_dim, self.number_kernels)).astype(np.float32)
+ 
 
     def convolution_forward(self, x:np.ndarray):
         """Convolution forward pass.
@@ -160,3 +161,40 @@ class Convolutional:
         self.bias -= learning_rate * dL_db / batch_size
 
         return dL_dx
+    
+
+
+
+
+
+def convolution_im2col(x:np.ndarray, kernel:np.ndarray, padding:int=0):
+        """Here is anot5her method of convolution which should be faster.
+        It consists of creating the image with patches and reshape it and the kernel to vectorized form
+        then np.dot should get the convolution.
+        I will suppose for now that stride == kernel_size to get the main idea.
+
+        Args:
+            x (np.ndarray): input array DIM = (batch_size, h, w, c)
+            kernel (np.ndarray): kernel DIM = (size_kernel, size_kernel, c_in, number_kernels)
+        """
+
+        if padding > 0:
+            x_pad = np.pad(x, ((0,0), (padding, padding), (padding, padding), (0,0)))
+        else:
+            x_pad = x        
+
+        b, h, w, c = x_pad.shape
+        k_h, k_w, k_c, k_n = kernel.shape
+        o_b, o_h, o_w, o_c = b, ((h-k_h)//k_h)+1, ((w-k_w)//k_w)+1, k_n
+
+        x_reshaped_1 = x_pad.reshape((b, h//k_h, k_h, w//k_w, k_w, c)).transpose((0, 1, 3, 2, 4, 5)) #create array of patches
+
+        x_reshaped_2 = x_reshaped_1.reshape((b, h//k_h, w//k_w, -1)) #vectorize the input shapes
+
+        kernel_reshaped = kernel.reshape((k_h*k_w*k_c, k_n))
+
+        out = np.dot(x_reshaped_2, kernel_reshaped) #dot product by las dimension
+
+        out_reshaped = out.reshape((o_b, o_h, o_w, o_c))    
+
+        return out_reshaped

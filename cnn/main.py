@@ -16,9 +16,8 @@ lr = 0.5
 dataset = "mnist"
 
 layers = [
-    Convolutional(5, 4, stride=2),
+    Convolutional(5, 4, padding=2, stride=2),
     Activation("sigmoid"),
-    MaxPool(2),
     Flattening(),
     Dense(10)
 ]
@@ -27,7 +26,7 @@ model = Model(layers, Loss("CEL"), dataset, lr)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=50)
+trainer = Training(dataset, model, test, batch_size=32)
 
 print("Initial test", test.exam())
 
