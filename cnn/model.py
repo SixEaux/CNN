@@ -22,6 +22,7 @@ As a convention when i use:
 
 import numpy as np
 import pickle
+import os
 
 from cnn.loss import Loss
 from cnn.dense import Dense
@@ -39,12 +40,14 @@ class Model:
             loss (Loss): loss object 
             dataset (str): dataset used
             batch_size (int): size of batch used
+            learning_rate (float): learning rate
         """
 
-    def __init__(self, layers: list, loss: Loss, dataset: str):
+    def __init__(self, layers: list, loss: Loss, dataset: str, learning_rate:float):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
+        self.learning_rate = learning_rate
 
         self.model_initial()
 
@@ -66,7 +69,7 @@ class Model:
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
 
-    def forward(self, x, expected):
+    def forward(self, x:np.ndarray, expected:np.ndarray):
         """Forward propagation through all the layers. 
 
         Args:
@@ -80,19 +83,18 @@ class Model:
         out = x
         for l in self.layers:
             out = l.forward(out)
-            assert out.dtype == np.float32
         loss = self.loss.forward(out, expected)
         return loss
 
-    def backward(self, batch_size):
+    def backward(self, batch_size:int):
         """Backward propagation through the layers.
         """
         delta = self.loss.backward()
 
         for l in reversed(self.layers):
-            delta = l.backward(delta, batch_size=batch_size)
+            delta = l.backward(delta, self.learning_rate, batch_size)
 
-    def choice(self, probabilities):
+    def choice(self, probabilities:np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
 
         Args:
@@ -104,7 +106,7 @@ class Model:
 
         return np.argmax(probabilities, axis=1, keepdims=True)
 
-    def prediction(self, x):
+    def prediction(self, x:np.ndarray):
         """Prediction for an image.
 
         Args:
@@ -120,5 +122,5 @@ class Model:
     
     def export_model(self, filename:str):
         safe = {"layers":self.layers, "loss":self.loss, "dataset":self.dataset}
-        with open("trained_models/" + filename, "wb") as f:
+        with open(os.path.join("trained_models" + filename), "wb") as f:
             pickle.dump(safe, f)

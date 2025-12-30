@@ -40,7 +40,7 @@ class Activation:
         else:
             raise ValueError("Activation function is not valid.")
     
-    def backward(self, dL:np.ndarray, batch_size=1):
+    def backward(self, dL:np.ndarray, *args):
         """Recover gradient for backward propagation.
 
         Args:

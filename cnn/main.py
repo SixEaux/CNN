@@ -2,8 +2,6 @@
 # TODO : I might need to create a validation sample also
 # TODO : do a little bit of lr opti
 
-# TODO : pass lr as parameter from model 
-
 from cnn.training import Training
 from cnn.testing import Testing
 from cnn.loss import Loss
@@ -18,24 +16,24 @@ lr = 0.5
 dataset = "mnist"
 
 layers = [
-    Convolutional(5, 4, lr, stride=2),
+    Convolutional(5, 4, stride=2),
     Activation("sigmoid"),
     MaxPool(2),
     Flattening(),
-    Dense(10, lr)
+    Dense(10)
 ]
 
-model = Model(layers, Loss("CEL"), dataset)
+model = Model(layers, Loss("CEL"), dataset, lr)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=32)
+trainer = Training(dataset, model, test, batch_size=50)
 
 print("Initial test", test.exam())
 
-trainer.SGD(10)
+trainer.SGD(5)
 
 print("After training test", test.exam())
 
-trainer.plot_smthg(trainer.losses, x_title="Epochs", y_title="Loss")
-trainer.plot_smthg(trainer.accuracies, x_title="Epochs", y_title="Accuracy")
+trainer.plot_smthg(trainer.losses, title="test_model_loss", x_title="Epochs", y_title="Loss", save_to="test_model")
+trainer.plot_smthg(trainer.accuracies, title="test_model_accuracy", x_title="Epochs", y_title="Accuracy", save_to="test_model")

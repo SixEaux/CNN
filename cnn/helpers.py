@@ -5,20 +5,6 @@ from matplotlib import pyplot as plt
 def converttogreyscale(rgbimage):
         return np.tensordot(rgbimage,np.array([0.299, 0.587, 0.114]), (1, 2))
 
-def paddington(image, padavant, padapres): #padavant ce qu'on ajoute a la ligne et l'autre est evident
-        return np.pad(image, ((0,0), (padavant, padapres), (padavant, padapres))) # padding
-
-def choix(self, y):
-        return np.argmax(y,axis=0)
-
-def vecteur(self, val):
-        if self.lenbatch == 1:
-            newval = [val]
-        else:
-            newval = val
-        return np.eye(10)[newval].T
-
-
 def printbasesimple(base):
         print(tabulate(base.reshape((28, 28))))
 

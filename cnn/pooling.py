@@ -48,23 +48,8 @@ class MaxPool:
         self.maximum_indices = np.argmax(w.reshape(x.shape[0], self.out_dim[0], self.out_dim[1], self.out_dim[2], -1), axis=4)   
 
         return np.max(w, axis=(4, 5))
-    
-    def create_max_mask(self):
-        mask = np.zeros_like(self.input)
 
-        row_add = self.maximum_indices // self.size_kernel
-        col_add = self.maximum_indices % self.size_kernel
-
-        b_index, h_index, w_index, c_index = np.indices(self.maximum_indices.shape)
-
-        transformed_h = h_index * self.stride + row_add
-        transformed_w = w_index * self.stride + col_add
-
-        mask[b_index, transformed_h, transformed_w, c_index] = 1
-
-        return mask
-
-    def backward(self, dL_dout, batch_size=1): 
+    def backward(self, dL_dout, *args): 
         out = np.zeros_like(self.input)  # output gradient
 
         # Create indexes for the array
@@ -81,6 +66,21 @@ class MaxPool:
         out[b_index, real_h, real_w, c_index] = dL_dout
 
         return out
+    
+    def create_max_mask(self):
+        mask = np.zeros_like(self.input)
+
+        row_add = self.maximum_indices // self.size_kernel
+        col_add = self.maximum_indices % self.size_kernel
+
+        b_index, h_index, w_index, c_index = np.indices(self.maximum_indices.shape)
+
+        transformed_h = h_index * self.stride + row_add
+        transformed_w = w_index * self.stride + col_add
+
+        mask[b_index, transformed_h, transformed_w, c_index] = 1
+
+        return mask
 
 class MeanPool:
     """Mean Pooling layer.
@@ -90,12 +90,12 @@ class MeanPool:
             padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
         """
-    def __init__(self, size_kernel:int):
+    def __init__(self, size_kernel:int, stride:int=None):
         self.size_kernel = size_kernel
         self.out_dim = None
         self.input = None
 
-        self.stride = size_kernel #stride = size_kernel it is a pain to do it other way
+        self.stride = stride if stride is not None else size_kernel #stride = size_kernel I havent yet done it without this
 
     def initial_param(self, dim_in): 
         """Initialize the parameters.
@@ -128,7 +128,7 @@ class MeanPool:
 
         return np.mean(w, axis=(4, 5))
     
-    def backward(self, dL_dout:np.ndarray):
+    def backward(self, dL_dout:np.ndarray, *args):
         """Backpropagation / unpooling with mean.
 
         Args:

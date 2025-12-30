@@ -5,13 +5,11 @@ class Dense:
 
         Args:
             number_neurons (int): number of layers
-            learning_rate (float): learning rate
         """
-    def __init__(self, number_neurons:int, learning_rate:float):
+    def __init__(self, number_neurons:int):
         self.weight = None # weights of (number_neurons, length_input)
         self.bias = None # bias of (1, number neurons)
         self.input = None # input to layer
-        self.learning_rate = learning_rate
         self.number_neurons = number_neurons
 
     def initial_param(self, dim_in:int):
@@ -35,11 +33,13 @@ class Dense:
         self.input = x
         return x @ self.weight.T + self.bias #bias broadcasted across batch
     
-    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, learning_rate:float, batch_size:int=1):
         """Recover gradient layer before and actualise weights.
 
         Args:
             dL_dout (ndarray): gradient next layer. DIM = (batch_size, number_neurons) 
+            learning_rate (float): learning rate
+            batch_size (int): size of the batch
 
         Returns:
             ndarray: gradient for layer before. DIM = (batch_size, length_input)
@@ -51,7 +51,7 @@ class Dense:
         dL_dout = dL_dout @ self.weight #gradient for layer before
         
         # actualise weights and bias
-        self.weight -= self.learning_rate * dC_dw / batch_size
-        self.bias -= self.learning_rate * dC_db / batch_size
+        self.weight -= learning_rate * dC_dw / batch_size
+        self.bias -= learning_rate * dC_db / batch_size
 
         return dL_dout

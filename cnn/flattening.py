@@ -19,7 +19,7 @@ class Flattening:
         self.input = x
         return x.reshape((x.shape[0], -1))
     
-    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, *args):
         """Reshape for backpropagation.
 
         Args:

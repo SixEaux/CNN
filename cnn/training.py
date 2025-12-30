@@ -1,6 +1,7 @@
 from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 from cnn.import_data import import_data
 from cnn.model import Model
@@ -75,7 +76,7 @@ class Training:
             # add the accuracy after this iteration
             self.accuracies.append(accuracy)
 
-    def plot_smthg(self, smthg, title="", x_title="", y_title=""):
+    def plot_smthg(self, smthg:np.ndarray, save_to:str, title:str="", x_title:str="", y_title:str=""):
         plt.figure(figsize=(10, 6))
         plt.plot(smthg)
         plt.title(title)
@@ -83,4 +84,9 @@ class Training:
         plt.ylabel("Loss")
         plt.xlabel(x_title)
         plt.ylabel(y_title)
-        plt.show()
+
+        dir_plots = os.path.join("outputs", "plots")
+        new_folder_path = os.path.join(dir_plots, save_to)
+        os.makedirs(new_folder_path, exist_ok=True)
+
+        plt.savefig(os.path.join(new_folder_path, title))

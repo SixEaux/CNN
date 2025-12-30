@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Convolutional:
     """Convolutional layer.
 
@@ -9,10 +10,8 @@ class Convolutional:
 
             padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
-
-            learning_rate (float): learning rate
         """
-    def __init__(self, number_kernels:int, size_kernel:int, learning_rate:float, stride:int=1, padding:int=0):
+    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0):
 
         self.input = None
 
@@ -24,8 +23,6 @@ class Convolutional:
 
         self.stride = stride
         self.padding = padding
-
-        self.learning_rate = learning_rate
 
     def initial_param(self, dim_in:tuple): 
         """Initialize the parameters.
@@ -123,9 +120,9 @@ class Convolutional:
         #recover correct sizes from stride and pad
         b, h, w, c = dL_dout.shape
 
-        pad_value = self.size_kernel - 1 - self.padding
+        pad_value = self.size_kernel - 1 - self.padding #padding to add
 
-        new_h, new_w = h + (h-1)*(self.stride-1) + 2*pad_value, w + (w-1)*(self.stride-1) + 2*pad_value
+        new_h, new_w = h + (h-1)*(self.stride-1) + 2*pad_value, w + (w-1)*(self.stride-1) + 2*pad_value #h, w conversion to take stride (add zeros between rows) and padding (pad) into account
 
         out = np.zeros((b, new_h, new_w, c))
 
@@ -137,18 +134,19 @@ class Convolutional:
 
         rot_kernel = np.rot90(self.kernel, k=2, axes=(0,1))
 
-        w = np.lib.stride_tricks.sliding_window_view(out, (k_h, k_w), axis=(1,2)) #window view
+        w = np.lib.stride_tricks.sliding_window_view(out, (k_h, k_w), axis=(1,2)) #window view (! window of size kernel because we want to reduce by w_out, h_out and c_out in order to keep kernel shapes)
 
         c = np.tensordot(w, rot_kernel, axes=[(3, 4, 5), (3, 0, 1)]) #reduction
 
         return c
     
-    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, learning_rate:float, batch_size:int=1):
         """Chef backpropagation convolutional layer. It also adjustes the filters and biases
 
         Args:
             dL_dout (np.ndarray): gradient from next layer
             batch_size (int, optional): size of the batch. Defaults to 1.
+            learning_rate (float): learning rate
 
         Returns:
             np.ndarray: gradient error wrt input for layer before
@@ -158,7 +156,7 @@ class Convolutional:
 
         dL_dx = self.backward_input(dL_dout)
         
-        self.kernel -= self.learning_rate * dL_df / batch_size
-        self.bias -= self.learning_rate * dL_db / batch_size
+        self.kernel -= learning_rate * dL_df / batch_size
+        self.bias -= learning_rate * dL_db / batch_size
 
         return dL_dx
