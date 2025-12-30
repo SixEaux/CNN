@@ -165,17 +165,22 @@ class Convolutional:
 
 
 
-
-
 def convolution_im2col(x:np.ndarray, kernel:np.ndarray, padding:int=0):
         """Here is anot5her method of convolution which should be faster.
         It consists of creating the image with patches and reshape it and the kernel to vectorized form
         then np.dot should get the convolution.
         I will suppose for now that stride == kernel_size to get the main idea.
 
+        when this works well i actually can just keep everything in vectorized shapes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        see here for great explanation: https://petewarden.com/2015/04/20/why-gemm-is-at-the-heart-of-deep-learning/
+
         Args:
             x (np.ndarray): input array DIM = (batch_size, h, w, c)
             kernel (np.ndarray): kernel DIM = (size_kernel, size_kernel, c_in, number_kernels)
+        
+        Returns:
+            np.ndarray: convolution output
         """
 
         if padding > 0:
