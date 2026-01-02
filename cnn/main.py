@@ -26,7 +26,7 @@ model = Model(layers, Loss("CEL"), dataset, lr)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, batch_size=32)
+trainer = Training(dataset, model, test, batch_size=64)
 
 print("Initial test", test.exam())
 

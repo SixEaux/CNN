@@ -1,16 +1,19 @@
 import numpy as np
+from cnn.parmeter_initialization import he_initialization, xavier_initialization
 
 class Dense:
     """Dense layer.
 
         Args:
             number_neurons (int): number of layers
+            initialization (str): what type of initialization between: he, xavier
         """
-    def __init__(self, number_neurons:int):
+    def __init__(self, number_neurons:int, initialization:str="xavier"):
         self.weight = None # weights of (number_neurons, length_input)
         self.bias = None # bias of (1, number neurons)
         self.input = None # input to layer
         self.number_neurons = number_neurons
+        self.initialization = initialization
 
     def initial_param(self, dim_in:int):
         """Initialize the parameters.
@@ -18,7 +21,15 @@ class Dense:
         Args:
             dim_in (int): dimensions entering the layer.
         """
-        self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in)).astype(np.float32)
+        if self.initialization == "he":
+            self.weight = he_initialization(dim_in, self.number_neurons*dim_in).reshape((self.number_neurons, dim_in)).astype(np.float32)
+        elif self.initialization == "xavier":
+            self.weight = xavier_initialization(dim_in, self.number_neurons*dim_in).reshape((self.number_neurons, dim_in)).astype(np.float32)
+        elif self.initialization == "random":
+            self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in)).astype(np.float32)
+        else:
+            raise ValueError("I don't know this initialization.")
+
         self.bias = np.zeros((1, self.number_neurons)).astype(np.float32)
 
     def forward(self, x:np.ndarray):

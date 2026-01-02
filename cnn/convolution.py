@@ -1,5 +1,5 @@
 import numpy as np
-
+from cnn.parmeter_initialization import he_initialization, xavier_initialization
 
 class Convolutional:
     """Convolutional layer.
@@ -10,8 +10,9 @@ class Convolutional:
 
             padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
+            initialization (str): type of initialization between: he, xavier
         """
-    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0):
+    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0, initialization:str="xavier"):
 
         self.input = None
 
@@ -23,6 +24,7 @@ class Convolutional:
 
         self.stride = stride
         self.padding = padding
+        self.initialization = initialization
 
     def initial_param(self, dim_in:tuple): 
         """Initialize the parameters.
@@ -31,15 +33,22 @@ class Convolutional:
             dim_in (tuple): dimensions entering the layer.
         """
         h_in, w_in, channels_in = dim_in
-        self.kernel = np.random.uniform(-0.1, 0.1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+
+        if self.initialization == "he":
+            self.kernel = he_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+        elif self.initialization == "xavier":
+            self.kernel = xavier_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+        elif self.initialization == "random":
+            self.weight = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+        else:
+            raise ValueError("I don't know this initialization.")
 
         #for now supposing same height and width in out and same padding all around
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
         self.bias = np.zeros((1, out_dim, out_dim, self.number_kernels)).astype(np.float32)
- 
 
-    def convolution_forward(self, x:np.ndarray):
+    def convolution_forward_tensordot(self, x:np.ndarray):
         """Convolution forward pass.
 
         For output height and width (I) : O = ((I - K + P_start + P_end) / S) + 1 
@@ -77,9 +86,9 @@ class Convolutional:
             np.ndarray: output DIM = (batch_size, output_height, output_width, number_kernels)
         """
         self.input = x
-        return self.convolution_forward(x) + self.bias       
+        return self.convolution_forward_tensordot(x) + self.bias       
 
-    def backward_filter(self, dL_dout:np.ndarray):
+    def backward_filter_tensordot(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the filter to adjust weights.
         For this gradient I need to compute the convolution(input, error_gradient).
         If I understood correctly you don't take here into account stride and pad,
@@ -106,7 +115,7 @@ class Convolutional:
 
         return c.transpose(1,2,0,3)
     
-    def backward_input(self, dL_dout:np.ndarray):
+    def backward_input_tensordot(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the input.
         For this gradient I need to compute the convolution(180_flip(kernel), error_gradient).
         If I understood correctly here I need to dilate (add rows and columns of zeros in-between) the error_gradient of stride-1 rows and columns.
@@ -140,7 +149,7 @@ class Convolutional:
         c = np.tensordot(w, rot_kernel, axes=[(3, 4, 5), (3, 0, 1)]) #reduction
 
         return c
-    
+
     def backward(self, dL_dout:np.ndarray, learning_rate:float, batch_size:int=1):
         """Chef backpropagation convolutional layer. It also adjustes the filters and biases
 
@@ -152,10 +161,10 @@ class Convolutional:
         Returns:
             np.ndarray: gradient error wrt input for layer before
         """        
-        dL_df = self.backward_filter(dL_dout)
+        dL_df = self.backward_filter_tensordot(dL_dout)
         dL_db = np.sum(dL_dout, axis=0, keepdims=True) #sum accross batches
 
-        dL_dx = self.backward_input(dL_dout)
+        dL_dx = self.backward_input_tensordot(dL_dout)
         
         self.kernel -= learning_rate * dL_df / batch_size
         self.bias -= learning_rate * dL_db / batch_size
