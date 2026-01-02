@@ -40,15 +40,13 @@ class Model:
             loss (Loss): loss object 
             dataset (str): dataset used
             batch_size (int): size of batch used
-            learning_rate (float): learning rate
         """
 
-    def __init__(self, layers: list, loss: Loss, dataset: str, learning_rate:float):
+    def __init__(self, layers: list, loss: Loss, dataset: str):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
-        self.learning_rate = learning_rate
-
+        
         self.model_initial()
 
     def model_initial(self): 
@@ -86,13 +84,13 @@ class Model:
         loss = self.loss.forward(out, expected)
         return loss
 
-    def backward(self, batch_size:int):
+    def backward(self, batch_size:int, learning_rate:float):
         """Backward propagation through the layers.
         """
         delta = self.loss.backward()
 
         for l in reversed(self.layers):
-            delta = l.backward(delta, self.learning_rate, batch_size)
+            delta = l.backward(delta, learning_rate, batch_size)
 
     def choice(self, probabilities:np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
