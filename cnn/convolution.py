@@ -13,7 +13,7 @@ class Convolutional:
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
             initialization (str): type of initialization between: he, xavier
         """
-    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0, initialization:str="xavier"):
+    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0, initialization:str="xavier", numba:bool=False):
 
         self.input = None
 
@@ -21,11 +21,13 @@ class Convolutional:
         self.size_kernel = size_kernel
         self.out_dim = None # (height_out_conv, width_out_conv, number_kernels)
         self.kernel = None # (size_kernel, size_kernel, channels_in, number_kernels)
-        self.bias = None # (number_kernels, 1)
+        self.bias = None # (1, 1, 1, number_kernels)
 
         self.stride = stride
         self.padding = padding
         self.initialization = initialization
+
+        self.numba = numba
 
     def initial_param(self, dim_in:tuple): 
         """Initialize the parameters.
@@ -47,7 +49,7 @@ class Convolutional:
         #for now supposing same height and width in out and same padding all around
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
-        self.bias = np.zeros((self.number_kernels,), dtype=np.float32)
+        self.bias = np.zeros((1, 1, 1, self.number_kernels), dtype=np.float32)
 
     def convolution_forward_tensordot(self, x:np.ndarray):
         """Convolution forward pass.
@@ -87,7 +89,7 @@ class Convolutional:
             np.ndarray: output DIM = (batch_size, output_height, output_width, number_kernels)
         """
         self.input = x
-        return conv2d_forward(x, self.kernel, self.bias.reshape(-1), self.stride, self.padding)  #self.convolution_forward_tensordot(x) + self.bias
+        return self.convolution_forward_tensordot(x) + self.bias if not self.numba else conv2d_forward(x, self.kernel, self.bias, self.stride, self.padding)
 
     def backward_filter_tensordot(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the filter to adjust weights.
@@ -162,10 +164,10 @@ class Convolutional:
         Returns:
             np.ndarray: gradient error wrt input for layer before
         """        
-        dL_df = conv2d_backward_filter(self.input, dL_dout, self.size_kernel, self.size_kernel, self.stride, self.padding) # self.backward_filter_tensordot(dL_dout)
-        dL_db = np.sum(dL_dout, axis=(0, 1, 2))
+        dL_df = self.backward_filter_tensordot(dL_dout) if not self.numba else conv2d_backward_filter(self.input, dL_dout, self.size_kernel, self.size_kernel, self.stride, self.padding)
+        dL_db = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
 
-        dL_dx = conv2d_backward_input(dL_dout, self.kernel, self.size_kernel, self.size_kernel, self.stride, self.padding) #self.backward_input_tensordot(dL_dout)
+        dL_dx = self.backward_input_tensordot(dL_dout) if not self.numba else conv2d_backward_input(dL_dout, self.kernel, self.size_kernel, self.size_kernel, self.stride, self.padding) 
         
         self.kernel -= learning_rate * dL_df / batch_size
         self.bias -= learning_rate * dL_db / batch_size

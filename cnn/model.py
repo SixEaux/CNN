@@ -120,5 +120,5 @@ class Model:
     
     def export_model(self, filename:str):
         safe = {"layers":self.layers, "loss":self.loss, "dataset":self.dataset}
-        with open(os.path.join("trained_models" + filename), "wb") as f:
+        with open(os.path.join("trained_models/" + filename), "wb") as f:
             pickle.dump(safe, f)
