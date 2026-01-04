@@ -12,69 +12,6 @@ from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 from cnn.loss import Loss
 
-def get_weights_architecture(layers:list):
-    layers_parameters = []
-    architecture = []
-    for l in layers:
-        if isinstance(l, Dense):
-            layers_parameters.append((l.weight, l.bias))
-            architecture.append("Dense")
-        elif isinstance(l, Convolutional):
-            layers_parameters.append((l.kernel, l.bias, l.size_kernel, l.stride, l.padding))
-            architecture.append("Convolutional")
-        elif isinstance(l, Activation):
-            layers_parameters.append(l.function)
-            architecture.append("Activation")
-        elif isinstance(l, MaxPool):
-            layers_parameters.append((l.size_kernel, l.stride))
-            architecture.append("MaxPool")
-        elif isinstance(l, MeanPool):
-            layers_parameters.append((l.size_kernel, l.stride))
-            architecture.append("MeanPool")
-        elif isinstance(l, Flattening):
-            layers_parameters.append(None)
-            architecture.append("Flattening")
-
-    return layers_parameters, architecture
-
-def extract_model_state(layers: list, loss: Loss, train:Training):
-    layers_params, architecture = get_weights_architecture(layers)
-    return {
-        "architecture": architecture,
-        "layers": layers_params,
-        "loss": loss.function,
-        "dataset": train.dataset
-    }
-
-def extract_training_state(train: Training):
-    return {
-        "learning_rate": train.learning_rate,
-        "lr_decay": train.lr_decay_method,
-        "lambda_rate": train.lambda_rate,
-        "momentum_rate": train.momentum_rate,
-        "finished_epochs": train.finished_epochs,
-    }
-
-def extract_history(train: Training):
-    return {
-        "losses": train.losses,
-        "accuracies": train.accuracies,
-        "learning_rates": train.learning_rates,
-    }
-
-def save_model(model:Model, train:Training, filename:str, checkpoint:bool=False):
-    model_state = extract_model_state(model.layers, model.loss, train)
-    if not checkpoint:
-        to_save = {**model_state, "checkpoint":False}
-    else:
-        to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
-    try:
-        with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
-            pickle.dump(to_save, f)
-        print("SAVED.")
-    except FileNotFoundError:
-        print("Couldn't save.")
-
 def load_layers(architecture, parameters_layers):
     layers = []
 

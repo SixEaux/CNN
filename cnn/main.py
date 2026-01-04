@@ -12,9 +12,7 @@ from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 
-from cnn.save_load import save_model, load_model
-
-lr = 0.05
+lr = 0.1
 dataset = "mnist"
 
 layers = [
@@ -29,7 +27,7 @@ model = Model(layers, Loss("CEL"), dataset)
 
 test = Testing(dataset, model)
 
-trainer = Training(dataset, model, test, learning_rate=lr, lr_decay="", lambda_rate=0)
+trainer = Training(dataset, model, test, learning_rate=lr, lr_decay="exponential", lambda_rate=0.01)
 
 print("Initial test", test.exam())
 

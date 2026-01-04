@@ -7,6 +7,9 @@ from cnn.import_data import import_data
 from cnn.model import Model
 from cnn.testing import Testing
 
+from cnn.save_model import save_model
+
+
 
 class Training:
     """Training a model.
@@ -63,7 +66,7 @@ class Training:
         else:
             raise ValueError("Type of normalization not known.")
 
-    def SGD(self, epoch:int=1, batch_size:int=1):
+    def SGD(self, epoch:int=1, batch_size:int=1, to_save:str=""):
         """Training the model wiht or without batches (if no batches batch_size = 1).
 
         Args:   
@@ -92,6 +95,10 @@ class Training:
             accuracy = self.testing.exam()
             # add the accuracy after this iteration
             self.accuracies.append(accuracy)
+
+            if to_save != "":
+                if e % 10 == 0:
+                    save_model(self.model, self, to_save, checkpoint=True)
 
     def lr_decay(self):
         if self.lr_decay_method == "":
