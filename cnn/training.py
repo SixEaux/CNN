@@ -27,10 +27,10 @@ class Training:
         """
 
     def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
-                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0):
+                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, early_stop:bool=False):
         self.dataset = dataset
-        self.training_images, self.training_values, _, _ = import_data(
-            self.dataset)  # import data needed
+        self.validation_part = validation_part
+        self.training_images, self.training_values, self.validation_images, self.validation_values, _, _ = import_data(self.dataset, validation_part)  # import data needed
         self.model = model
         self.testing = testing
         self.learning_rate = learning_rate
@@ -39,11 +39,15 @@ class Training:
         self.lr_decay_method = lr_decay
         self.lambda_rate = lambda_rate
         self.momentum_rate = momentum_rate
-        self.finished_epochs = 0
-        self.learning_rates = [self.learning_rate]
 
-        self.losses = []  # to keep track of the losses of each iteration
-        self.accuracies = []  # to keep track of the accuracy of each iteration
+        self.finished_epochs = 0 # number of finished epochs
+        self.learning_rates = [self.learning_rate] # keep track of the learning rates of each iteration
+        self.losses = []  # keep track of the losses of each iteration
+        self.accuracies = []  # keep track of the accuracy of each iteration
+        self.validation_exams = [] # keep track of the accuracy of each iteration on validation set
+        self.validation_losses = [2, 2] # keep track loss in validation sample of this iteration
+
+        self.early_stop = early_stop
 
         self.normalization(normalize)
 
@@ -66,39 +70,16 @@ class Training:
         else:
             raise ValueError("Type of normalization not known.")
 
-    def SGD(self, epoch:int=1, batch_size:int=1, to_save:str=""):
-        """Training the model wiht or without batches (if no batches batch_size = 1).
+    def training_iteration(self, batch_size:int, num_batches:int):
+        for batch in trange(num_batches, desc="Batch"):
+            x_batch = self.training_images[batch *
+                                            batch_size:(batch+1)*batch_size]
+            exp_batch = self.training_values[batch *
+                                                batch_size:(batch+1)*batch_size]
 
-        Args:   
-            epoch (int, optional): number of iterations through the dataset. Defaults to 5.
-        """
-        for e in trange(epoch, desc="Epochs"):
-            mean_losses = []  # keep track of the losses of each image
-            num_batches = (self.training_images.shape[0] // batch_size)
-            for batch in trange(num_batches, desc="Batch"):
-                x_batch = self.training_images[batch *
-                                               batch_size:(batch+1)*batch_size]
-                exp_batch = self.training_values[batch *
-                                                 batch_size:(batch+1)*batch_size]
+            self.model.forward(x_batch, exp_batch)
 
-                mean_losses.append(self.model.forward(
-                    x_batch, exp_batch))  # add the loss
-
-                self.model.backward(batch_size, self.learning_rate)
-
-            self.finished_epochs += 1
-            self.lr_decay()
-            self.learning_rates.append(self.learning_rate)
-
-            # add the mean of the losses of this iteration
-            self.losses.append(np.mean(mean_losses))
-            accuracy = self.testing.exam()
-            # add the accuracy after this iteration
-            self.accuracies.append(accuracy)
-
-            if to_save != "":
-                if e % 10 == 0:
-                    save_model(self.model, self, to_save, checkpoint=True)
+            self.model.backward(batch_size, self.learning_rate)
 
     def lr_decay(self):
         if self.lr_decay_method == "":
@@ -109,6 +90,48 @@ class Training:
             self.learning_rate = self.initial_lr / (1 + self.lambda_rate * self.finished_epochs)
         else:
             raise ValueError("Not a valid decay method.")
+    
+
+    def early_stopping(self): # for the moment just simple early stopping but in the future do various methods
+        if self.validation_losses[-2] < self.validation_losses[-1]: #if the loss from previous iteration is smaller than this one
+            return True
+        else:
+            return False
+
+    def end_iteration(self):
+        self.finished_epochs += 1
+        self.lr_decay()
+
+        # add important info of this iteration
+        accuracy, loss = self.testing.exam()
+        self.accuracies.append(accuracy)
+        self.losses.append(loss)
+        self.learning_rates.append(self.learning_rate)
+
+        # add info about validation set
+        if self.validation_part > 0:
+            accuracy_validation, loss_validation = self.testing.exam(self.validation_images, self.validation_values)
+            self.validation_exams.append(accuracy_validation)
+            self.validation_losses.append(loss_validation)
+
+    def SGD(self, epoch:int=1, batch_size:int=1, to_save:str=""):
+            """Training the model wiht or without batches (if no batches batch_size = 1).
+
+            Args:   
+                epoch (int, optional): number of iterations through the dataset. Defaults to 5.
+            """
+            num_batches = (self.training_images.shape[0] // batch_size)
+            for e in trange(epoch, desc="Epochs"):
+                self.training_iteration(batch_size, num_batches)
+
+                self.end_iteration()
+
+                if to_save != "" and e % 10 == 0:
+                    save_model(self.model, self, to_save, checkpoint=True)
+
+                #early stopping
+                if self.early_stop and self.early_stopping():
+                    break
 
     def plot_smthg(self, smthg:np.ndarray, save_to:str, title:str="", x_title:str="", y_title:str="", show:bool=False, save:bool=True):
         plt.figure(figsize=(10, 6))

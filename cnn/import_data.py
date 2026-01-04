@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 
-def import_data(name:str):
+def import_data(name:str, validation_part:float=0):
     """Import the data based on which one used.
 
     Args:
@@ -25,7 +25,12 @@ def import_data(name:str):
 
         perm_train = np.random.permutation(train_images.shape[0])
 
-        return train_images[perm_train].astype(np.float32), train_values[perm_train], test_images.astype(np.float32), test_values
+        length_validation = int(train_images.shape[0]*validation_part)
+
+        perm_train_images, perm_train_values = train_images[perm_train], train_values[perm_train]
+        
+        
+        return perm_train_images[length_validation:].astype(np.float32), perm_train_values[length_validation:], perm_train_images[:length_validation], perm_train_values[:length_validation], test_images.astype(np.float32), test_values
 
     else:
         raise ValueError("Not a known dataset.")

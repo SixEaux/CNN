@@ -81,7 +81,7 @@ class Model:
         for l in self.layers:
             out = l.forward(out)
         loss = self.loss.forward(out, expected)
-        return loss
+        return out, loss
 
     def backward(self, batch_size:int, learning_rate:float):
         """Backward propagation through the layers.
@@ -102,17 +102,3 @@ class Model:
         """
 
         return np.argmax(probabilities, axis=1, keepdims=True)
-
-    def prediction(self, x:np.ndarray):
-        """Prediction for an image.
-
-        Args:
-            x (ndarray): input image. DIM = input_shape 
-
-        Returns:
-            ndarray: prediction. DIM = (batch_size, 1)
-        """
-        out = x
-        for l in range(len(self.layers)):
-            out = self.layers[l].forward(out)
-        return self.choice(out)

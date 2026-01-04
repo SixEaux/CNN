@@ -49,13 +49,16 @@ def extract_training_state(train):
         "lambda_rate": train.lambda_rate,
         "momentum_rate": train.momentum_rate,
         "finished_epochs": train.finished_epochs,
-    }
+        "early_stopping": train.early_stopping,
+        }
 
 def extract_history(train):
     return {
         "losses": train.losses,
         "accuracies": train.accuracies,
         "learning_rates": train.learning_rates,
+        "validation_losses": train.validation_losses,
+        "validation_accuracy": train.validation_exams,
     }
 
 def save_model(model, train, filename:str, checkpoint:bool=False):
