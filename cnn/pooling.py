@@ -5,14 +5,13 @@ class MaxPool:
 
         Args:
             size_kernel (int): size of the kernels
-            stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
+            stride (int, optional): stride of the convolution (of how much the kernel moves)
         """
     def __init__(self, size_kernel:int, stride:int=None):
         self.size_kernel = size_kernel
         self.out_dim = None
         self.input = None
-        self.maximum_indices = None
-        self.max_mask = None
+        self.maximum_indices = None # keep track of maximum indices
 
         self.stride = stride if stride is not None else size_kernel
 
@@ -23,8 +22,9 @@ class MaxPool:
             dim_in (tuple): dimensions entering the layer.
         """
 
-        #for now supposing same height and width in out and same padding all around
         h_in, w_in, channels_in = dim_in
+        
+        # TODO I might need to check out dim to be good it has to be exact
         out_dim = int(np.floor((h_in - self.size_kernel) / self.stride) + 1)
         
         self.out_dim = (out_dim, out_dim, channels_in)
@@ -49,7 +49,15 @@ class MaxPool:
 
         return np.max(w, axis=(4, 5))
 
-    def backward(self, dL_dout, *args): 
+    def backward(self, dL_dout:np.ndarray, *args): 
+        """Back propagation MaxPool layer.
+
+        Args:
+            dL_dout (ndarray): gradient from next layer
+
+        Returns:
+            ndarray: gradient for layer before
+        """
         out = np.zeros_like(self.input)  # output gradient
 
         # Create indexes for the array
@@ -68,6 +76,12 @@ class MaxPool:
         return out
     
     def create_max_mask(self):
+        """I don't need it but helped me understand how to do it. 
+        Creates a mask with ones at maximum positions.
+
+        Returns:
+            ndarray: mask of maxes
+        """
         mask = np.zeros_like(self.input)
 
         row_add = self.maximum_indices // self.size_kernel

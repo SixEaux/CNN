@@ -12,7 +12,20 @@ from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 from cnn.loss import Loss
 
-def load_layers(architecture, parameters_layers):
+def load_layers(architecture:list, parameters_layers:list):
+    """From the list of layers names get the list of layers objects.
+
+    Args:
+        architecture (list): list with the names of layers
+        parameters_layers (list): list with the parameters of each layer
+
+    Raises:
+        ValueError: I the name of the layer is not known
+
+    Returns:
+        list: objects of layers in order
+    """
+
     layers = []
 
     for l in range(len(architecture)):
@@ -63,6 +76,15 @@ def load_layers(architecture, parameters_layers):
     return layers
 
 def load_model(filename:str):
+    """Load a model trained.
+
+    Args:
+        filename (str): file where the model has been saved 
+
+    Returns:
+        Model | (Model & Training & Testing): if it is a checkpoint training load the 3 objects needed 
+        and if it is not a checkpoint for training only load the model
+    """
     try:
         with open(os.path.join("outputs/", "trained_models/" + filename), "rb") as f:
             saved = pickle.load(f)
@@ -84,6 +106,6 @@ def load_model(filename:str):
         test = Testing(dataset, model)
         train = Training(dataset, model, test, saved["learning_rate"], lr_decay=saved["lr_decay"], lambda_rate=saved["lambda_rate"], momentum_rate=saved["momentum_rate"])
         train.finished_epochs = saved["finished_epochs"]
-        train.early_stopping = saved["early_stopping"]
+        train.early_stop = saved["early_stop"]
         train.losses, train.accuracies, train.learning_rates, train.validation_exams, train.validation_losses = saved["losses"], saved["accuracies"], saved["learning_rates"], saved["validation_accuracy"], saved["validation_losses"]
         return model, train, test

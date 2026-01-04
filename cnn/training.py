@@ -24,6 +24,9 @@ class Training:
             lr_decay (str): method of learning rate decay
             lambda_rate (float): lambda parameter for exponential decay and inverse decay
             momentum_rate (float): value for parameter of momentum
+
+            validation_part (float, optional): part of the training set used for validation. Defaults to 0.
+            early_stop (bool, optional): stop early the training following method. Defaults to False.
         """
 
     def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
@@ -71,6 +74,12 @@ class Training:
             raise ValueError("Type of normalization not known.")
 
     def training_iteration(self, batch_size:int, num_batches:int):
+        """Do an iteration of training.
+
+        Args:
+            batch_size (int): size of the batch
+            num_batches (int): number of batches that divides dataset
+        """
         for batch in trange(num_batches, desc="Batch"):
             x_batch = self.training_images[batch *
                                             batch_size:(batch+1)*batch_size]
@@ -82,6 +91,11 @@ class Training:
             self.model.backward(batch_size, self.learning_rate)
 
     def lr_decay(self):
+        """Decay the learning rate based on the methof used.
+
+        Raises:
+            ValueError: if the method of learning decay is unkown
+        """
         if self.lr_decay_method == "":
             return 
         elif self.lr_decay_method == "exponential":
@@ -91,14 +105,20 @@ class Training:
         else:
             raise ValueError("Not a valid decay method.")
     
+    def early_stopping(self):
+        """Decay learning rate. For the moment just simple early stopping but in the future do various methods.
 
-    def early_stopping(self): # for the moment just simple early stopping but in the future do various methods
+        Returns:
+            bool: if True stop
+        """
         if self.validation_losses[-2] < self.validation_losses[-1]: #if the loss from previous iteration is smaller than this one
             return True
         else:
             return False
 
     def end_iteration(self):
+        """Stuff to do after the iteration.
+        """
         self.finished_epochs += 1
         self.lr_decay()
 
@@ -119,6 +139,8 @@ class Training:
 
             Args:   
                 epoch (int, optional): number of iterations through the dataset. Defaults to 5.
+                batch_size (int): size of the batch
+                to_save (str): if given saves the model to the file every 10 iterations
             """
             num_batches = (self.training_images.shape[0] // batch_size)
             for e in trange(epoch, desc="Epochs"):
@@ -133,7 +155,18 @@ class Training:
                 if self.early_stop and self.early_stopping():
                     break
 
-    def plot_smthg(self, smthg:np.ndarray, save_to:str, title:str="", x_title:str="", y_title:str="", show:bool=False, save:bool=True):
+    def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False):
+        """Plot stuff from model.
+
+        Args:
+            smthg (np.ndarray): stuff to plot
+            save_to (str): folder where to save the plot
+            title (str, optional): title of the plot and saved under this name. Defaults to "".
+            x_title (str, optional): label of x. Defaults to "".
+            y_title (str, optional): label of y. Defaults to "".
+            show (bool, optional): if true show the plot. Defaults to False.
+        """
+
         plt.figure(figsize=(10, 6))
         plt.plot(smthg)
         plt.title(title)
@@ -142,11 +175,10 @@ class Training:
         plt.xlabel(x_title)
         plt.ylabel(y_title)
 
-        dir_plots = os.path.join("outputs", "plots")
-        new_folder_path = os.path.join(dir_plots, save_to)
-        os.makedirs(new_folder_path, exist_ok=True)
-
-        if save:
+        if save_to != "":
+            dir_plots = os.path.join("outputs", "plots")
+            new_folder_path = os.path.join(dir_plots, save_to)
+            os.makedirs(new_folder_path, exist_ok=True)
             plt.savefig(os.path.join(new_folder_path, title))
 
         if show:

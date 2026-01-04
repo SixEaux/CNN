@@ -49,8 +49,7 @@ class Loss:
 
         Args:
             obs (ndarray): observed output. DIM = (batch_size, number_classes)
-            exp (ndarray): expected output. DIM = (batch_size,)
-            batch_size (int): batch size
+            exp (ndarray): expected output. DIM = (batch_size, 1)
 
         Returns:
             ndarray: loss value. Dim = (batch_size, 1)
@@ -73,9 +72,6 @@ class Loss:
 
     def backward(self):
         """Recover gradient for layer before.
-
-        Args:
-            
 
         Raises:
             ValueError: if the loss function unknown

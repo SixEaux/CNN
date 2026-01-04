@@ -71,12 +71,11 @@ class Model:
 
         Args:
             x (ndarray): input to model (will be either one image or mini-batch). DIM = (batch_size, flattened_input_shape) 
-            expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes,)
+            expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes, 1)
 
         Returns:
-            float: loss value of the iteration
+            tuple: output DIM = (batch_size, number_classes) and loss value of the iteration DIM = (batch_size, 1)
         """
-
         out = x
         for l in self.layers:
             out = l.forward(out)
@@ -85,6 +84,10 @@ class Model:
 
     def backward(self, batch_size:int, learning_rate:float):
         """Backward propagation through the layers.
+
+        Args:
+            batch_size (int): size of the batch
+            learning_rate (float): learning rate
         """
         delta = self.loss.backward()
 

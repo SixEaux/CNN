@@ -12,8 +12,11 @@ class Convolutional:
             padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
             initialization (str): type of initialization between: he, xavier
+
+            numba (bool): if true uses numba but doesn't work yet needs improving TODO
         """
-    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, padding:int=0, initialization:str="xavier", numba:bool=False):
+    def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, 
+                 padding:int=0, initialization:str="xavier", numba:bool=False):
 
         self.input = None
 
@@ -46,7 +49,6 @@ class Convolutional:
         else:
             raise ValueError("I don't know this initialization.")
 
-        #for now supposing same height and width in out and same padding all around
         out_dim = int(np.floor((h_in - self.size_kernel + 2*self.padding) / self.stride) + 1)
         self.out_dim = (out_dim, out_dim, self.number_kernels)
         self.bias = np.zeros((1, 1, 1, self.number_kernels), dtype=np.float32)
@@ -94,8 +96,7 @@ class Convolutional:
     def backward_filter_tensordot(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the filter to adjust weights.
         For this gradient I need to compute the convolution(input, error_gradient).
-        If I understood correctly you don't take here into account stride and pad,
-        this is only taken into account for the computation of the error wrt the input.
+        I need to add pad and take strides.
 
         Args:
             dL_dout (np.ndarray): gradient from next layer

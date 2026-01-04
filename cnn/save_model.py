@@ -9,6 +9,14 @@ from cnn.pooling import MaxPool, MeanPool
 from cnn.loss import Loss
 
 def get_weights_architecture(layers:list):
+    """Get layers and architecture for saving
+
+    Args:
+        layers (list): list of layers objects
+
+    Returns:
+        tuple: layers list of parameters and list of names layers
+    """
     layers_parameters = []
     architecture = []
     for l in layers:
@@ -34,6 +42,16 @@ def get_weights_architecture(layers:list):
     return layers_parameters, architecture
 
 def extract_model_state(layers: list, loss: Loss, train):
+    """Extract model state for saving.
+
+    Args:
+        layers (list): list of layers classes
+        loss (Loss): loss classes
+        train (Training): Training class
+
+    Returns:
+        dict: model state
+    """
     layers_params, architecture = get_weights_architecture(layers)
     return {
         "architecture": architecture,
@@ -43,16 +61,32 @@ def extract_model_state(layers: list, loss: Loss, train):
     }
 
 def extract_training_state(train):
+    """Extract training state.
+
+    Args:
+        train (Training): class
+
+    Returns:
+        dict: training state
+    """
     return {
         "learning_rate": train.learning_rate,
         "lr_decay": train.lr_decay_method,
         "lambda_rate": train.lambda_rate,
         "momentum_rate": train.momentum_rate,
         "finished_epochs": train.finished_epochs,
-        "early_stopping": train.early_stopping,
+        "early_stop": train.early_stop,
         }
 
 def extract_history(train):
+    """Extract history of training.
+
+    Args:
+        train (Training): class
+
+    Returns:
+        dict: history of training
+    """
     return {
         "losses": train.losses,
         "accuracies": train.accuracies,
@@ -62,6 +96,14 @@ def extract_history(train):
     }
 
 def save_model(model, train, filename:str, checkpoint:bool=False):
+    """Save the model.
+
+    Args:
+        model (Model): model class
+        train (Training): training class
+        filename (str): file to save model
+        checkpoint (bool, optional): is it a checkpoint save or not (for continuing training later). Defaults to False.
+    """
     model_state = extract_model_state(model.layers, model.loss, train)
     if not checkpoint:
         to_save = {**model_state, "checkpoint":False}

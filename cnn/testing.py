@@ -18,8 +18,12 @@ class Testing:
     def exam(self, images_test:np.ndarray=None, values_test:np.ndarray=None):
         """Test accuracy of the model.
 
+        Args:
+            images_test (np.ndarray, optional): images to test on. Defaults to None.
+            values_test (np.ndarray, optional): values to test on. Defaults to None.
+
         Returns:
-            float: accuracy of the model
+            tuple: accuracy of the model and mean loss
         """
 
         if images_test is None and values_test is None:

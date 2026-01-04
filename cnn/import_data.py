@@ -23,12 +23,11 @@ def import_data(name:str, validation_part:float=0):
         with open(paths[3], "rb") as f:
             test_values = pickle.load(f) # 10000 x 1
 
-        perm_train = np.random.permutation(train_images.shape[0])
-
-        length_validation = int(train_images.shape[0]*validation_part)
-
+        #randomize order images for training
+        perm_train = np.random.permutation(train_images.shape[0]) 
         perm_train_images, perm_train_values = train_images[perm_train], train_values[perm_train]
-        
+
+        length_validation = int(train_images.shape[0]*validation_part) #get the length of the validation set
         
         return perm_train_images[length_validation:].astype(np.float32), perm_train_values[length_validation:], perm_train_images[:length_validation], perm_train_values[:length_validation], test_images.astype(np.float32), test_values
 
