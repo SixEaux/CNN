@@ -21,8 +21,6 @@ As a convention when i use:
 """
 
 import numpy as np
-import pickle
-import os
 
 from cnn.loss import Loss
 from cnn.dense import Dense
@@ -42,12 +40,13 @@ class Model:
             batch_size (int): size of batch used
         """
 
-    def __init__(self, layers: list, loss: Loss, dataset: str):
+    def __init__(self, layers: list, loss: Loss, dataset: str, initialized:bool=False):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
         
-        self.model_initial()
+        if not initialized:
+            self.model_initial()
 
     def model_initial(self): 
         """Initialize the model based on dimensions input.
@@ -117,8 +116,3 @@ class Model:
         for l in range(len(self.layers)):
             out = self.layers[l].forward(out)
         return self.choice(out)
-    
-    def export_model(self, filename:str):
-        safe = {"layers":self.layers, "loss":self.loss, "dataset":self.dataset}
-        with open(os.path.join("trained_models/" + filename), "wb") as f:
-            pickle.dump(safe, f)

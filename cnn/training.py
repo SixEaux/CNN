@@ -23,12 +23,11 @@ class Training:
             momentum_rate (float): value for parameter of momentum
         """
 
-    def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division", batch_size: int = 1,
+    def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
                  lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0):
         self.dataset = dataset
         self.training_images, self.training_values, _, _ = import_data(
             self.dataset)  # import data needed
-        self.batch_size = batch_size
         self.model = model
         self.testing = testing
         self.learning_rate = learning_rate
@@ -64,25 +63,25 @@ class Training:
         else:
             raise ValueError("Type of normalization not known.")
 
-    def SGD(self, epoch: int = 1):
-        """Training the model wiht or without batches (if no batches self.batch_size = 1).
+    def SGD(self, epoch:int=1, batch_size:int=1):
+        """Training the model wiht or without batches (if no batches batch_size = 1).
 
         Args:   
             epoch (int, optional): number of iterations through the dataset. Defaults to 5.
         """
         for e in trange(epoch, desc="Epochs"):
             mean_losses = []  # keep track of the losses of each image
-            num_batches = (self.training_images.shape[0] // self.batch_size)
+            num_batches = (self.training_images.shape[0] // batch_size)
             for batch in trange(num_batches, desc="Batch"):
                 x_batch = self.training_images[batch *
-                                               self.batch_size:(batch+1)*self.batch_size]
+                                               batch_size:(batch+1)*batch_size]
                 exp_batch = self.training_values[batch *
-                                                 self.batch_size:(batch+1)*self.batch_size]
+                                                 batch_size:(batch+1)*batch_size]
 
                 mean_losses.append(self.model.forward(
                     x_batch, exp_batch))  # add the loss
 
-                self.model.backward(self.batch_size, self.learning_rate)
+                self.model.backward(batch_size, self.learning_rate)
 
             self.finished_epochs += 1
             self.lr_decay()
@@ -104,7 +103,7 @@ class Training:
         else:
             raise ValueError("Not a valid decay method.")
 
-    def plot_smthg(self, smthg:np.ndarray, save_to:str, title:str="", x_title:str="", y_title:str="", show:bool=False):
+    def plot_smthg(self, smthg:np.ndarray, save_to:str, title:str="", x_title:str="", y_title:str="", show:bool=False, save:bool=True):
         plt.figure(figsize=(10, 6))
         plt.plot(smthg)
         plt.title(title)
@@ -117,7 +116,8 @@ class Training:
         new_folder_path = os.path.join(dir_plots, save_to)
         os.makedirs(new_folder_path, exist_ok=True)
 
-        plt.savefig(os.path.join(new_folder_path, title))
+        if save:
+            plt.savefig(os.path.join(new_folder_path, title))
 
         if show:
             plt.show()
