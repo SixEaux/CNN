@@ -11,6 +11,7 @@ from cnn.model import Model
 from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool
+from cnn.dropout import Dropout
 
 from cnn.save_model import save_model
 from cnn.load_model import load_model
@@ -46,6 +47,9 @@ layers = [
     Flattening(),
     Dense(64, initialization=initialization),
     Activation(acti_func),
+
+    Dropout(0.2),
+
     Dense(10)
 ]
 

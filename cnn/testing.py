@@ -30,7 +30,7 @@ class Testing:
             images_test = self.testing_images
             values_test = self.testing_values
 
-        out, loss = self.model.forward(images_test, values_test)
+        out, loss = self.model.forward(images_test, values_test, test=True)
         preds = self.model.choice(out)
         accuracy = np.mean(preds == values_test) * 100
 

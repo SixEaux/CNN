@@ -27,7 +27,7 @@ from cnn.dense import Dense
 from cnn.convolution import Convolutional
 from cnn.flattening import Flattening
 from cnn.pooling import MaxPool, MeanPool
-
+from cnn.dropout import Dropout
 
 
 class Model:
@@ -79,7 +79,7 @@ class Model:
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
 
-    def forward(self, x:np.ndarray, expected:np.ndarray):
+    def forward(self, x:np.ndarray, expected:np.ndarray, test:bool=False):
         """Forward propagation through all the layers. 
 
         Args:
@@ -91,6 +91,10 @@ class Model:
         """
         out = x
         for l in self.layers:
+
+            if test and isinstance(l, Dropout): # if its a test then dropout not taking into account
+                continue
+
             out = l.forward(out)
         loss = self.loss.forward(out, expected)
         return out, loss
