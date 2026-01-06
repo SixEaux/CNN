@@ -15,7 +15,7 @@ class MaxPool:
 
         self.stride = stride if stride is not None else size_kernel
 
-    def initial_param(self, dim_in): 
+    def initial_param(self, dim_in, *args): 
         """Initialize the parameters.
 
         Args:

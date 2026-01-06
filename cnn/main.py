@@ -22,26 +22,30 @@ import numpy as np
 # =========================
 lr = 0.3
 dataset = "mnist"
-epochs = 10
+epochs = 1
 batch_size = 64
 file = "main_model"
 
-"""
+
 # =========================
 # Model definition
 # =========================
+
+initialization = "he"
+acti_func = "relu"
+
 layers = [
-    Convolutional(8, 3, padding=1, stride=1, initialization="he"),
-    Activation("relu"),
+    Convolutional(8, 3, padding=1, stride=1, initialization=initialization),
+    Activation(acti_func),
     MaxPool(2, stride=2),
 
-    Convolutional(16, 3, padding=1, stride=1, initialization="he"),
-    Activation("relu"),
+    Convolutional(16, 3, padding=1, stride=1, initialization=initialization),
+    Activation(acti_func),
     MaxPool(2, stride=2),
 
     Flattening(),
-    Dense(64, initialization="he"),
-    Activation("relu"),
+    Dense(64, initialization=initialization),
+    Activation(acti_func),
     Dense(10)
 ]
 
@@ -61,10 +65,10 @@ trainer = Training(
     testing=test,
     learning_rate=lr,
     lr_decay="exponential",
-    lambda_rate=0.009,
+    lambda_rate=0.01,
     validation_part=0,
     early_stop=False,
-    momentum_rate=0.01
+    momentum_rate=0.005
 )
 
 # =========================
@@ -87,14 +91,15 @@ print(f"Accuracy: {final_acc:.4f}")
 save_model(model, trainer, file, True) 
 
 # , save_to=file
-trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=True)
-trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=True)
-trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=True)
+show = False
+trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show)
+trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show)
+trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show)
 # trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
 # trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
+
+
 """
-
-
 model, train, test = load_model(file)
 
-print(test.exam()[0])
+print(test.exam()[0])"""

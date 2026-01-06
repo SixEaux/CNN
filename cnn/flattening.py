@@ -4,7 +4,7 @@ class Flattening:
     def __init__(self):
         self.input = None
     
-    def initial_param(self, dim_in): # just so every layer has one
+    def initial_param(self, *args): # just so every layer has one
         return
 
     def forward(self, x:np.ndarray):

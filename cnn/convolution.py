@@ -34,18 +34,20 @@ class Convolutional:
 
         self.last_variation = np.zeros_like(self.kernel) #keep track of last variation of the weights for momentum
 
-    def initial_param(self, dim_in:tuple): 
+    def initial_param(self, dim_in:tuple, dim_out:tuple): 
         """Initialize the parameters.
 
         Args:
             dim_in (tuple): dimensions entering the layer.
         """
+        
         h_in, w_in, channels_in = dim_in
+        h_out, w_out, channels_out = dim_out
 
         if self.initialization == "he":
             self.kernel = he_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         elif self.initialization == "xavier":
-            self.kernel = xavier_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+            self.kernel = xavier_initialization(h_in*w_in, h_out*w_out, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         elif self.initialization == "random":
             self.weight = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         else:

@@ -14,7 +14,7 @@ def he_initialization(dim_in, size): # for relu
     rng = np.random.default_rng()
     return rng.normal(0, np.sqrt(2/dim_in), size)
 
-def xavier_initialization(dim_in, size): # TODO to do
+def xavier_initialization(dim_in, dim_out, size): # for sigmoid
     """Xavier initialization. Initialize by doing a normal with 
     mu=0 and sd=sqrt(2/input_dimension).
 
@@ -26,4 +26,5 @@ def xavier_initialization(dim_in, size): # TODO to do
         ndarray: initialization of weights and kernel
     """
     rng = np.random.default_rng()
-    return rng.normal(0, np.sqrt(1/dim_in), size)
+    value = np.sqrt(6/(dim_in + dim_out))
+    return rng.uniform(-value, value, size)

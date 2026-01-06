@@ -11,9 +11,10 @@ class Activation:
 
     def __init__(self, function:str):
         self.function = function
-        self.input = None
+        self.input = None 
+        self.output = None #keep track of output not to recompute in sigmoid/tanh
 
-    def initial_param(self, dim_in): # just so every layer has one
+    def initial_param(self, *args): # just so every layer has one
         return
 
     def forward(self, x:np.ndarray):
@@ -30,13 +31,15 @@ class Activation:
         """
         if self.function == "sigmoid":
             self.input = x
-            return expit(x)
+            self.output = expit(x)
+            return self.output
         elif self.function == "relu":
             self.input = x
             return np.maximum(x, 0)  
         elif self.function == "tanh":
             self.input = x
-            return np.tanh(x)
+            self.output = np.tanh(x)
+            return self.output
         else:
             raise ValueError("Activation function is not valid.")
     
@@ -54,11 +57,11 @@ class Activation:
         """
 
         if self.function == "sigmoid":
-            return dL * expit(self.input)*(1-expit(self.input)) 
+            return dL * self.output*(1-self.output) 
         elif self.function == "relu":
             return dL * np.where(self.input>=0, 1, 0)
         elif self.function == "tanh":
-            return dL * (1 - np.tanh(self.input)**2)
+            return dL * (1 - self.output**2)
         else:
             raise ValueError("Activation function is not valid.")
         

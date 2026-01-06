@@ -48,6 +48,16 @@ class Model:
         if not initialized:
             self.model_initial()
 
+    def precompute_fan_out(self, l, dim_in:tuple):
+        if isinstance(l, Dense):
+            return l.number_neurons
+        elif isinstance(l, Convolutional):
+            h_in, w_in, channels_in = dim_in
+            h_out = int(np.floor((h_in - l.size_kernel + 2*l.padding) / l.stride) + 1)
+            return h_out, h_out, l.number_kernels
+        else:
+            return
+
     def model_initial(self): 
         """Initialize the model based on dimensions input.
         """
@@ -55,7 +65,10 @@ class Model:
         last_dim_out = dims_dataset[self.dataset]
 
         for l in self.layers:
-            l.initial_param(last_dim_out)
+            
+            fan_out = self.precompute_fan_out(l, last_dim_out)
+
+            l.initial_param(last_dim_out, fan_out)
 
             if isinstance(l, Dense):
                 last_dim_out = l.number_neurons

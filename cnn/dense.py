@@ -17,7 +17,7 @@ class Dense:
 
         self.last_variation = np.zeros_like(self.weight) #keep track of last variation of the weights for momentum
 
-    def initial_param(self, dim_in:int):
+    def initial_param(self, dim_in:int, dim_out:int):
         """Initialize the parameters.
 
         Args:
@@ -26,7 +26,7 @@ class Dense:
         if self.initialization == "he":
             self.weight = he_initialization(dim_in, self.number_neurons*dim_in).reshape((self.number_neurons, dim_in)).astype(np.float32)
         elif self.initialization == "xavier":
-            self.weight = xavier_initialization(dim_in, self.number_neurons*dim_in).reshape((self.number_neurons, dim_in)).astype(np.float32)
+            self.weight = xavier_initialization(dim_in, dim_out, self.number_neurons*dim_in).reshape((self.number_neurons, dim_in)).astype(np.float32)
         elif self.initialization == "random":
             self.weight = np.random.uniform(-1, 1, (self.number_neurons, dim_in)).astype(np.float32)
         else:

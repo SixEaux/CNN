@@ -13,7 +13,7 @@ class Loss:
         self.expected = None
         self.observed = None
     
-    def initial_param(self, dim_in): # just so every layer has one
+    def initial_param(self, *args): # just so every layer has one
         return
 
     def softmax(self, x:np.ndarray):
