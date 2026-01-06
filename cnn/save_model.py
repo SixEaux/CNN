@@ -24,7 +24,7 @@ def get_weights_architecture(layers:list):
             layers_parameters.append((l.weight, l.bias))
             architecture.append("Dense")
         elif isinstance(l, Convolutional):
-            layers_parameters.append((l.kernel, l.bias, l.size_kernel, l.stride, l.padding))
+            layers_parameters.append((l.kernel, l.bias, l.size_kernel, l.stride, l.padding, l.out_dim))
             architecture.append("Convolutional")
         elif isinstance(l, Activation):
             layers_parameters.append(l.function)

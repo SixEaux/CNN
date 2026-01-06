@@ -22,7 +22,7 @@ import numpy as np
 # =========================
 lr = 0.3
 dataset = "mnist"
-epochs = 0
+epochs = 5
 batch_size = 64
 file = "main_model"
 
@@ -61,8 +61,9 @@ trainer = Training(
     learning_rate=lr,
     lr_decay="exponential",
     lambda_rate=0.009,
-    validation_part=1/6,
-    early_stop=True
+    validation_part=0,
+    early_stop=False,
+    momentum_rate=0.01
 )
 
 # =========================
@@ -84,15 +85,12 @@ print(f"Accuracy: {final_acc:.4f}")
 
 save_model(model, trainer, file, True) 
 
-
 # , save_to=file
-trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss")
-trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy")
-trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate")
-trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
-trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
-
-
+trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=True)
+trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=True)
+trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=True)
+# trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
+# trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
 
 
 """model, train, test = load_model(file)

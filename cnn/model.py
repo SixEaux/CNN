@@ -82,17 +82,18 @@ class Model:
         loss = self.loss.forward(out, expected)
         return out, loss
 
-    def backward(self, batch_size:int, learning_rate:float):
+    def backward(self, batch_size:int, learning_rate:float, momentum_rate:float):
         """Backward propagation through the layers.
 
         Args:
             batch_size (int): size of the batch
             learning_rate (float): learning rate
+            momentum_rate (float): dependence on gradient before
         """
         delta = self.loss.backward()
 
         for l in reversed(self.layers):
-            delta = l.backward(delta, learning_rate, batch_size)
+            delta = l.backward(delta, learning_rate, momentum_rate, batch_size)
 
     def choice(self, probabilities:np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).

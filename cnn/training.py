@@ -88,7 +88,7 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, self.learning_rate)
+            self.model.backward(batch_size, self.learning_rate, self.momentum_rate)
 
     def lr_decay(self):
         """Decay the learning rate based on the methof used.

@@ -32,6 +32,8 @@ class Convolutional:
 
         self.numba = numba
 
+        self.last_variation = np.zeros_like(self.kernel) #keep track of last variation of the weights for momentum
+
     def initial_param(self, dim_in:tuple): 
         """Initialize the parameters.
 
@@ -154,13 +156,14 @@ class Convolutional:
 
         return c
 
-    def backward(self, dL_dout:np.ndarray, learning_rate:float, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, learning_rate:float, momentum_rate:float, batch_size:int=1):
         """Chef backpropagation convolutional layer. It also adjustes the filters and biases
 
         Args:
             dL_dout (np.ndarray): gradient from next layer
             batch_size (int, optional): size of the batch. Defaults to 1.
             learning_rate (float): learning rate
+            moemntum_rate (float): dependence on gradient before
 
         Returns:
             np.ndarray: gradient error wrt input for layer before
@@ -170,8 +173,12 @@ class Convolutional:
 
         dL_dx = self.backward_input_tensordot(dL_dout) if not self.numba else conv2d_backward_input(dL_dout, self.kernel, self.size_kernel, self.size_kernel, self.stride, self.padding) 
         
-        self.kernel -= learning_rate * dL_df / batch_size
+        dK = learning_rate * dL_df / batch_size #variation of kernel weights of this iteration
+
+        self.kernel -= dK + momentum_rate * self.last_variation
         self.bias -= learning_rate * dL_db / batch_size
+
+        self.last_variation = dK
 
         return dL_dx
     
