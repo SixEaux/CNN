@@ -147,7 +147,15 @@ class Training:
                 to_save (str): if given saves the model to the file every 10 iterations
             """
             num_batches = (self.training_images.shape[0] // batch_size)
+
             for e in trange(epoch, desc="Epochs"):
+
+                #permutate the data for new batches
+                perm = np.random.permutation(self.training_images.shape[0])
+
+                self.training_images = self.training_images[perm]
+                self.training_values = self.training_values[perm]
+
                 self.training_iteration(batch_size, num_batches)
 
                 self.end_iteration()

@@ -95,7 +95,7 @@ def extract_history(train):
         "validation_accuracy": train.validation_exams,
     }
 
-def save_model(model, train, filename:str, checkpoint:bool=False, minus_y:bool=False):
+def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:bool=False):
     """Save the model.
 
     Args:
@@ -124,6 +124,10 @@ def save_model(model, train, filename:str, checkpoint:bool=False, minus_y:bool=F
             i = input("Are you sure you want to save it? (y/n)")
 
             if i == "y":
+
+                if filename=="":
+                    filename = input("Can you write the filename please: ")
+
                 model_state = extract_model_state(model.layers, model.loss, train)
                 if not checkpoint:
                     to_save = {**model_state, "checkpoint":False}
@@ -134,13 +138,16 @@ def save_model(model, train, filename:str, checkpoint:bool=False, minus_y:bool=F
                     with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
                         pickle.dump(to_save, f)
                     print("SAVED.")
+                    break
                 except FileNotFoundError:
                     print("Couldn't save.")
-                finally:
-                    break
             
             elif i == "n":
                 print("You decided not to save.")
+                break
+        
+            elif i == "oh no an infinite loop":
+                print("Don't worry, I am here")
                 break
         
             else:

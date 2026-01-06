@@ -44,6 +44,8 @@ class Model:
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
+
+        self.saved_outputs = []
         
         if not initialized:
             self.model_initial()
@@ -79,7 +81,7 @@ class Model:
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
 
-    def forward(self, x:np.ndarray, expected:np.ndarray, test:bool=False):
+    def forward(self, x:np.ndarray, expected:np.ndarray, test:bool=False, save_out:bool=False):
         """Forward propagation through all the layers. 
 
         Args:
@@ -89,6 +91,9 @@ class Model:
         Returns:
             tuple: output DIM = (batch_size, number_classes) and loss value of the iteration DIM = (batch_size, 1)
         """
+
+        assert x.ndim == 4, "Not the right shapes for the input"
+
         out = x
         for l in self.layers:
 
@@ -96,6 +101,10 @@ class Model:
                 continue
 
             out = l.forward(out)
+
+            if save_out:
+                self.saved_outputs.append(out) 
+
         loss = self.loss.forward(out, expected)
         return out, loss
 

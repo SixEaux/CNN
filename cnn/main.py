@@ -16,6 +16,8 @@ from cnn.dropout import Dropout
 from cnn.save_model import save_model
 from cnn.load_model import load_model
 
+from cnn.visualize import visual_image, visual_outputs
+
 import numpy as np
 
 # =========================
@@ -23,11 +25,11 @@ import numpy as np
 # =========================
 lr = 0.3
 dataset = "mnist"
-epochs = 1
+epochs = 10
 batch_size = 64
 file = "main_model"
 
-
+"""
 # =========================
 # Model definition
 # =========================
@@ -47,8 +49,8 @@ layers = [
     Flattening(),
     Dense(64, initialization=initialization),
     Activation(acti_func),
-
-    Dropout(0.2),
+ 
+    #Dropout(0.2),
 
     Dense(10)
 ]
@@ -92,18 +94,26 @@ print("Evaluation after training")
 final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
 
-save_model(model, trainer, file, True) 
-
-# , save_to=file
-show = False
-trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show)
-trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show)
-trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show)
-# trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
-# trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
+save_model(model, trainer, file, True) """
 
 
-"""
-model, train, test = load_model(file)
+model, trainer, test = load_model(file)
 
-print(test.exam()[0])"""
+# print(test.exam()[0])
+
+model.forward(trainer.training_images[34:35], trainer.training_values[34], save_out=True)
+
+visual_image(trainer.training_images[34:35])
+
+visual_outputs(model, 0)
+visual_outputs(model, 3)
+
+# save_model(model, trainer, file, True)
+
+# show = True
+# trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file)
+# trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file)
+# trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file)
+# # trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
+# # trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
+
