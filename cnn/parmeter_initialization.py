@@ -26,4 +26,4 @@ def xavier_initialization(dim_in, size): # TODO to do
         ndarray: initialization of weights and kernel
     """
     rng = np.random.default_rng()
-    return rng.normal(0, np.sqrt(2/dim_in), size)
+    return rng.normal(0, np.sqrt(1/dim_in), size)

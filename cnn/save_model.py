@@ -95,7 +95,7 @@ def extract_history(train):
         "validation_accuracy": train.validation_exams,
     }
 
-def save_model(model, train, filename:str, checkpoint:bool=False):
+def save_model(model, train, filename:str, checkpoint:bool=False, minus_y:bool=False):
     """Save the model.
 
     Args:
@@ -103,15 +103,51 @@ def save_model(model, train, filename:str, checkpoint:bool=False):
         train (Training): training class
         filename (str): file to save model
         checkpoint (bool, optional): is it a checkpoint save or not (for continuing training later). Defaults to False.
+        minus_y (bool): save without asking
     """
-    model_state = extract_model_state(model.layers, model.loss, train)
-    if not checkpoint:
-        to_save = {**model_state, "checkpoint":False}
+
+    if minus_y:
+        model_state = extract_model_state(model.layers, model.loss, train)
+        if not checkpoint:
+            to_save = {**model_state, "checkpoint":False}
+        else:
+            to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
+        try:
+            with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
+                pickle.dump(to_save, f)
+            print("SAVED.")
+        except FileNotFoundError:
+            print("Couldn't save.")
+    
     else:
-        to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
-    try:
-        with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
-            pickle.dump(to_save, f)
-        print("SAVED.")
-    except FileNotFoundError:
-        print("Couldn't save.")
+        while True:
+            i = input("Are you sure you want to save it? (y/n)")
+
+            if i == "y":
+                model_state = extract_model_state(model.layers, model.loss, train)
+                if not checkpoint:
+                    to_save = {**model_state, "checkpoint":False}
+                else:
+                    to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
+                
+                try:
+                    with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
+                        pickle.dump(to_save, f)
+                    print("SAVED.")
+                except FileNotFoundError:
+                    print("Couldn't save.")
+                finally:
+                    break
+            
+            elif i == "n":
+                print("You decided not to save.")
+                break
+        
+            else:
+                print("Not a valid input.")
+        
+        
+
+    
+    
+    

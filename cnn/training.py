@@ -48,7 +48,7 @@ class Training:
         self.losses = []  # keep track of the losses of each iteration
         self.accuracies = []  # keep track of the accuracy of each iteration
         self.validation_exams = [] # keep track of the accuracy of each iteration on validation set
-        self.validation_losses = [2, 2] # keep track loss in validation sample of this iteration
+        self.validation_losses = [] # keep track loss in validation sample of this iteration
 
         self.early_stop = early_stop
 
@@ -96,9 +96,7 @@ class Training:
         Raises:
             ValueError: if the method of learning decay is unkown
         """
-        if self.lr_decay_method == "":
-            return 
-        elif self.lr_decay_method == "exponential":
+        if self.lr_decay_method == "exponential":
             self.learning_rate = self.initial_lr * np.exp(-self.lambda_rate*self.finished_epochs)
         elif self.lr_decay_method == "inverse":
             self.learning_rate = self.initial_lr / (1 + self.lambda_rate * self.finished_epochs)
@@ -120,19 +118,25 @@ class Training:
         """Stuff to do after the iteration.
         """
         self.finished_epochs += 1
-        self.lr_decay()
 
         # add important info of this iteration
         accuracy, loss = self.testing.exam()
         self.accuracies.append(accuracy)
         self.losses.append(loss)
-        self.learning_rates.append(self.learning_rate)
 
         # add info about validation set
         if self.validation_part > 0:
             accuracy_validation, loss_validation = self.testing.exam(self.validation_images, self.validation_values)
             self.validation_exams.append(accuracy_validation)
             self.validation_losses.append(loss_validation)
+
+        # update learning rate
+        self.learning_rate_update()
+        self.learning_rates.append(self.learning_rate)
+
+    def learning_rate_update(self):
+        if self.lr_decay_method != "":
+            self.lr_decay()
 
     def SGD(self, epoch:int=1, batch_size:int=1, to_save:str=""):
             """Training the model wiht or without batches (if no batches batch_size = 1).
@@ -149,10 +153,13 @@ class Training:
                 self.end_iteration()
 
                 if to_save != "" and e % 10 == 0:
-                    save_model(self.model, self, to_save, checkpoint=True)
+                    save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
 
                 #early stopping
-                if self.early_stop and self.early_stopping():
+                if self.early_stop and e>=2 and self.early_stopping():
+                    print(f"Early stop at epoch {e}")
+                    if to_save != "":
+                        save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
                     break
 
     def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False):
