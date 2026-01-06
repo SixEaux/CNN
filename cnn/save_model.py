@@ -30,10 +30,10 @@ def get_weights_architecture(layers:list):
             layers_parameters.append(l.function)
             architecture.append("Activation")
         elif isinstance(l, MaxPool):
-            layers_parameters.append((l.size_kernel, l.stride))
+            layers_parameters.append((l.size_kernel, l.stride, l.out_dim))
             architecture.append("MaxPool")
         elif isinstance(l, MeanPool):
-            layers_parameters.append((l.size_kernel, l.stride))
+            layers_parameters.append((l.size_kernel, l.stride, l.out_dim))
             architecture.append("MeanPool")
         elif isinstance(l, Flattening):
             layers_parameters.append(None)

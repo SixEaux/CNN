@@ -10,7 +10,7 @@ from cnn.dense import Dense
 from cnn.model import Model
 from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool, MeanPool
+from cnn.pooling import MaxPool
 
 from cnn.save_model import save_model
 from cnn.load_model import load_model
@@ -22,10 +22,11 @@ import numpy as np
 # =========================
 lr = 0.3
 dataset = "mnist"
-epochs = 5
+epochs = 10
 batch_size = 64
 file = "main_model"
 
+"""
 # =========================
 # Model definition
 # =========================
@@ -91,8 +92,9 @@ trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_tit
 trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=True)
 # trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss")
 # trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy")
+"""
 
 
-"""model, train, test = load_model(file)
+model, train, test = load_model(file)
 
-print(test.exam()[0])"""
+print(test.exam()[0])
