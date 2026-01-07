@@ -120,13 +120,13 @@ class Training:
         self.finished_epochs += 1
 
         # add important info of this iteration
-        accuracy, loss = self.testing.exam()
+        accuracy, loss, _ = self.testing.exam()
         self.accuracies.append(accuracy)
         self.losses.append(loss)
 
         # add info about validation set
         if self.validation_part > 0:
-            accuracy_validation, loss_validation = self.testing.exam(self.validation_images, self.validation_values)
+            accuracy_validation, loss_validation, _ = self.testing.exam(self.validation_images, self.validation_values)
             self.validation_exams.append(accuracy_validation)
             self.validation_losses.append(loss_validation)
 
@@ -165,9 +165,9 @@ class Training:
 
                 #early stopping
                 if self.early_stop and e>=2 and self.early_stopping():
-                    print(f"Early stop at epoch {e}")
                     if to_save != "":
                         save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
+                    print(f"Early stop at epoch {e}")
                     break
 
     def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False):

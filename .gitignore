@@ -10,6 +10,7 @@ test/im2col.py
 
 
 outputs/
+papers/
 
 # cache and venv stuff
 cnn/__pycache__

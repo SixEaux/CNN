@@ -34,4 +34,6 @@ class Testing:
         preds = self.model.choice(out)
         accuracy = np.mean(preds == values_test) * 100
 
-        return accuracy, np.mean(loss)
+        return accuracy, np.mean(loss), preds
+
+    

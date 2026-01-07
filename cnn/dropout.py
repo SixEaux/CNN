@@ -11,6 +11,7 @@ class Dropout:
         """
         self.drop_rate = drop_rate
         self.generator = np.random.default_rng()
+        self.mask = None
 
     def initial_param(self, *args): # just so every layer has one
         return
@@ -24,8 +25,8 @@ class Dropout:
         Returns:
             np.ndarray: input masked
         """
-        mask = self.generator.binomial(1, 1 - self.drop_rate, x.shape)
-        return x * mask
+        self.mask = self.generator.binomial(1, 1 - self.drop_rate, x.shape)
+        return x * self.mask / (1-self.drop_rate)
 
     def backward(self, dL_dout:np.ndarray, *args):
         """Backward pass. Just return the gradient that arrives.
@@ -36,5 +37,5 @@ class Dropout:
         Returns:
             np.ndarray: dL_dout
         """
-        return dL_dout
+        return dL_dout * self.mask / (1 - self.drop_rate)
     
