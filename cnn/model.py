@@ -45,7 +45,8 @@ class Model:
         self.loss = loss
         self.dataset = dataset
 
-        self.saved_outputs = []
+        self.saved_outputs = [] # to save some outputs from layers
+        self.saved_gradients = [] # to save the gradients of some images during training
         
         if not initialized:
             self.model_initial()
@@ -108,7 +109,7 @@ class Model:
         loss = self.loss.forward(out, expected)
         return out, loss
 
-    def backward(self, batch_size:int, learning_rate:float, momentum_rate:float):
+    def backward(self, batch_size:int, learning_rate:float, momentum_rate:float, save:int=None):
         """Backward propagation through the layers.
 
         Args:
@@ -120,6 +121,9 @@ class Model:
 
         for l in reversed(self.layers):
             delta = l.backward(delta, learning_rate, momentum_rate, batch_size)
+        
+        if save is not None:
+            self.saved_gradients.append(delta[save])
 
     def choice(self, probabilities:np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).

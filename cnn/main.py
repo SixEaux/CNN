@@ -26,11 +26,13 @@ import numpy as np
 # =========================
 lr = 0.05
 dataset = "mnist"
-epochs = 30
+epochs = 10
 batch_size = 64
 file = "try_best"
 
-"""
+
+
+
 # =========================
 # Model definition
 # =========================
@@ -73,9 +75,10 @@ trainer = Training(
     learning_rate=lr,
     lr_decay="exponential",
     lambda_rate=0.01,
-    validation_part=1/6,
-    early_stop=True,
-    momentum_rate=0.9
+    validation_part=0,
+    early_stop=False,
+    momentum_rate=0.9,
+    CAM_image=0
 )
 
 # =========================
@@ -95,6 +98,10 @@ print("Evaluation after training")
 final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
 
+
+visual_image(np.stack(model.saved_gradients, axis=0))
+
+
 show = True
 trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file)
 trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file)
@@ -104,16 +111,15 @@ trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_titl
 
 save_model(model, trainer, file, True)
 
+
+
 """
-
-
-
 model, trainer, test = load_model(file)
 
 t = test.exam()
 
 visual_image(trainer.training_images[:16])
 
-
 # confusion_matrix_plot(t[2], test.testing_values)
 
+"""

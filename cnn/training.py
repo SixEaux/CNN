@@ -30,7 +30,8 @@ class Training:
         """
 
     def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
-                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, early_stop:bool=False):
+                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, early_stop:bool=False,
+                 CAM_image:np.ndarray|int=None):
         self.dataset = dataset
         self.validation_part = validation_part
         self.training_images, self.training_values, self.validation_images, self.validation_values, _, _ = import_data(self.dataset, validation_part)  # import data needed
@@ -51,6 +52,8 @@ class Training:
         self.validation_losses = [] # keep track loss in validation sample of this iteration
 
         self.early_stop = early_stop
+
+        self.CAM_image = self.training_images[CAM_image] if isinstance(CAM_image, int) else CAM_image  #image we want to follow in CAM
 
         self.normalization(normalize)
 
@@ -73,6 +76,30 @@ class Training:
         else:
             raise ValueError("Type of normalization not known.")
 
+    def is_in(self, image:np.ndarray, batch:np.ndarray):
+        """Bool saying if the image is in the batch.
+
+        Args:
+            image (ndarray): to find DIM = (b, h, w, c)
+            batch (ndarray): _desbatch of images DIM = (h, w, c)
+        """
+
+        h, w, c = image.shape
+
+        mask = batch == image
+
+        number_equal_pixels = np.sum(mask, axis=(1,2,3))
+
+        mask_2 = number_equal_pixels == 28*28
+
+        a = np.max(number_equal_pixels) 
+        
+        if np.any(mask_2):
+            return np.argmax(mask_2)
+        else:
+            return 
+
+
     def training_iteration(self, batch_size:int, num_batches:int):
         """Do an iteration of training.
 
@@ -80,6 +107,7 @@ class Training:
             batch_size (int): size of the batch
             num_batches (int): number of batches that divides dataset
         """
+        save = None
         for batch in trange(num_batches, desc="Batch"):
             x_batch = self.training_images[batch *
                                             batch_size:(batch+1)*batch_size]
@@ -88,7 +116,12 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, self.learning_rate, self.momentum_rate)
+            if self.CAM_image is not None:
+                save = self.is_in(self.CAM_image, x_batch)
+
+            self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
+
+            save = None
 
     def lr_decay(self):
         """Decay the learning rate based on the methof used.

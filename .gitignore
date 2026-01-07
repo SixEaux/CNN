@@ -7,7 +7,7 @@ test/test_1.py
 test/test_claude.py
 test/numba.py
 test/im2col.py
-
+test/opti_conv_tries.py
 
 outputs/
 papers/
