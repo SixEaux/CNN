@@ -53,9 +53,9 @@ class Training:
 
         self.early_stop = early_stop
 
-        self.CAM_image = self.training_images[CAM_image] if isinstance(CAM_image, int) else CAM_image  #image we want to follow in CAM
-
         self.normalization(normalize)
+
+        self.CAM_image = self.training_images[CAM_image] if isinstance(CAM_image, int) else CAM_image  #image we want to follow in CAM
 
     def normalization(self, type: str):
         """Normalize the dataset.
@@ -77,11 +77,11 @@ class Training:
             raise ValueError("Type of normalization not known.")
 
     def is_in(self, image:np.ndarray, batch:np.ndarray):
-        """Bool saying if the image is in the batch.
+        """None if the image is not in the batch or the position in the batch.
 
         Args:
-            image (ndarray): to find DIM = (b, h, w, c)
-            batch (ndarray): _desbatch of images DIM = (h, w, c)
+            image (ndarray): to find DIM = (h, w, c)
+            batch (ndarray): batch of images DIM = (b, h, w, c)
         """
 
         h, w, c = image.shape
@@ -90,15 +90,14 @@ class Training:
 
         number_equal_pixels = np.sum(mask, axis=(1,2,3))
 
-        mask_2 = number_equal_pixels == 28*28
-
-        a = np.max(number_equal_pixels) 
+        mask_2 = number_equal_pixels == h*w*c
         
+        a = np.max(number_equal_pixels)
+
         if np.any(mask_2):
             return np.argmax(mask_2)
         else:
             return 
-
 
     def training_iteration(self, batch_size:int, num_batches:int):
         """Do an iteration of training.
@@ -108,16 +107,17 @@ class Training:
             num_batches (int): number of batches that divides dataset
         """
         save = None
+
         for batch in trange(num_batches, desc="Batch"):
             x_batch = self.training_images[batch *
                                             batch_size:(batch+1)*batch_size]
             exp_batch = self.training_values[batch *
                                                 batch_size:(batch+1)*batch_size]
 
-            self.model.forward(x_batch, exp_batch)
-
             if self.CAM_image is not None:
                 save = self.is_in(self.CAM_image, x_batch)
+
+            self.model.forward(x_batch, exp_batch)
 
             self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
 

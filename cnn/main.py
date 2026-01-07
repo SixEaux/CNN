@@ -26,10 +26,9 @@ import numpy as np
 # =========================
 lr = 0.05
 dataset = "mnist"
-epochs = 10
+epochs = 30
 batch_size = 64
-file = "try_best"
-
+file = "main_model"
 
 
 
@@ -53,7 +52,7 @@ layers = [
     Dense(64, initialization=initialization),
     Activation(acti_func),
  
-    # Dropout(0.3),
+    Dropout(0.3),
 
     Dense(10)
 ]
@@ -75,10 +74,10 @@ trainer = Training(
     learning_rate=lr,
     lr_decay="exponential",
     lambda_rate=0.01,
-    validation_part=0,
-    early_stop=False,
+    validation_part=1/6,
+    early_stop=True,
     momentum_rate=0.9,
-    CAM_image=0
+    CAM_image=10
 )
 
 # =========================
@@ -101,7 +100,6 @@ print(f"Accuracy: {final_acc:.4f}")
 
 visual_image(np.stack(model.saved_gradients, axis=0))
 
-
 show = True
 trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file)
 trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file)
@@ -118,8 +116,7 @@ model, trainer, test = load_model(file)
 
 t = test.exam()
 
-visual_image(trainer.training_images[:16])
+# visual_image(trainer.training_images[:16])
 
-# confusion_matrix_plot(t[2], test.testing_values)
-
+confusion_matrix_plot(t[2], test.testing_values)
 """

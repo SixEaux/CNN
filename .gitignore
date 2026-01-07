@@ -9,7 +9,6 @@ test/numba.py
 test/im2col.py
 test/opti_conv_tries.py
 
-outputs/
 papers/
 
 # cache and venv stuff
