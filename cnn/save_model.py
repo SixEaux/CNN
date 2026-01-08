@@ -121,7 +121,7 @@ def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:boo
         except FileNotFoundError:
             print("Couldn't save.")
     
-    conversation_save(save, filename, minus_y)
+    conversation_save(save, filename, minus_y, type_thing="model")
         
 
     

@@ -16,7 +16,7 @@ from cnn.dropout import Dropout
 from cnn.save_model import save_model
 from cnn.load_model import load_model
 
-from cnn.visualize import visual_image, visual_outputs, confusion_matrix_plot
+from cnn.visualize import visual_image, visual_outputs, confusion_matrix_plot, plot_smthg
 
 import numpy as np
 
@@ -25,12 +25,12 @@ import numpy as np
 # Hyperparameters
 # =========================
 lr = 0.05
-dataset = "mnist"
-epochs = 5
+dataset = "fashion_mnist"
+epochs = 30
 batch_size = 64
-file = ""
+file = "test_fashion"
 
-
+"""
 # =========================
 # Model definition
 # =========================
@@ -60,7 +60,7 @@ model = Model(
     layers=layers,
     loss=Loss("CEL"),
     dataset=dataset,
-    CAM_image=[i for i in range(20)]
+    CAM_image=[i for i in range(10)]
 )
 
 # =========================
@@ -74,9 +74,10 @@ trainer = Training(
     learning_rate=lr,
     lr_decay="exponential",
     lambda_rate=0.01,
-    validation_part=0,
-    early_stop=False,
+    validation_part=1/6,
+    early_stop=True,
     momentum_rate=0.9,
+    patience=2
     )
 
 # =========================
@@ -96,22 +97,19 @@ print("Evaluation after training")
 final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
 
-show = False
-trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=True)
-trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=True)
-trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=True)
-trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", save_to=file, minus_y=True)
-trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=True)
-
+show = True
+minus_y = False
+plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
+plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
+plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=minus_y)
+plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", save_to=file, minus_y=minus_y)
+plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
-
 """
+
 model, trainer, test = load_model(file)
 
 t = test.exam()
 
-visual_image(trainer.training_images[:16])
-
-# confusion_matrix_plot(t[2], test.testing_values)
-"""
+confusion_matrix_plot(t[2], test.testing_values, test.labels, title="confusion_matrix_fashion_test", save_to=file, minus_y=False)

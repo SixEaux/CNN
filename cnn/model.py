@@ -70,7 +70,7 @@ class Model:
     def model_initial(self): 
         """Initialize the model based on dimensions input.
         """
-        dims_dataset = {"mnist": (28, 28, 1)}
+        dims_dataset = {"mnist": (28, 28, 1), "fashion_mnist": (28, 28, 1)}
         last_dim_out = dims_dataset[self.dataset]
 
         for l in self.layers:

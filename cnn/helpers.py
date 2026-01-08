@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-def conversation_save(func:Callable, save_to:str, minus_y:bool):
+def conversation_save(func:Callable, save_to:str, minus_y:bool, type_thing:str="thing"):
     if save_to != "":
 
         if minus_y:
@@ -10,7 +10,7 @@ def conversation_save(func:Callable, save_to:str, minus_y:bool):
 
             while True:
 
-                i = input("Are you sure you want to save it? (y/n)")
+                i = input(f"Are you sure you want to save this {type_thing}? (y/n)")
 
                 if i == "y":
                     func()

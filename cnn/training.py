@@ -209,7 +209,6 @@ class Training:
                 #early stopping
                 if self.early_stop and e>=self.min_epoch:
                     b = self.early_stopping()
-                    print(f"early stopping bool: {b}")
                     if b:
                         self.count_stop += 1
                     else:
@@ -220,38 +219,3 @@ class Training:
                             save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
                         print(f"Early stop at epoch {e}")
                         break
-
-    def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False, minus_y:bool=False):
-        """Plot stuff from model.
-
-        Args:
-            smthg (np.ndarray): stuff to plot
-            save_to (str): folder where to save the plot
-            title (str, optional): title of the plot and saved under this name. Defaults to "".
-            x_title (str, optional): label of x. Defaults to "".
-            y_title (str, optional): label of y. Defaults to "".
-            show (bool, optional): if true show the plot. Defaults to False.
-            minus_y (bool): directly save without asking
-        """
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(smthg)
-        plt.title(title)
-        plt.xlabel("Iteration / Epoch")
-        plt.ylabel("Loss")
-        plt.xlabel(x_title)
-        plt.ylabel(y_title)
-
-        if show:
-            plt.show()
-
-        
-
-        def save():
-            dir_plots = os.path.join("outputs", "plots")
-            new_folder_path = os.path.join(dir_plots, save_to)
-            os.makedirs(new_folder_path, exist_ok=True)
-            plt.savefig(os.path.join(new_folder_path, title))
-            plt.close()
-
-        conversation_save(save, save_to, minus_y)

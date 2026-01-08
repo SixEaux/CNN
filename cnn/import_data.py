@@ -47,8 +47,8 @@ def import_data(name:str, validation_part:float=0):
     """
 
     if name == "mnist":
-        paths = {"train_images":"data\Mnist\mnist_train_images", "train_values":"data\Mnist\mnist_train_values", 
-                 "test_images":"data\Mnist\mnist_test_images", "test_values":"data\Mnist\mnist_test_values"}
+        paths = {"train_images":"data/Mnist/mnist_train_images", "train_values":"data/Mnist/mnist_train_values", 
+                 "test_images":"data/Mnist/mnist_test_images", "test_values":"data/Mnist/mnist_test_values"}
         labels = {i:i for i in range(10)}
 
         train_images, train_values, validation_images, validation_values, test_images, test_values = split(paths, validation_part)
@@ -56,9 +56,9 @@ def import_data(name:str, validation_part:float=0):
         
         return train_images, train_values, validation_images, validation_values, test_images, test_values, labels
     
-    elif name == "fashion":
-        paths = {"train_images":"data\fashion_MNIST\fashion_train_images", "train_values":"data\fashion_MNIST\fashion_train_values", 
-                 "test_images":"data\fashion_MNIST\fashion_test_images", "test_values":"data\fashion_MNIST\fashion_test_values"}
+    elif name == "fashion_mnist":
+        paths = {"train_images":"data/fashion_MNIST/fashion_train_images", "train_values":"data/fashion_MNIST/fashion_train_values", 
+                 "test_images":"data/fashion_MNIST/fashion_test_images", "test_values":"data/fashion_MNIST/fashion_test_values"}
         labels = {0: "T-shirt/top", 1: "Trouser", 2:"Pullover", 3:"Dress", 4:"Coat", 5:"Sandal", 6:"Shirt", 7:"Sneaker", 8:"Bag", 9:"Ankle boot"}
         
         train_images, train_values, validation_images, validation_values, test_images, test_values = split(paths, validation_part)

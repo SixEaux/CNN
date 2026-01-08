@@ -8,6 +8,42 @@ from cnn.testing import Testing
 from cnn.model import Model
 from cnn.helpers import conversation_save
 
+def plot_smthg(smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False, minus_y:bool=False):
+        """Plot stuff from model.
+
+        Args:
+            smthg (np.ndarray): stuff to plot
+            save_to (str): folder where to save the plot
+            title (str, optional): title of the plot and saved under this name. Defaults to "".
+            x_title (str, optional): label of x. Defaults to "".
+            y_title (str, optional): label of y. Defaults to "".
+            show (bool, optional): if true show the plot. Defaults to False.
+            minus_y (bool): directly save without asking
+        """
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(smthg)
+        plt.title(title)
+        plt.xlabel("Iteration / Epoch")
+        plt.ylabel("Loss")
+        plt.xlabel(x_title)
+        plt.ylabel(y_title)
+
+        if show:
+            plt.show()
+
+        
+
+        def save():
+            dir_plots = os.path.join("outputs", "plots")
+            new_folder_path = os.path.join(dir_plots, save_to)
+            os.makedirs(new_folder_path, exist_ok=True)
+            plt.savefig(os.path.join(new_folder_path, title))
+            plt.close()
+
+        conversation_save(save, save_to, minus_y)
+
+
 
 def visual_image_meh(image:np.ndarray, cols:int=8):
     """Print image (s). If more than one image num_images is first shape.
@@ -82,7 +118,7 @@ def visual_outputs_meh(model:Model, index_layer:int, cols:int=8):
     else:
         raise ValueError("What?")
 
-def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray):
+def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray, title:str="", save_to:str="", minus_y:bool=False):
         if prediction.ndim != 1:
             prediction = prediction.reshape(-1,)
         
@@ -97,9 +133,7 @@ def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.
         disp.plot()
 
         plt.show()
-
-
-
+    
 
 def visual_image(
     image: np.ndarray,
@@ -163,7 +197,7 @@ def visual_image(
         plt.savefig(os.path.join(new_folder_path, title))
         plt.close()
 
-    conversation_save(save, save_to, minus_y)
+    conversation_save(save, save_to, minus_y, type_thing="images")
 
 
 
@@ -227,5 +261,7 @@ def visual_outputs(
         plt.savefig(os.path.join(new_folder_path, title))
         plt.close()
 
-    conversation_save(save, save_to, minus_y)
+    conversation_save(save, save_to, minus_y, type_thing="images")
+
+
 
