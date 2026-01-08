@@ -82,7 +82,7 @@ def visual_outputs_meh(model:Model, index_layer:int, cols:int=8):
     else:
         raise ValueError("What?")
 
-def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray):
+def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray):
         if prediction.ndim != 1:
             prediction = prediction.reshape(-1,)
         
@@ -92,7 +92,7 @@ def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray):
 
         confusion = confusion_matrix(expected, prediction)
 
-        disp = ConfusionMatrixDisplay(confusion_matrix=confusion)
+        disp = ConfusionMatrixDisplay(confusion_matrix=confusion, display_labels=labels)
 
         disp.plot()
 

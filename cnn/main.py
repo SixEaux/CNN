@@ -26,7 +26,7 @@ import numpy as np
 # =========================
 lr = 0.05
 dataset = "mnist"
-epochs = 30
+epochs = 5
 batch_size = 64
 file = ""
 
@@ -74,11 +74,9 @@ trainer = Training(
     learning_rate=lr,
     lr_decay="exponential",
     lambda_rate=0.01,
-    validation_part=1/6,
-    early_stop=True,
+    validation_part=0,
+    early_stop=False,
     momentum_rate=0.9,
-    patience=2,
-    min_epoch=5
     )
 
 # =========================
@@ -97,10 +95,6 @@ print("=" * 50)
 print("Evaluation after training")
 final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
-
-
-for i in range(20):
-    visual_image(np.stack(model.saved_gradients[i], axis=0), save_to="gradients_input", minus_y=True, title=f"gradient_{i}", show=False)
 
 show = False
 trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=True)

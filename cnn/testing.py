@@ -12,7 +12,7 @@ class Testing:
             dataset (str): dataset used
             model (Model): model to test
         """
-        _, _, _, _, self.testing_images, self.testing_values = import_data(dataset)  # import data needed
+        _, _, _, _, self.testing_images, self.testing_values, self.labels = import_data(dataset)  # import data needed
         self.model = model
 
     def exam(self, images_test:np.ndarray=None, values_test:np.ndarray=None):

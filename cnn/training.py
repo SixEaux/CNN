@@ -38,7 +38,7 @@ class Training:
                  early_stop:bool=False, patience:int=1, min_epoch:int=5):
         self.dataset = dataset
         self.validation_part = validation_part
-        self.training_images, self.training_values, self.validation_images, self.validation_values, _, _ = import_data(self.dataset, validation_part)  # import data needed
+        self.training_images, self.training_values, self.validation_images, self.validation_values, _, _, _ = import_data(self.dataset, validation_part)  # import data needed
         self.model = model
         self.testing = testing
         self.learning_rate = learning_rate
