@@ -8,6 +8,7 @@ from cnn.model import Model
 from cnn.testing import Testing
 
 from cnn.save_model import save_model
+from cnn.helpers import conversation_save
 
 
 
@@ -26,12 +27,15 @@ class Training:
             momentum_rate (float): value for parameter of momentum
 
             validation_part (float, optional): part of the training set used for validation. Defaults to 0.
+
             early_stop (bool, optional): stop early the training following method. Defaults to False.
+            patience (int): how many epochs to wait before early stopping
+            min_epoch (int): at which epoch start early stoppoing
         """
 
     def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
-                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, early_stop:bool=False,
-                 CAM_image:np.ndarray|int=None):
+                 lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, 
+                 early_stop:bool=False, patience:int=1, min_epoch:int=5):
         self.dataset = dataset
         self.validation_part = validation_part
         self.training_images, self.training_values, self.validation_images, self.validation_values, _, _ = import_data(self.dataset, validation_part)  # import data needed
@@ -52,10 +56,16 @@ class Training:
         self.validation_losses = [] # keep track loss in validation sample of this iteration
 
         self.early_stop = early_stop
+        self.patience = patience
+        self.count_stop = 0
+        self.min_epoch = min_epoch
 
         self.normalization(normalize)
 
-        self.CAM_image = self.training_images[CAM_image] if isinstance(CAM_image, int) else CAM_image  #image we want to follow in CAM
+        if self.model.CAM_image is not None:
+            self.CAM_image = [self.training_images[i] if isinstance(i, int) else i for i in self.model.CAM_image]  #images we want to follow in CAM
+        else:
+            self.CAM_image = None
 
     def normalization(self, type: str):
         """Normalize the dataset.
@@ -92,8 +102,6 @@ class Training:
 
         mask_2 = number_equal_pixels == h*w*c
         
-        a = np.max(number_equal_pixels)
-
         if np.any(mask_2):
             return np.argmax(mask_2)
         else:
@@ -106,8 +114,9 @@ class Training:
             batch_size (int): size of the batch
             num_batches (int): number of batches that divides dataset
         """
-        save = None
-
+        
+        save = [None for _ in range(len(self.CAM_image))]
+        
         for batch in trange(num_batches, desc="Batch"):
             x_batch = self.training_images[batch *
                                             batch_size:(batch+1)*batch_size]
@@ -115,13 +124,14 @@ class Training:
                                                 batch_size:(batch+1)*batch_size]
 
             if self.CAM_image is not None:
-                save = self.is_in(self.CAM_image, x_batch)
+                for i in range(len(self.CAM_image)):
+                    save[i] = self.is_in(self.CAM_image[i], x_batch)
 
             self.model.forward(x_batch, exp_batch)
 
             self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
 
-            save = None
+            save = [None for _ in range(len(self.CAM_image))]
 
     def lr_decay(self):
         """Decay the learning rate based on the methof used.
@@ -137,7 +147,7 @@ class Training:
             raise ValueError("Not a valid decay method.")
     
     def early_stopping(self):
-        """Decay learning rate. For the moment just simple early stopping but in the future do various methods.
+        """For the moment just simple early stopping but in the future do various methods.
 
         Returns:
             bool: if True stop
@@ -197,13 +207,21 @@ class Training:
                     save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
 
                 #early stopping
-                if self.early_stop and e>=2 and self.early_stopping():
-                    if to_save != "":
-                        save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
-                    print(f"Early stop at epoch {e}")
-                    break
+                if self.early_stop and e>=self.min_epoch:
+                    b = self.early_stopping()
+                    print(f"early stopping bool: {b}")
+                    if b:
+                        self.count_stop += 1
+                    else:
+                        self.count_stop = 0
 
-    def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False):
+                    if self.count_stop >= self.patience:
+                        if to_save != "":
+                            save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
+                        print(f"Early stop at epoch {e}")
+                        break
+
+    def plot_smthg(self, smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False, minus_y:bool=False):
         """Plot stuff from model.
 
         Args:
@@ -213,6 +231,7 @@ class Training:
             x_title (str, optional): label of x. Defaults to "".
             y_title (str, optional): label of y. Defaults to "".
             show (bool, optional): if true show the plot. Defaults to False.
+            minus_y (bool): directly save without asking
         """
 
         plt.figure(figsize=(10, 6))
@@ -223,11 +242,16 @@ class Training:
         plt.xlabel(x_title)
         plt.ylabel(y_title)
 
-        if save_to != "":
+        if show:
+            plt.show()
+
+        
+
+        def save():
             dir_plots = os.path.join("outputs", "plots")
             new_folder_path = os.path.join(dir_plots, save_to)
             os.makedirs(new_folder_path, exist_ok=True)
             plt.savefig(os.path.join(new_folder_path, title))
+            plt.close()
 
-        if show:
-            plt.show()
+        conversation_save(save, save_to, minus_y)

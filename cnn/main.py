@@ -28,8 +28,7 @@ lr = 0.05
 dataset = "mnist"
 epochs = 30
 batch_size = 64
-file = "main_model"
-
+file = ""
 
 
 # =========================
@@ -60,7 +59,8 @@ layers = [
 model = Model(
     layers=layers,
     loss=Loss("CEL"),
-    dataset=dataset
+    dataset=dataset,
+    CAM_image=[i for i in range(20)]
 )
 
 # =========================
@@ -77,8 +77,9 @@ trainer = Training(
     validation_part=1/6,
     early_stop=True,
     momentum_rate=0.9,
-    CAM_image=10
-)
+    patience=2,
+    min_epoch=5
+    )
 
 # =========================
 # Tests
@@ -98,17 +99,17 @@ final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
 
 
-visual_image(np.stack(model.saved_gradients, axis=0))
+for i in range(20):
+    visual_image(np.stack(model.saved_gradients[i], axis=0), save_to="gradients_input", minus_y=True, title=f"gradient_{i}", show=False)
 
-show = True
-trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file)
-trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file)
-trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file)
-trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", save_to=file)
-trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file)
+show = False
+trainer.plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=True)
+trainer.plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=True)
+trainer.plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=True)
+trainer.plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", save_to=file, minus_y=True)
+trainer.plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=True)
 
 save_model(model, trainer, file, True)
-
 
 
 """
@@ -116,7 +117,7 @@ model, trainer, test = load_model(file)
 
 t = test.exam()
 
-# visual_image(trainer.training_images[:16])
+visual_image(trainer.training_images[:16])
 
-confusion_matrix_plot(t[2], test.testing_values)
+# confusion_matrix_plot(t[2], test.testing_values)
 """

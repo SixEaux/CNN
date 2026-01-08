@@ -1,13 +1,15 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import os
 
 from cnn.training import Training
 from cnn.testing import Testing
 from cnn.model import Model
+from cnn.helpers import conversation_save
 
 
-def visual_image(image:np.ndarray, cols:int=8):
+def visual_image_meh(image:np.ndarray, cols:int=8):
     """Print image (s). If more than one image num_images is first shape.
 
     Args:
@@ -49,9 +51,7 @@ def visual_image(image:np.ndarray, cols:int=8):
 
         plt.show()
 
-
-
-def visual_outputs(model:Model, index_layer:int, cols:int=8):
+def visual_outputs_meh(model:Model, index_layer:int, cols:int=8):
     output = model.saved_outputs[index_layer] # either (1, h, w, c) or (1, -1)
 
     if output.ndim == 4:
@@ -82,7 +82,6 @@ def visual_outputs(model:Model, index_layer:int, cols:int=8):
     else:
         raise ValueError("What?")
 
-
 def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray):
         if prediction.ndim != 1:
             prediction = prediction.reshape(-1,)
@@ -98,3 +97,135 @@ def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray):
         disp.plot()
 
         plt.show()
+
+
+
+
+def visual_image(
+    image: np.ndarray,
+    cols: int = 8,
+    cmap: str = "gray",
+    normalize: bool = True,
+    title: str = None, 
+    save_to:str="",
+    minus_y:bool=False,
+    show:bool=True):
+
+    def _prepare(img):
+        if img.shape[-1] == 1:
+            img = img.squeeze(-1)
+        if normalize and img.ndim == 2:
+            vmin, vmax = np.percentile(img, (1, 99))
+            img = np.clip(img, vmin, vmax)
+        return img
+
+    if image.ndim == 3:
+        img = _prepare(image)
+
+        plt.figure(figsize=(4, 4))
+        plt.imshow(img, cmap=cmap if img.ndim == 2 else None)
+        plt.axis("off")
+        if title:
+            plt.title(title, fontsize=14)
+        plt.tight_layout(pad=0)
+        plt.show()
+        return
+
+    if image.ndim != 4:
+        raise ValueError("Image must be 3D or 4D array.")
+
+    n = image.shape[0]
+    rows = int(np.ceil(n / cols))
+
+    fig, axes = plt.subplots(
+        rows, cols,
+        figsize=(cols * 1.5, rows * 1.5),
+        constrained_layout=True
+    )
+    axes = np.atleast_2d(axes)
+
+    for i, ax in enumerate(axes.flat):
+        ax.axis("off")
+        if i < n:
+            img = _prepare(image[i])
+            ax.imshow(img, cmap=cmap if img.ndim == 2 else None)
+
+    if title:
+        fig.suptitle(title, fontsize=16)
+
+    if show:
+        plt.show()
+
+    def save():
+        dir_plots = os.path.join("outputs", "images")
+        new_folder_path = os.path.join(dir_plots, save_to)
+        os.makedirs(new_folder_path, exist_ok=True)
+        plt.savefig(os.path.join(new_folder_path, title))
+        plt.close()
+
+    conversation_save(save, save_to, minus_y)
+
+
+
+
+
+def visual_outputs(
+    model,
+    index_layer: int,
+    cols: int = 8,
+    cmap: str = "viridis",
+    normalize: bool = True,
+    save_to:str="",
+    minus_y:bool=False
+):
+
+    output = model.saved_outputs[index_layer]
+
+    if output.ndim == 4:
+        b, h, w, c = output.shape
+        if b != 1:
+            raise ValueError("Visualization supports batch size = 1 only.")
+
+        rows = int(np.ceil(c / cols))
+        fig, axes = plt.subplots(
+            rows, cols,
+            figsize=(cols * 1.4, rows * 1.4),
+            constrained_layout=True
+        )
+        axes = np.atleast_2d(axes)
+
+        for i, ax in enumerate(axes.flat):
+            ax.axis("off")
+            if i < c:
+                fmap = output[0, :, :, i]
+                if normalize:
+                    vmin, vmax = np.percentile(fmap, (1, 99))
+                    fmap = np.clip(fmap, vmin, vmax)
+                ax.imshow(fmap, cmap=cmap)
+
+        title = f"Layer {index_layer} – Feature maps"
+        fig.suptitle(title, fontsize=16)
+        plt.show()
+        
+
+    if output.ndim == 2:
+        plt.figure(figsize=(10, 2))
+        plt.imshow(output, aspect="auto", cmap=cmap)
+        plt.colorbar(fraction=0.02, pad=0.02)
+        title = "Layer {index_layer} – Vector output"
+        plt.title(title, fontsize=14)
+        plt.yticks([])
+        plt.tight_layout()
+        plt.show()
+    
+
+
+    def save():
+        dir_plots = os.path.join("outputs", "images")
+        new_folder_path = os.path.join(dir_plots, save_to)
+        os.makedirs(new_folder_path, exist_ok=True)
+        plt.savefig(os.path.join(new_folder_path, title))
+        plt.close()
+
+    conversation_save(save, save_to, minus_y)
+

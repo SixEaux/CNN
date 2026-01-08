@@ -40,14 +40,20 @@ class Model:
             batch_size (int): size of batch used
         """
 
-    def __init__(self, layers: list, loss: Loss, dataset: str, initialized:bool=False):
+    def __init__(self, layers: list, loss: Loss, dataset: str, initialized:bool=False, CAM_image:np.ndarray|int=None):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
 
         self.saved_outputs = [] # to save some outputs from layers
-        self.saved_gradients = [] # to save the gradients of some images during training
-        
+
+
+        if CAM_image is not None:
+            self.CAM_image = CAM_image
+            self.saved_gradients = [[] for _ in self.CAM_image] # to save the gradients of some images during training
+        else:
+            self.CAM_image = CAM_image
+            
         if not initialized:
             self.model_initial()
 
@@ -109,7 +115,7 @@ class Model:
         loss = self.loss.forward(out, expected)
         return out, loss
 
-    def backward(self, batch_size:int, learning_rate:float, momentum_rate:float, save:int=None):
+    def backward(self, batch_size:int, learning_rate:float, momentum_rate:float, save:list=None):
         """Backward propagation through the layers.
 
         Args:
@@ -122,8 +128,9 @@ class Model:
         for l in reversed(self.layers):
             delta = l.backward(delta, learning_rate, momentum_rate, batch_size)
         
-        if save is not None:
-            self.saved_gradients.append(delta[save])
+        for i in range(len(save)):
+            if save[i] is not None:
+                self.saved_gradients[i].append(delta[save[i]])
 
     def choice(self, probabilities:np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).

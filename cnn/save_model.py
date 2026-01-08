@@ -8,6 +8,8 @@ from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 from cnn.loss import Loss
 
+from cnn.helpers import conversation_save
+
 def get_weights_architecture(layers:list):
     """Get layers and architecture for saving
 
@@ -106,7 +108,7 @@ def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:boo
         minus_y (bool): save without asking
     """
 
-    if minus_y:
+    def save():
         model_state = extract_model_state(model.layers, model.loss, train)
         if not checkpoint:
             to_save = {**model_state, "checkpoint":False}
@@ -119,40 +121,7 @@ def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:boo
         except FileNotFoundError:
             print("Couldn't save.")
     
-    else:
-        while True:
-            i = input("Are you sure you want to save it? (y/n)")
-
-            if i == "y":
-
-                if filename=="":
-                    filename = input("Can you write the filename please: ")
-
-                model_state = extract_model_state(model.layers, model.loss, train)
-                if not checkpoint:
-                    to_save = {**model_state, "checkpoint":False}
-                else:
-                    to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
-                
-                try:
-                    with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:
-                        pickle.dump(to_save, f)
-                    print("SAVED.")
-                    break
-                except FileNotFoundError:
-                    print("Couldn't save.")
-            
-            elif i == "n":
-                print("You decided not to save.")
-                break
-        
-            elif i == "oh no an infinite loop":
-                print("Don't worry, I am here")
-                break
-        
-            else:
-                print("Not a valid input.")
-        
+    conversation_save(save, filename, minus_y)
         
 
     
