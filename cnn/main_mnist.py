@@ -1,6 +1,5 @@
 # TODO : do a little bit of lr opti
 # TODO : Drawing
-# TODO : problem of inf to solve
 
 from cnn.training import Training
 from cnn.testing import Testing
@@ -25,12 +24,12 @@ import numpy as np
 # Hyperparameters
 # =========================
 lr = 0.05
-dataset = "fashion_mnist"
+dataset = ""
 epochs = 30
 batch_size = 64
-file = "test_fashion"
+file = ""
 
-"""
+
 # =========================
 # Model definition
 # =========================
@@ -77,7 +76,8 @@ trainer = Training(
     validation_part=1/6,
     early_stop=True,
     momentum_rate=0.9,
-    patience=2
+    patience=2, 
+    min_epoch=5
     )
 
 # =========================
@@ -106,10 +106,16 @@ plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Ep
 plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
-"""
 
+"""
 model, trainer, test = load_model(file)
 
-t = test.exam()
+print(test.labels)
 
-confusion_matrix_plot(t[2], test.testing_values, test.labels, title="confusion_matrix_fashion_test", save_to=file, minus_y=False)
+t = test.exam(save_errors=True)
+
+# visual_image(t[3][6][:40])
+
+
+# confusion_matrix_plot(t[2], test.testing_values, test.labels.values(), title="confusion_matrix_fashion_test", save_to=file, minus_y=False)
+"""

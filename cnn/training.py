@@ -163,13 +163,13 @@ class Training:
         self.finished_epochs += 1
 
         # add important info of this iteration
-        accuracy, loss, _ = self.testing.exam()
+        accuracy, loss, _, _ = self.testing.exam()
         self.accuracies.append(accuracy)
         self.losses.append(loss)
 
         # add info about validation set
         if self.validation_part > 0:
-            accuracy_validation, loss_validation, _ = self.testing.exam(self.validation_images, self.validation_values)
+            accuracy_validation, loss_validation, _, _ = self.testing.exam(self.validation_images, self.validation_values)
             self.validation_exams.append(accuracy_validation)
             self.validation_losses.append(loss_validation)
 

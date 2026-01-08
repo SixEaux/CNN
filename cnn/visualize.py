@@ -118,7 +118,7 @@ def visual_outputs_meh(model:Model, index_layer:int, cols:int=8):
     else:
         raise ValueError("What?")
 
-def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray, title:str="", save_to:str="", minus_y:bool=False):
+def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray):
         if prediction.ndim != 1:
             prediction = prediction.reshape(-1,)
         

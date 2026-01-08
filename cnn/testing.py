@@ -15,7 +15,7 @@ class Testing:
         _, _, _, _, self.testing_images, self.testing_values, self.labels = import_data(dataset)  # import data needed
         self.model = model
 
-    def exam(self, images_test:np.ndarray=None, values_test:np.ndarray=None):
+    def exam(self, images_test:np.ndarray=None, values_test:np.ndarray=None, labels:np.ndarray=None, save_errors:bool=False):
         """Test accuracy of the model.
 
         Args:
@@ -26,14 +26,30 @@ class Testing:
             tuple: accuracy of the model and mean loss
         """
 
-        if images_test is None and values_test is None:
+        if images_test is None and values_test is None and labels is None:
             images_test = self.testing_images
             values_test = self.testing_values
+            labels = self.labels
 
         out, loss = self.model.forward(images_test, values_test, test=True)
         preds = self.model.choice(out)
         accuracy = np.mean(preds == values_test) * 100
 
-        return accuracy, np.mean(loss), preds
+        if save_errors:
+            errors = {i:None for i in range(len(labels))}
+            
+            for num in errors.keys():
+                y_true = values_test.ravel() 
+                y_pred = preds.ravel
+                values_num = (y_true == num) & (y_pred != num)
+
+                indexes = np.nonzero(values_num)
+
+                errors[num] = images_test[indexes]
+        else:
+            errors = None
+
+
+        return accuracy, np.mean(loss), preds, errors
 
     
