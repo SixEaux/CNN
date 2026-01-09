@@ -6,3 +6,5 @@ tabulate
 scipy
 scikit-learn
 collections
+tkinter
+PIL

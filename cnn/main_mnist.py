@@ -16,6 +16,7 @@ from cnn.save_model import save_model
 from cnn.load_model import load_model
 
 from cnn.visualize import visual_image, visual_outputs, confusion_matrix_plot, plot_smthg
+from cnn.drawing import Draw
 
 import numpy as np
 
@@ -24,10 +25,10 @@ import numpy as np
 # Hyperparameters
 # =========================
 lr = 0.05
-dataset = ""
+dataset = "mnist"
 epochs = 30
 batch_size = 64
-file = ""
+file = "overfitted"
 
 
 # =========================
@@ -80,6 +81,11 @@ trainer = Training(
     min_epoch=5
     )
 
+d = Draw(model)
+
+
+"""
+
 # =========================
 # Tests
 # =========================
@@ -106,13 +112,15 @@ plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Ep
 plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
-
 """
+"""
+
 model, trainer, test = load_model(file)
 
-print(test.labels)
 
-t = test.exam(save_errors=True)
+# print(test.labels)
+
+# t = test.exam(save_errors=True)
 
 # visual_image(t[3][6][:40])
 

@@ -8,6 +8,8 @@ from cnn.convolution import Convolutional
 from cnn.pooling import MaxPool, MeanPool
 from cnn.loss import Loss
 
+from cnn.model import Model
+
 from cnn.helpers import conversation_save
 
 def get_weights_architecture(layers:list):
@@ -43,7 +45,7 @@ def get_weights_architecture(layers:list):
 
     return layers_parameters, architecture
 
-def extract_model_state(layers: list, loss: Loss, train):
+def extract_model_state(layers: list, loss: Loss, train, model:Model):
     """Extract model state for saving.
 
     Args:
@@ -59,7 +61,8 @@ def extract_model_state(layers: list, loss: Loss, train):
         "architecture": architecture,
         "layers": layers_params,
         "loss": loss.function,
-        "dataset": train.dataset
+        "dataset": train.dataset,
+        "input_size": model.input_size,
     }
 
 def extract_training_state(train):
@@ -97,7 +100,7 @@ def extract_history(train):
         "validation_accuracy": train.validation_exams,
     }
 
-def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:bool=False):
+def save_model(model:Model, train, filename:str="", checkpoint:bool=False, minus_y:bool=False):
     """Save the model.
 
     Args:
@@ -109,7 +112,7 @@ def save_model(model, train, filename:str="", checkpoint:bool=False, minus_y:boo
     """
 
     def save():
-        model_state = extract_model_state(model.layers, model.loss, train)
+        model_state = extract_model_state(model.layers, model.loss, train, model)
         if not checkpoint:
             to_save = {**model_state, "checkpoint":False}
         else:

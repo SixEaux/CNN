@@ -102,6 +102,7 @@ def load_model(filename:str):
     #create classes
 
     model = Model(layers, loss, dataset, initialized=True)
+    model.input_size = saved["input_size"]
 
     if not saved["checkpoint"]:
         return model

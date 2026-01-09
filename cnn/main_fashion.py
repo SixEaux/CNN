@@ -116,7 +116,7 @@ save_model(model, trainer, file, True)
 
 """
 
-
+"""
 model, trainer, test = load_model(file)
 
 t = test.exam(save_errors=True)
@@ -124,3 +124,4 @@ t = test.exam(save_errors=True)
 # confusion_matrix_plot(t[2], test.testing_values, test.labels.values())
 
 visual_image(t[3][6][:40])
+"""

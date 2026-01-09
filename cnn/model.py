@@ -28,6 +28,7 @@ from cnn.convolution import Convolutional
 from cnn.flattening import Flattening
 from cnn.pooling import MaxPool, MeanPool
 from cnn.dropout import Dropout
+from cnn.import_data import import_data
 
 
 class Model:
@@ -44,9 +45,11 @@ class Model:
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
+        _, _, _, _, _, _, self.labels = import_data(self.dataset)
 
         self.saved_outputs = [] # to save some outputs from layers
 
+        self.input_size = None
 
         if CAM_image is not None:
             self.CAM_image = CAM_image
@@ -72,6 +75,7 @@ class Model:
         """
         dims_dataset = {"mnist": (28, 28, 1), "fashion_mnist": (28, 28, 1)}
         last_dim_out = dims_dataset[self.dataset]
+        self.input_size = last_dim_out
 
         for l in self.layers:
             
@@ -88,7 +92,7 @@ class Model:
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0]*last_dim_out[1]*last_dim_out[2]
 
-    def forward(self, x:np.ndarray, expected:np.ndarray, test:bool=False, save_out:bool=False):
+    def forward(self, x:np.ndarray, expected:np.ndarray=None, test:bool=False, save_out:bool=False):
         """Forward propagation through all the layers. 
 
         Args:
@@ -112,8 +116,11 @@ class Model:
             if save_out:
                 self.saved_outputs.append(out) 
 
-        loss = self.loss.forward(out, expected)
-        return out, loss
+        if expected:
+            loss = self.loss.forward(out, expected)
+            return out, loss
+        else:
+            return out
 
     def backward(self, batch_size:int, learning_rate:float, momentum_rate:float, save:list=None):
         """Backward propagation through the layers.
