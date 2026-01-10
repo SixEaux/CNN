@@ -45,7 +45,7 @@ def get_weights_architecture(layers:list):
 
     return layers_parameters, architecture
 
-def extract_model_state(layers: list, loss: Loss, train, model:Model):
+def extract_model_state(layers: list, loss: Loss, model:Model):
     """Extract model state for saving.
 
     Args:
@@ -61,7 +61,7 @@ def extract_model_state(layers: list, loss: Loss, train, model:Model):
         "architecture": architecture,
         "layers": layers_params,
         "loss": loss.function,
-        "dataset": train.dataset,
+        "dataset": model.dataset,
         "input_size": model.input_size,
     }
 
@@ -100,7 +100,7 @@ def extract_history(train):
         "validation_accuracy": train.validation_exams,
     }
 
-def save_model(model:Model, train, filename:str="", checkpoint:bool=False, minus_y:bool=False):
+def save_model(model:Model, train=None, filename:str="", checkpoint:bool=False, minus_y:bool=False):
     """Save the model.
 
     Args:
@@ -112,10 +112,11 @@ def save_model(model:Model, train, filename:str="", checkpoint:bool=False, minus
     """
 
     def save():
-        model_state = extract_model_state(model.layers, model.loss, train, model)
+        model_state = extract_model_state(model.layers, model.loss, model)
         if not checkpoint:
             to_save = {**model_state, "checkpoint":False}
         else:
+            assert train is not None, "Train can't be None if you want a checkpoint."
             to_save = {**model_state, **extract_history(train), **extract_training_state(train), "checkpoint":True}
         try:
             with open(os.path.join("outputs/", "trained_models/" + filename), "wb") as f:

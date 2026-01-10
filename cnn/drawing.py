@@ -1,16 +1,28 @@
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageColor
-from cnn.model import Model
 import numpy as np
 
+from cnn.model import Model
+from cnn.training import Training
+
+from cnn.save_model import save_model
+
 class Draw:
-    def __init__(self, model:Model, size_canva:int=400, bg:str="black", bool_color:bool=False, width:int=20, color_fill:str="white"):
+    def __init__(self, model:Model, train:Training=None, learn_bool:bool=False, size_canva:int=400, bg:str="black", bool_color:bool=False, width:int=20, color_fill:str="white"):
         
         self.root = tk.Tk()
         self.root.title("Draw")
 
-        self.canvas = tk.Canvas(self.root, width=size_canva, height=size_canva, bg=bg)
+        self.canva_frame = tk.Frame(self.root)
+        self.other_frame = tk.Frame(self.root)
+
+        self.canva_frame.pack()
+        self.other_frame.pack()
+
+        self.canvas = tk.Canvas(self.canva_frame, width=size_canva, height=size_canva, bg=bg)
         self.canvas.pack()
+        self.text_input = tk.Text(self.other_frame, height=1, width=20, )
+        self.text_input.pack()
 
         self.rgb_bg = ImageColor.getcolor(bg, "L")
 
@@ -27,6 +39,10 @@ class Draw:
         self.bool_drawing = False
 
         self.model = model
+        self.labels_reversed = {self.model.labels[k]:k for k in self.model.labels.keys()}
+
+        self.train = train
+        self.learn_bool = learn_bool
 
         self.create_buttons()
 
@@ -34,13 +50,13 @@ class Draw:
 
 
     def create_buttons(self):
-        prediction = tk.Button(self.root, text="Predict", command=self.predict)
+        prediction = tk.Button(self.other_frame, text="Predict", command=self.predict)
         prediction.pack(side=tk.LEFT)
 
-        close = tk.Button(self.root, text="Close", command=self.root.destroy)
+        close = tk.Button(self.other_frame, text="Close", command=self.close)
         close.pack(side=tk.LEFT)
 
-        cleaning = tk.Button(self.root, text="Clean", command=self.clean)
+        cleaning = tk.Button(self.other_frame, text="Clean", command=self.clean)
         cleaning.pack(side=tk.LEFT)
 
         self.canvas.bind("<Button-1>", self.start_drawing)
@@ -78,10 +94,49 @@ class Draw:
 
         image = image.resize((w, h), Image.Resampling.LANCZOS)
 
-        image.show()
-
         pixels = np.asarray(image).reshape(1, h, w, c)
 
-        out = self.model.forward(pixels)
+        if self.learn_bool and self.train is not None:
+            real_value = self.text_input.get("1.0").strip()
 
-        print(f"I think this is a {self.model.labels[self.model.choice(out).item()]}")
+            if real_value:
+                try:
+                    value = int(real_value)
+                except:
+                    value = self.labels_reversed[real_value]
+            else:
+                value = None
+        
+            out = self.model.forward(pixels, np.array(value) if value else None)
+
+            pred = self.model.choice(out)[0,0]
+
+            print(f"I think this is a {self.model.labels[pred]}")
+
+            if value is not None:
+                self.model.backward(1, self.train.learning_rate, 0)
+
+            if pred != value:
+                print(f"I was actually wrong and I am going to train on it.")
+        
+        else:
+            out = self.model.forward(pixels)
+
+            pred = self.model.choice(out).item()
+
+            print(f"I think this is a {self.model.labels[pred]}")
+
+    def close(self):
+        self.root.destroy()
+
+        if self.train is not None:
+            while True:
+                save = input("Do you want to save the model? (y/n)")
+
+                if save == "y":
+                    file = input("File name: ")
+                    save_model(self.model, self.train, file)
+                elif save == "n":
+                    break
+                else:
+                    print("Invalid input.")

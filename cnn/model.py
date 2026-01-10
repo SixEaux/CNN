@@ -116,7 +116,7 @@ class Model:
             if save_out:
                 self.saved_outputs.append(out) 
 
-        if expected:
+        if expected is not None:
             loss = self.loss.forward(out, expected)
             return out, loss
         else:

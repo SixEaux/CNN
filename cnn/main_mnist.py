@@ -20,17 +20,16 @@ from cnn.drawing import Draw
 
 import numpy as np
 
-
 # =========================
 # Hyperparameters
 # =========================
 lr = 0.05
-dataset = "mnist"
-epochs = 30
+dataset = "fashion_mnist"
+epochs = 20
 batch_size = 64
-file = "overfitted"
+file = "test_draw"
 
-
+"""
 # =========================
 # Model definition
 # =========================
@@ -81,10 +80,7 @@ trainer = Training(
     min_epoch=5
     )
 
-d = Draw(model)
 
-
-"""
 
 # =========================
 # Tests
@@ -108,22 +104,19 @@ minus_y = False
 plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
 plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
 plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=minus_y)
-plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", save_to=file, minus_y=minus_y)
-plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", save_to=file, minus_y=minus_y)
+plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
+plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
 """
-"""
+
+
 
 model, trainer, test = load_model(file)
 
+d = Draw(model, trainer, learn_bool=False)
 
-# print(test.labels)
 
-# t = test.exam(save_errors=True)
-
-# visual_image(t[3][6][:40])
-
+# visual_image(trainer.training_images[:40])
 
 # confusion_matrix_plot(t[2], test.testing_values, test.labels.values(), title="confusion_matrix_fashion_test", save_to=file, minus_y=False)
-"""

@@ -24,9 +24,8 @@ lr = 0.01
 dataset = "fashion_mnist"
 epochs = 40
 batch_size = 64
-file = "fashion_optimised"
+file = "fashion_draw"
 
-"""
 # =========================
 # Model definition
 # =========================
@@ -113,8 +112,6 @@ plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Ep
 plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
-
-"""
 
 """
 model, trainer, test = load_model(file)
