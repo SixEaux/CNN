@@ -111,10 +111,11 @@ save_model(model, trainer, file, True)
 """
 
 
-
 model, trainer, test = load_model(file)
 
-d = Draw(model, trainer, learn_bool=False)
+# visual_image(trainer.training_images[:50])
+
+d = Draw(model, trainer, learn_bool=True)
 
 
 # visual_image(trainer.training_images[:40])

@@ -9,6 +9,8 @@ test/numba.py
 test/im2col.py
 test/opti_conv_tries.py
 
+test/tensorflow_comparison.ipynb
+
 papers/
 
 # cache and venv stuff

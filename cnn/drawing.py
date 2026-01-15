@@ -46,6 +46,8 @@ class Draw:
 
         self.create_buttons()
 
+        print("Here are the labels: ", self.labels_reversed)
+
         self.root.mainloop()
 
 
@@ -96,35 +98,52 @@ class Draw:
 
         pixels = np.asarray(image).reshape(1, h, w, c)
 
-        if self.learn_bool and self.train is not None:
-            real_value = self.text_input.get("1.0").strip()
+        if not self.learn_bool:
+            out = self.model.forward(pixels)
 
-            if real_value:
-                try:
-                    value = int(real_value)
-                except:
-                    value = self.labels_reversed[real_value]
-            else:
-                value = None
+            pred = self.model.choice(out).item()
+
+            print(f"I think this is a {self.model.labels[pred]} and I don't care if it's not.")
+
+            return
         
-            out = self.model.forward(pixels, np.array(value) if value else None)
+        if self.train is not None:
+            true_value = self.text_input.get("1.0", 'end-1c').strip()
+
+            if not true_value:
+                out = self.model.forward(pixels)
+
+                pred = self.model.choice(out).item()
+
+                print(f"I think this is a {self.model.labels[pred]} and I don't care if it's not.")
+
+                return
+            
+            try:
+                true_int = self.labels_reversed[true_value]
+
+            except:
+                print(f"Couldn't find the label {true_value} so I do not train on it.")
+                
+                out = self.model.forward(pixels)
+                pred = self.model.choice(out).item()
+                print(f"I think this is a {self.model.labels[pred]} and I don't care if it's not.")
+                return
+            
+            print("True int: ", true_int)
+            out, l = self.model.forward(pixels, np.array(true_int).reshape(1,1))
 
             pred = self.model.choice(out)[0,0]
 
             print(f"I think this is a {self.model.labels[pred]}")
 
-            if value is not None:
-                self.model.backward(1, self.train.learning_rate, 0)
-
-            if pred != value:
+            if pred != true_int:
                 print(f"I was actually wrong and I am going to train on it.")
-        
-        else:
-            out = self.model.forward(pixels)
+                
+                self.model.backward(1, self.train.learning_rate, 0)   
+            else:
+                print("I was correct, so smart.")         
 
-            pred = self.model.choice(out).item()
-
-            print(f"I think this is a {self.model.labels[pred]}")
 
     def close(self):
         self.root.destroy()

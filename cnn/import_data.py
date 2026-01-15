@@ -49,7 +49,7 @@ def import_data(name:str, validation_part:float=0):
     if name == "mnist":
         paths = {"train_images":"data/Mnist/mnist_train_images", "train_values":"data/Mnist/mnist_train_values", 
                  "test_images":"data/Mnist/mnist_test_images", "test_values":"data/Mnist/mnist_test_values"}
-        labels = {i:i for i in range(10)}
+        labels = {i:str(i) for i in range(10)}
 
         train_images, train_values, validation_images, validation_values, test_images, test_values = split(paths, validation_part)
         # (60000 x 28 x 28 x 1), (60000 x 1), (10000 x 28 x 28 x 1), (10000 x 1)
