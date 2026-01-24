@@ -1,6 +1,7 @@
 import numpy as np
+from cnn.layer import Layer
 
-class Loss:
+class Loss(Layer):
     """
     Loss "layer".
 

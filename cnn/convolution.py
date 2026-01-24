@@ -1,8 +1,8 @@
 import numpy as np
 from cnn.parmeter_initialization import he_initialization, xavier_initialization
-from test.numba import conv2d_backward_filter, conv2d_backward_input, conv2d_forward
+from cnn.layer import Layer
 
-class Convolutional:
+class Convolutional(Layer):
     """Convolutional layer.
 
         Args:
@@ -16,7 +16,7 @@ class Convolutional:
             numba (bool): if true uses numba but doesn't work yet needs improving TODO
         """
     def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, 
-                 padding:int=0, initialization:str="xavier", numba:bool=False):
+                 padding:int=0, initialization:str="xavier"):
 
         self.input = None
 
@@ -29,8 +29,6 @@ class Convolutional:
         self.stride = stride
         self.padding = padding
         self.initialization = initialization
-
-        self.numba = numba
 
         self.last_variation = np.zeros_like(self.kernel) #keep track of last variation of the weights for momentum
 
@@ -49,7 +47,7 @@ class Convolutional:
         elif self.initialization == "xavier":
             self.kernel = xavier_initialization(h_in*w_in, h_out*w_out, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         elif self.initialization == "random":
-            self.weight = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+            self.kernel = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         else:
             raise ValueError("I don't know this initialization.")
 
@@ -170,10 +168,10 @@ class Convolutional:
         Returns:
             np.ndarray: gradient error wrt input for layer before
         """        
-        dL_df = self.backward_filter_tensordot(dL_dout) if not self.numba else conv2d_backward_filter(self.input, dL_dout, self.size_kernel, self.size_kernel, self.stride, self.padding)
+        dL_df = self.backward_filter_tensordot(dL_dout)
         dL_db = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
 
-        dL_dx = self.backward_input_tensordot(dL_dout) if not self.numba else conv2d_backward_input(dL_dout, self.kernel, self.size_kernel, self.size_kernel, self.stride, self.padding) 
+        dL_dx = self.backward_input_tensordot(dL_dout) 
         
         dK = learning_rate * dL_df / batch_size #variation of kernel weights of this iteration
 

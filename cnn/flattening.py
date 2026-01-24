@@ -1,6 +1,7 @@
 import numpy as np
+from cnn.layer import Layer
 
-class Flattening:
+class Flattening(Layer):
     def __init__(self):
         self.input = None
     

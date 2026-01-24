@@ -111,5 +111,5 @@ def load_model(filename:str):
         train = Training(dataset, model, test, saved["learning_rate"], lr_decay=saved["lr_decay"], lambda_rate=saved["lambda_rate"], momentum_rate=saved["momentum_rate"])
         train.finished_epochs = saved["finished_epochs"]
         train.early_stop = saved["early_stop"]
-        train.losses, train.accuracies, train.learning_rates, train.validation_exams, train.validation_losses = saved["losses"], saved["accuracies"], saved["learning_rates"], saved["validation_accuracy"], saved["validation_losses"]
+        train.losses, train.accuracies, train.validation_exams, train.validation_losses = saved["losses"], saved["accuracies"], saved["validation_accuracy"], saved["validation_losses"]
         return model, train, test

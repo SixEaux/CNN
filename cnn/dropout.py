@@ -1,6 +1,7 @@
 import numpy as np
+from cnn.layer import Layer
 
-class Dropout:
+class Dropout(Layer):
     def __init__(self, drop_rate:float):
         """Dropout layer. Deactivates some neurons to prevent overfitting /
         relying only in some neurons.

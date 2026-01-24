@@ -36,9 +36,11 @@ class Training:
     def __init__(self, dataset: str, model: Model, testing: Testing, learning_rate:float, normalize: str = "division",
                  lr_decay:str="",lambda_rate:float=0, momentum_rate:float=0, validation_part:float=0, 
                  early_stop:bool=False, patience:int=1, min_epoch:int=5):
+        
         self.dataset = dataset
         self.validation_part = validation_part
         self.training_images, self.training_values, self.validation_images, self.validation_values, _, _, _ = import_data(self.dataset, validation_part)  # import data needed
+        
         self.model = model
         self.testing = testing
         self.learning_rate = learning_rate
@@ -49,7 +51,6 @@ class Training:
         self.momentum_rate = momentum_rate
 
         self.finished_epochs = 0 # number of finished epochs
-        self.learning_rates = [self.learning_rate] # keep track of the learning rates of each iteration
         self.losses = []  # keep track of the losses of each iteration
         self.accuracies = []  # keep track of the accuracy of each iteration
         self.validation_exams = [] # keep track of the accuracy of each iteration on validation set
@@ -175,7 +176,6 @@ class Training:
 
         # update learning rate
         self.learning_rate_update()
-        self.learning_rates.append(self.learning_rate)
 
     def learning_rate_update(self):
         if self.lr_decay_method != "":

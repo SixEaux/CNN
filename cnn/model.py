@@ -30,6 +30,7 @@ from cnn.pooling import MaxPool, MeanPool
 from cnn.dropout import Dropout
 from cnn.import_data import import_data
 
+from cnn.layer import Layer
 
 class Model:
     """Model NN.
@@ -41,7 +42,7 @@ class Model:
             batch_size (int): size of batch used
         """
 
-    def __init__(self, layers: list, loss: Loss, dataset: str, initialized:bool=False, CAM_image:np.ndarray|int=None):
+    def __init__(self, layers: list[Layer], loss: Loss, dataset: str, initialized:bool=False, CAM_image:np.ndarray|int=None):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
