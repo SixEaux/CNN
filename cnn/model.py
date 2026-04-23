@@ -42,7 +42,7 @@ class Model:
             batch_size (int): size of batch used
         """
 
-    def __init__(self, layers: list[Layer], loss: Loss, dataset: str, initialized:bool=False, CAM_image:np.ndarray|int=None):
+    def __init__(self, layers: list[Layer], loss: Loss, dataset: str, initialized:bool=False, CAM_image:np.ndarray=None):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset

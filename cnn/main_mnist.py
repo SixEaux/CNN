@@ -25,11 +25,11 @@ import numpy as np
 # =========================
 lr = 0.05
 dataset = "fashion_mnist"
-epochs = 20
+epochs = 1
 batch_size = 64
-file = "test_draw"
+file = ""
 
-"""
+
 # =========================
 # Model definition
 # =========================
@@ -108,14 +108,12 @@ plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Ep
 plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
 save_model(model, trainer, file, True)
 
-"""
 
-
-model, trainer, test = load_model(file)
+# model, trainer, test = load_model(file)
 
 # visual_image(trainer.training_images[:50])
 
-d = Draw(model, trainer, learn_bool=True)
+# d = Draw(model, trainer, learn_bool=True)
 
 
 # visual_image(trainer.training_images[:40])

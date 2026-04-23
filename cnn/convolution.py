@@ -93,7 +93,7 @@ class Convolutional(Layer):
             np.ndarray: output DIM = (batch_size, output_height, output_width, number_kernels)
         """
         self.input = x
-        return self.convolution_forward_tensordot(x) + self.bias if not self.numba else conv2d_forward(x, self.kernel, self.bias, self.stride, self.padding)
+        return self.convolution_forward_tensordot(x) + self.bias
 
     def backward_filter_tensordot(self, dL_dout:np.ndarray):
         """Get the gradient of the error wrt the filter to adjust weights.
