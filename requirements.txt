@@ -5,7 +5,7 @@ matplotlib
 tabulate
 scipy
 scikit-learn
-collections
-tkinter
-PIL
+# collections
+# tkinter
+# PIL
 tensorflow

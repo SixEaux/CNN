@@ -35,7 +35,7 @@ def split(paths:dict, validation_part:float):
 
     length_validation = int(train_images.shape[0]*validation_part) #get the length of the validation set
     
-    return perm_train_images[length_validation:].astype(np.float32), perm_train_values[length_validation:], perm_train_images[:length_validation], perm_train_values[:length_validation], test_images.astype(np.float32), test_values
+    return perm_train_images[length_validation:].astype(np.float32), perm_train_values[length_validation:], perm_train_images[:length_validation].astype(np.float32), perm_train_values[:length_validation], test_images.astype(np.float32), test_values
 
 
 def import_data(name:str, validation_part:float=0):

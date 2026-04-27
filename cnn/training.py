@@ -116,7 +116,7 @@ class Training:
             num_batches (int): number of batches that divides dataset
         """
         
-        save = [None for _ in range(len(self.CAM_image))]
+        save = [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
         
         for batch in trange(num_batches, desc="Batch"):
             x_batch = self.training_images[batch *
@@ -132,7 +132,7 @@ class Training:
 
             self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
 
-            save = [None for _ in range(len(self.CAM_image))]
+            save = [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
 
     def lr_decay(self):
         """Decay the learning rate based on the methof used.

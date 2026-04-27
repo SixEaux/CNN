@@ -1,5 +1,4 @@
-# TODO : do a little bit of lr opti
-# TODO : Drawing
+# TODO : do a little bit of lr optimization
 
 from cnn.training import Training
 from cnn.testing import Testing
@@ -24,11 +23,10 @@ import numpy as np
 # Hyperparameters
 # =========================
 lr = 0.05
-dataset = "fashion_mnist"
+dataset = "mnist"
 epochs = 1
 batch_size = 64
 file = ""
-
 
 # =========================
 # Model definition
@@ -59,8 +57,8 @@ model = Model(
     layers=layers,
     loss=Loss("CEL"),
     dataset=dataset,
-    CAM_image=[i for i in range(10)]
-)
+    CAM_image=None)
+
 
 # =========================
 # Testing & Training setup
@@ -88,7 +86,7 @@ trainer = Training(
 print("=" * 50)
 print("Initial evaluation")
 initial_acc = test.exam()[0]
-print(f"Accuracy: {initial_acc:.4f}")
+print(f"Accuracy: {initial_acc:.4f}") 
 
 print("=" * 50)
 print("Training...")
@@ -99,14 +97,15 @@ print("Evaluation after training")
 final_acc = test.exam()[0]
 print(f"Accuracy: {final_acc:.4f}")
 
-show = True
-minus_y = False
-plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
-plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
-plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=minus_y)
-plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
-plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
-save_model(model, trainer, file, True)
+
+# show = True
+# minus_y = False
+# plot_smthg(trainer.losses, title="loss", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
+# plot_smthg(trainer.accuracies, title="accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
+# plot_smthg(trainer.learning_rates, title="learning_rates", x_title="Epochs", y_title="Learning rate", show=show, save_to=file, minus_y=minus_y)
+# plot_smthg(trainer.validation_losses[2:], title="validation_losses", x_title="Epochs", y_title="Loss", show=show, save_to=file, minus_y=minus_y)
+# plot_smthg(trainer.validation_exams, title="validation_accuracy", x_title="Epochs", y_title="Accuracy", show=show, save_to=file, minus_y=minus_y)
+# save_model(model, trainer, file, True)
 
 
 # model, trainer, test = load_model(file)

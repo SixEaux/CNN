@@ -1,6 +1,6 @@
 # old CNN project
 OLD/
-
+/TODO
 
 test/__pycache__
 test/test_1.py
@@ -18,3 +18,4 @@ cnn/__pycache__
 .idea
 .venv
 .vscode
+.launch.json
