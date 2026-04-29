@@ -5,7 +5,7 @@ from cnn.activation import Activation
 from cnn.dense import Dense
 from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool, MeanPool
+from cnn.pooling import MaxPool
 from cnn.loss import Loss
 
 from cnn.model import Model
@@ -36,9 +36,6 @@ def get_weights_architecture(layers:list):
         elif isinstance(l, MaxPool):
             layers_parameters.append((l.size_kernel, l.stride, l.out_dim))
             architecture.append("MaxPool")
-        elif isinstance(l, MeanPool):
-            layers_parameters.append((l.size_kernel, l.stride, l.out_dim))
-            architecture.append("MeanPool")
         elif isinstance(l, Flattening):
             layers_parameters.append(None)
             architecture.append("Flattening")

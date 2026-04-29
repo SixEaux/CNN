@@ -1,5 +1,5 @@
 import numpy as np
-from cnn.parmeter_initialization import he_initialization, xavier_initialization
+from cnn.parameter_initialization import he_initialization, xavier_initialization
 from cnn.layer import Layer
 
 class Convolutional(Layer):

@@ -9,7 +9,7 @@ from cnn.activation import Activation
 from cnn.dense import Dense
 from cnn.flattening import Flattening
 from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool, MeanPool
+from cnn.pooling import MaxPool
 from cnn.loss import Loss
 
 def load_layers(architecture:list, parameters_layers:list):
@@ -56,13 +56,6 @@ def load_layers(architecture:list, parameters_layers:list):
         elif architecture[l] == "MaxPool":
             param = parameters_layers[l]
             new_layer = MaxPool(param[0], param[1])
-            new_layer.out_dim = param[2]
-
-            layers.append(new_layer)
-
-        elif architecture[l] == "MeanPool":
-            param = parameters_layers[l]
-            new_layer = MeanPool(param[0], param[1])
             new_layer.out_dim = param[2]
 
             layers.append(new_layer)

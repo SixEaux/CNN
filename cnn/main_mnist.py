@@ -1,4 +1,5 @@
 # TODO : do a little bit of lr optimization
+# TODO : REFACTOR MAIN
 
 from cnn.training import Training
 from cnn.testing import Testing
