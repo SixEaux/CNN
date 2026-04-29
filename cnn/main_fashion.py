@@ -44,7 +44,7 @@ layers = [
     Activation(acti_func),
     MaxPool(2, stride=2),
 
-    # Block 3 (important for Fashion-MNIST)
+    # Block 3
     Convolutional(64, 3, padding=1, stride=1, initialization=initialization),
     Activation(acti_func),
     MaxPool(2, stride=2),
