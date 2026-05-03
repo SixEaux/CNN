@@ -1,3 +1,4 @@
+dataset: "fashion_mnist"
 model:
   loss: "CEL"
   initialized: false
@@ -75,8 +76,7 @@ training:
 
 visualization:
   show_plots: true
-  save_plots: true
-  minus_y: true
+  minus_y: false
 
-save_file: "fashion_draw"
+save_file: ""
 CAM_image: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

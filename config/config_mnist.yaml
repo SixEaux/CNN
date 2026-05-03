@@ -1,0 +1,68 @@
+dataset: "mnist"
+model:
+  loss: "CEL"
+  initialized: false
+
+  layers:
+    - type: "Convolutional"
+      number_kernels: 8
+      size_kernel: 3
+      stride: 1
+      padding: 1
+      initialization: "he"
+
+    - type: "Activation"
+      function: "relu"
+
+    - type: "MaxPool"
+      size_kernel: 2
+      stride: 2
+
+    - type: "Convolutional"
+      number_kernels: 16
+      size_kernel: 3
+      stride: 1
+      padding: 1
+      initialization: "he"
+
+    - type: "Activation"
+      function: "relu"
+
+    - type: "MaxPool"
+      size_kernel: 2
+      stride: 2
+
+    - type: "Flattening"
+
+    - type: "Dense"
+      number_neurons: 64
+      initialization: "he"
+
+    - type: "Activation"
+      function: "relu"
+
+    - type: "Dropout"
+      drop_rate: 0.3
+
+    - type: "Dense"
+      number_neurons: 10
+
+training:
+  learning_rate: 0.05
+  normalize: "division"
+  lr_decay: "exponential"
+  lambda_rate: 0.01
+  momentum_rate: 0.9
+  validation_part: 0.2
+  early_stop: true
+  patience: 2
+  min_epoch: 5
+  epochs: 5
+  batch_size: 64
+
+visualization:
+  show_plots: true
+  minus_y: false
+
+save_file: ""
+CAM_image: null

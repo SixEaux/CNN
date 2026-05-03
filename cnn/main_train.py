@@ -1,0 +1,109 @@
+from cnn.training import Training
+from cnn.testing import Testing
+from cnn.loss import Loss
+from cnn.model import Model
+
+from cnn.save_model import save_model
+from cnn.visualize import (
+    visual_image,
+    visual_outputs,
+    confusion_matrix_plot,
+    plot_smthg,
+)
+from cnn.helpers import load_config, get_layer
+
+# =========================
+# Model definition
+# =========================
+
+config = load_config("config_mnist.yaml")
+
+layers = []
+layers_config = config["model"]["layers"]
+for i in range(len(layers_config)):
+    layers.append(get_layer(layers_config[i]))
+
+
+model = Model(
+    layers=layers,
+    loss=Loss(config["model"]["loss"]),
+    dataset=config["dataset"],
+    initialized=config["model"]["initialized"],
+    CAM_image=config["CAM_image"],
+)
+
+
+test = Testing(config["dataset"], model)
+
+real_training_config = {
+    k: v
+    for k, v in config["training"].items()
+    if (k != "" and k != "epochs" and k != "batch_size")
+}
+trainer = Training(config["dataset"], model, test, **real_training_config)
+
+# =========================
+# Training
+# =========================
+print("=" * 50)
+print("Initial evaluation")
+initial_acc = test.exam()[0]
+print(f"Accuracy: {initial_acc:.4f}")
+
+print("=" * 50)
+print("Training...")
+trainer.SGD(
+    config["training"]["epochs"],
+    config["training"]["batch_size"],
+    to_save=config["save_file"],
+)
+
+# =========================
+# Testing
+# =========================
+
+print("=" * 50)
+print("Evaluation after training")
+final_acc = test.exam()[0]
+print(f"Accuracy: {final_acc:.4f}")
+
+show = config["visualization"]["show_plots"]
+minus_y = config["visualization"]["minus_y"]
+plot_smthg(
+    trainer.losses,
+    title="loss",
+    x_title="Epochs",
+    y_title="Loss",
+    show=show,
+    save_to=config["save_file"],
+    minus_y=minus_y,
+)
+plot_smthg(
+    trainer.accuracies,
+    title="accuracy",
+    x_title="Epochs",
+    y_title="Accuracy",
+    show=show,
+    save_to=config["save_file"],
+    minus_y=minus_y,
+)
+plot_smthg(
+    trainer.validation_losses[2:],
+    title="validation_losses",
+    x_title="Epochs",
+    y_title="Loss",
+    show=show,
+    save_to=config["save_file"],
+    minus_y=minus_y,
+)
+plot_smthg(
+    trainer.validation_exams,
+    title="validation_accuracy",
+    x_title="Epochs",
+    y_title="Accuracy",
+    show=show,
+    save_to=config["save_file"],
+    minus_y=minus_y,
+)
+save_model(model, trainer, config["save_file"], checkpoint=False, minus_y=False)
+
