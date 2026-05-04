@@ -5,17 +5,25 @@ from cnn.model import Model
 
 
 class Testing:
-    def __init__(self, dataset: str, model: Model):
+    def __init__(self, dataset: str, model: Model, loaded_data: tuple = None):
         """Test the accuracy of the model.
 
         Args:
             dataset (str): dataset used
             model (Model): model to test
         """
-        _, _, _, _, self.testing_images, self.testing_values, self.labels = import_data(dataset)  # import data needed
+        _, _, _, _, self.testing_images, self.testing_values, self.labels = import_data(
+            dataset
+        ) if loaded_data is None else loaded_data  # import data needed
         self.model = model
 
-    def exam(self, images_test:np.ndarray=None, values_test:np.ndarray=None, labels:np.ndarray=None, save_errors:bool=False):
+    def exam(
+        self,
+        images_test: np.ndarray = None,
+        values_test: np.ndarray = None,
+        labels: np.ndarray = None,
+        save_errors: bool = False,
+    ):
         """Test accuracy of the model.
 
         Args:
@@ -36,10 +44,10 @@ class Testing:
         accuracy = np.mean(preds == values_test) * 100
 
         if save_errors:
-            errors = {i:None for i in range(len(labels))}
-            
+            errors = {i: None for i in range(len(labels))}
+
             for num in errors.keys():
-                y_true = values_test.ravel() 
+                y_true = values_test.ravel()
                 y_pred = preds.ravel
                 values_num = (y_true == num) & (y_pred != num)
 
@@ -49,7 +57,4 @@ class Testing:
         else:
             errors = None
 
-
         return accuracy, np.mean(loss), preds, errors
-
-    

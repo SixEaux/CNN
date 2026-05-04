@@ -46,10 +46,12 @@ class Training:
         early_stop: bool = False,
         patience: int = 1,
         min_epoch: int = 5,
+        loaded_data: tuple = None,
     ):
 
         self.dataset = dataset
         self.validation_part = validation_part
+
         (
             self.training_images,
             self.training_values,
@@ -58,9 +60,9 @@ class Training:
             _,
             _,
             _,
-        ) = import_data(
-            self.dataset, validation_part
-        )  # import data needed
+        ) = (
+            import_data(self.dataset, validation_part) if loaded_data is None else loaded_data
+        )  # import data needed 
 
         self.model = model
         self.testing = testing
@@ -74,12 +76,8 @@ class Training:
         self.finished_epochs = 0  # number of finished epochs
         self.losses = []  # keep track of the losses of each iteration
         self.accuracies = []  # keep track of the accuracy of each iteration
-        self.validation_exams = (
-            []
-        )  # keep track of the accuracy of each iteration on validation set
-        self.validation_losses = (
-            []
-        )  # keep track loss in validation sample of this iteration
+        self.validation_exams = []  # keep track of the accuracy of each iteration on validation set
+        self.validation_losses = []  # keep track loss in validation sample of this iteration
 
         self.early_stop = early_stop
         self.patience = patience
@@ -90,8 +88,7 @@ class Training:
 
         if self.model.CAM_image is not None:
             self.CAM_image = [
-                self.training_images[i] if isinstance(i, int) else i
-                for i in self.model.CAM_image
+                self.training_images[i] if isinstance(i, int) else i for i in self.model.CAM_image
             ]  # images we want to follow in CAM
         else:
             self.CAM_image = None
@@ -110,9 +107,9 @@ class Training:
         elif type == "division":
             self.training_images = self.training_images / 255
         elif type == "center-reduction":
-            self.training_images = (
-                self.training_images - np.mean(self.training_images)
-            ) / np.std(self.training_images)
+            self.training_images = (self.training_images - np.mean(self.training_images)) / np.std(
+                self.training_images
+            )
         else:
             raise ValueError("Type of normalization not known.")
 
@@ -145,19 +142,11 @@ class Training:
             num_batches (int): number of batches that divides dataset
         """
 
-        save = (
-            [None for _ in range(len(self.CAM_image))]
-            if self.CAM_image is not None
-            else None
-        )
+        save = [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
 
         for batch in trange(num_batches, desc="Batch"):
-            x_batch = self.training_images[
-                batch * batch_size : (batch + 1) * batch_size
-            ]
-            exp_batch = self.training_values[
-                batch * batch_size : (batch + 1) * batch_size
-            ]
+            x_batch = self.training_images[batch * batch_size : (batch + 1) * batch_size]
+            exp_batch = self.training_values[batch * batch_size : (batch + 1) * batch_size]
 
             if self.CAM_image is not None:
                 for i in range(len(self.CAM_image)):
@@ -165,14 +154,10 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(
-                batch_size, self.learning_rate, self.momentum_rate, save
-            )
+            self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
 
             save = (
-                [None for _ in range(len(self.CAM_image))]
-                if self.CAM_image is not None
-                else None
+                [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
             )
 
     def lr_decay(self):
@@ -182,13 +167,9 @@ class Training:
             ValueError: if the method of learning decay is unkown
         """
         if self.lr_decay_method == "exponential":
-            self.learning_rate = self.initial_lr * np.exp(
-                -self.lambda_rate * self.finished_epochs
-            )
+            self.learning_rate = self.initial_lr * np.exp(-self.lambda_rate * self.finished_epochs)
         elif self.lr_decay_method == "inverse":
-            self.learning_rate = self.initial_lr / (
-                1 + self.lambda_rate * self.finished_epochs
-            )
+            self.learning_rate = self.initial_lr / (1 + self.lambda_rate * self.finished_epochs)
         else:
             raise ValueError("Not a valid decay method.")
 
@@ -264,8 +245,6 @@ class Training:
 
                 if self.count_stop >= self.patience:
                     if to_save != "":
-                        save_model(
-                            self.model, self, to_save, checkpoint=True, minus_y=True
-                        )
+                        save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
                     print(f"Early stop at epoch {e}")
                     break

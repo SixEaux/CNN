@@ -1,7 +1,6 @@
 import numpy as np
-from cnn.layer import Layer
 
-class Loss(Layer):
+class Loss():
     """
     Loss "layer".
 
@@ -9,10 +8,11 @@ class Loss(Layer):
             function (str): what error function to use: MSE or CE (CE directly uses softmax).
     """
 
-    def __init__(self, function:str):
+    def __init__(self, function:str, nb_classes:int):
         self.function = function
         self.expected = None
         self.observed = None
+        self.nb_classes = nb_classes
     
     def initial_param(self, *args): # just so every layer has one
         return
@@ -43,7 +43,7 @@ class Loss(Layer):
             ndarray: DIM = (batch_size, number_classes)
         """
 
-        return np.eye(10)[expected.squeeze()]
+        return np.eye(self.nb_classes)[expected.squeeze()]
     
     def forward(self, obs:np.ndarray, exp:np.ndarray):
         """Calculate loss.

@@ -3,6 +3,7 @@ from cnn.testing import Testing
 from cnn.loss import Loss
 from cnn.model import Model
 
+from cnn.import_data import import_data
 from cnn.save_model import save_model
 from cnn.visualize import (
     visual_image,
@@ -26,21 +27,23 @@ for i in range(len(layers_config)):
 
 model = Model(
     layers=layers,
-    loss=Loss(config["model"]["loss"]),
+    loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
     initialized=config["model"]["initialized"],
     CAM_image=config["CAM_image"],
 )
 
+loaded_data = import_data(config["dataset"])  # import data needed
 
-test = Testing(config["dataset"], model)
+test = Testing(config["dataset"], model, loaded_data)
 
 real_training_config = {
     k: v
     for k, v in config["training"].items()
     if (k != "" and k != "epochs" and k != "batch_size")
 }
-trainer = Training(config["dataset"], model, test, **real_training_config)
+
+trainer = Training(loaded_data, model, test, **real_training_config)
 
 # =========================
 # Training

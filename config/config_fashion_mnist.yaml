@@ -1,4 +1,5 @@
 dataset: "fashion_mnist"
+nb_classes: 10
 model:
   loss: "CEL"
   initialized: false
