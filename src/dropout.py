@@ -1,5 +1,5 @@
 import numpy as np
-from cnn.layer import Layer
+from src.layer import Layer
 
 class Dropout(Layer):
     def __init__(self, drop_rate:float):

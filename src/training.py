@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from cnn.import_data import import_data
-from cnn.model import Model
-from cnn.testing import Testing
+from src.import_data import import_data
+from src.model import Model
+from src.testing import Testing
 
-from cnn.save_model import save_model
-from cnn.helpers import conversation_save
+from src.save_model import save_model
+from src.helpers import conversation_save
 
 
 class Training:
@@ -143,10 +143,13 @@ class Training:
         """
 
         save = [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
+        # permutate the data for new batches
+        perm = np.random.permutation(self.training_images.shape[0])
 
         for batch in trange(num_batches, desc="Batch"):
-            x_batch = self.training_images[batch * batch_size : (batch + 1) * batch_size]
-            exp_batch = self.training_values[batch * batch_size : (batch + 1) * batch_size]
+            batch_index = perm[batch * batch_size : (batch + 1) * batch_size]
+            x_batch = self.training_images[batch_index]
+            exp_batch = self.training_values[batch_index]
 
             if self.CAM_image is not None:
                 for i in range(len(self.CAM_image)):
@@ -221,12 +224,6 @@ class Training:
         num_batches = self.training_images.shape[0] // batch_size
 
         for e in trange(epoch, desc="Epochs"):
-
-            # permutate the data for new batches
-            perm = np.random.permutation(self.training_images.shape[0])
-
-            self.training_images = self.training_images[perm]
-            self.training_values = self.training_values[perm]
 
             self.training_iteration(batch_size, num_batches)
 

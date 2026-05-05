@@ -3,10 +3,10 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import os
 
-from cnn.training import Training
-from cnn.testing import Testing
-from cnn.model import Model
-from cnn.helpers import conversation_save
+from src.training import Training
+from src.testing import Testing
+from src.model import Model
+from src.helpers import conversation_save
 
 def plot_smthg(smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y_title:str="", show:bool=False, minus_y:bool=False):
         """Plot stuff from model.

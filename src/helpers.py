@@ -31,12 +31,12 @@ def conversation_save(func:Callable, save_to:str, minus_y:bool, type_thing:str="
 import yaml
 from pathlib import Path
 
-from cnn.flattening import Flattening
-from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool
-from cnn.dropout import Dropout
-from cnn.activation import Activation
-from cnn.dense import Dense
+from src.flattening import Flattening
+from src.convolution import Convolutional
+from src.pooling import MaxPool
+from src.dropout import Dropout
+from src.activation import Activation
+from src.dense import Dense
 
 
 def load_config(name):

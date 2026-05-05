@@ -58,7 +58,7 @@ training:
   early_stop: true
   patience: 2
   min_epoch: 5
-  epochs: 5
+  epochs: 10
   batch_size: 64
 
 visualization:

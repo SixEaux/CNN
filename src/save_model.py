@@ -1,16 +1,16 @@
 import os
 import pickle
 
-from cnn.activation import Activation
-from cnn.dense import Dense
-from cnn.flattening import Flattening
-from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool
-from cnn.loss import Loss
+from src.activation import Activation
+from src.dense import Dense
+from src.flattening import Flattening
+from src.convolution import Convolutional
+from src.pooling import MaxPool
+from src.loss import Loss
 
-from cnn.model import Model
+from src.model import Model
 
-from cnn.helpers import conversation_save
+from src.helpers import conversation_save
 
 def get_weights_architecture(layers:list):
     """Get layers and architecture for saving

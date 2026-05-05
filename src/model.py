@@ -23,15 +23,15 @@ As a convention when i use:
 
 import numpy as np
 
-from cnn.loss import Loss
-from cnn.dense import Dense
-from cnn.convolution import Convolutional
-from cnn.flattening import Flattening
-from cnn.pooling import MaxPool
-from cnn.dropout import Dropout
-from cnn.import_data import import_data
+from src.loss import Loss
+from src.dense import Dense
+from src.convolution import Convolutional
+from src.flattening import Flattening
+from src.pooling import MaxPool
+from src.dropout import Dropout
+from src.import_data import import_data
 
-from cnn.layer import Layer
+from src.layer import Layer
 
 
 class Model:
@@ -121,6 +121,7 @@ class Model:
         """
 
         assert x.ndim == 4, "Not the right shapes for the input"
+        self.saved_outputs = []
 
         out = x
         for l in self.layers:

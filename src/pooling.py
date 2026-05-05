@@ -1,5 +1,5 @@
 import numpy as np
-from cnn.layer import Layer
+from src.layer import Layer
 
 class MaxPool(Layer):
     """Max Pooling layer.

@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import expit
-from cnn.layer import Layer
+from src.layer import Layer
 
 class Activation(Layer):
     """Activation layer.

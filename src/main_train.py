@@ -1,17 +1,17 @@
-from cnn.training import Training
-from cnn.testing import Testing
-from cnn.loss import Loss
-from cnn.model import Model
+from src.training import Training
+from src.testing import Testing
+from src.loss import Loss
+from src.model import Model
 
-from cnn.import_data import import_data
-from cnn.save_model import save_model
-from cnn.visualize import (
+from src.import_data import import_data
+from src.save_model import save_model
+from src.visualize import (
     visual_image,
     visual_outputs,
     confusion_matrix_plot,
     plot_smthg,
 )
-from cnn.helpers import load_config, get_layer
+from src.helpers import load_config, get_layer
 
 # =========================
 # Model definition
@@ -33,7 +33,7 @@ model = Model(
     CAM_image=config["CAM_image"],
 )
 
-loaded_data = import_data(config["dataset"])  # import data needed
+loaded_data = import_data(config["dataset"], config["training"]["validation_part"])  # import data needed
 
 test = Testing(config["dataset"], model, loaded_data)
 
@@ -43,7 +43,7 @@ real_training_config = {
     if (k != "" and k != "epochs" and k != "batch_size")
 }
 
-trainer = Training(loaded_data, model, test, **real_training_config)
+trainer = Training(config["dataset"], model, test, loaded_data=loaded_data, **real_training_config)
 
 # =========================
 # Training
