@@ -150,7 +150,7 @@ class Model:
         save: list = None,
     ):
         """Backward propagation through the layers.
-
+        
         Args:
             batch_size (int): size of the batch
             learning_rate (float): learning rate
