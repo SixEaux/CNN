@@ -18,6 +18,10 @@ class Dense(Layer):
 
         self.last_variation = np.zeros_like(self.weight) #keep track of last variation of the weights for momentum
 
+        self.dW = None # gradient for weights
+        self.dB = None # gradient for bias
+
+
     def initial_param(self, dim_in:int, dim_out:int):
         """Initialize the parameters.
 
@@ -47,7 +51,7 @@ class Dense(Layer):
         self.input = x
         return x @ self.weight.T + self.bias #bias broadcasted across batch
     
-    def backward(self, dL_dout:np.ndarray, learning_rate:float, momentum_rate:float, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, momentum_rate:float, batch_size:int=1):
         """Recover gradient layer before and actualise weights.
 
         Args:
@@ -65,12 +69,13 @@ class Dense(Layer):
 
         dL_dout = dL_dout @ self.weight #gradient for layer before
         
-        dW = learning_rate * dC_dw / batch_size
+        self.dW = dC_dw / batch_size
+        self.dB = dC_db / batch_size
 
         # actualise weights and bias
-        self.weight -= dW + momentum_rate * self.last_variation
-        self.bias -= learning_rate * dC_db / batch_size
+        self.weight -= self.dW + momentum_rate * self.last_variation
+        self.bias -= self.dB + momentum_rate * self.last_variation
 
-        self.last_variation = dW
+        self.last_variation = self.dW
 
         return dL_dout

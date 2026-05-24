@@ -31,6 +31,10 @@ class Convolutional(Layer):
         self.initialization = initialization
 
         self.last_variation = np.zeros_like(self.kernel) #keep track of last variation of the weights for momentum
+        
+        dC_df = None # gradient for filters
+        dC_db = None # gradient for bias
+
 
     def initial_param(self, dim_in:tuple, dim_out:tuple): 
         """Initialize the parameters.
@@ -156,7 +160,7 @@ class Convolutional(Layer):
 
         return c
 
-    def backward(self, dL_dout:np.ndarray, learning_rate:float, momentum_rate:float, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
         """Chef backpropagation convolutional layer. It also adjustes the filters and biases
 
         Args:
@@ -168,17 +172,18 @@ class Convolutional(Layer):
         Returns:
             np.ndarray: gradient error wrt input for layer before
         """        
-        dL_df = self.backward_filter_tensordot(dL_dout)
-        dL_db = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
+        dC_df = self.backward_filter_tensordot(dL_dout)
+        dC_db = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
 
-        dL_dx = self.backward_input_tensordot(dL_dout) 
+        dC_dx = self.backward_input_tensordot(dL_dout) 
         
-        dK = learning_rate * dL_df / batch_size #variation of kernel weights of this iteration
+        self.dK = dC_df / batch_size #variation of kernel weights of this iteration
+        self.dB = dC_db / batch_size #variation of bias of this iteration
 
-        self.kernel -= dK + momentum_rate * self.last_variation
-        self.bias -= learning_rate * dL_db / batch_size
+        self.kernel -= self.dK 
+        self.bias -= self.dB 
 
-        self.last_variation = dK
+        self.last_variation = self.dK
 
-        return dL_dx
+        return dC_dx
     
