@@ -28,7 +28,9 @@ for i in range(len(layers_config)):
 
 optimizer = get_optimizer(config["training"]["optimizer"])
 
-loaded_data = import_data(config["dataset"], config["training"]["validation_part"])  # import data needed
+loaded_data = import_data(
+    config["dataset"], config["training"]["validation_part"]
+)  # import data needed
 
 # Prepare CAM images using indices from config
 _, _, test_images, _, _, _, _ = loaded_data
@@ -46,12 +48,17 @@ model = Model(
 test = Testing(config["dataset"], model, loaded_data)
 
 real_training_config = {
-    k: v
-    for k, v in config["training"].items()
-    if (k != "" and k != "epochs" and k != "batch_size")
+    k: v for k, v in config["training"].items() if (k not in ["", "epochs", "batch_size", "optimizer"])
 }
 
-trainer = Training(config["dataset"], model, test, loaded_data=loaded_data, **real_training_config)
+trainer = Training(
+    config["dataset"],
+    model,
+    test,
+    optimus=optimizer,
+    loaded_data=loaded_data,
+    **real_training_config,
+)
 
 # =========================
 # Training
@@ -63,7 +70,7 @@ print(f"Accuracy: {initial_acc:.4f}")
 
 print("=" * 50)
 print("Training...")
-trainer.SGD(
+trainer.train(
     config["training"]["epochs"],
     config["training"]["batch_size"],
     to_save=config["save_file"],
@@ -117,4 +124,3 @@ plot_smthg(
     minus_y=minus_y,
 )
 save_model(model, trainer, config["save_file"], checkpoint=False, minus_y=False)
-

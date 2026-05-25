@@ -65,6 +65,16 @@ class Model:
         if not initialized:
             self.model_initial()
 
+    def precompute_fan_out(self, l, dim_in: tuple):
+        if isinstance(l, Dense):
+            return l.number_neurons
+        elif isinstance(l, Convolutional):
+            h_in, w_in, channels_in = dim_in
+            h_out = int(np.floor((h_in - l.size_kernel + 2 * l.padding) / l.stride) + 1)
+            return h_out, h_out, l.number_kernels
+        else:
+            return
+
     def model_initial(self):
         """Initialize the model based on dimensions input."""
         dims_dataset = {"mnist": (28, 28, 1), "fashion_mnist": (28, 28, 1)}
@@ -73,15 +83,19 @@ class Model:
 
         for l in self.layers:
 
-            if isinstance(l, Convolutional):
-                h_in, w_in, channels_in = last_dim_out
-                h_out = int(np.floor((h_in - l.size_kernel + 2 * l.padding) / l.stride) + 1)
-                fan_out = (h_out, h_out, l.number_kernels)
+            fan_out = self.precompute_fan_out(l, last_dim_out)
 
             l.initial_param(last_dim_out, fan_out)
 
-            if hasattr(l, "out_dim"):
-                l.out_dim = last_dim_out
+            if isinstance(l, Dense):
+                last_dim_out = l.number_neurons
+            elif isinstance(l, Convolutional):
+                last_dim_out = l.out_dim
+            elif isinstance(l, MaxPool):
+                last_dim_out = l.out_dim
+            elif isinstance(l, Flattening):
+                last_dim_out = last_dim_out[0] * last_dim_out[1] * last_dim_out[2]
+
 
     def forward(
         self,

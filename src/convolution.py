@@ -12,8 +12,6 @@ class Convolutional(Layer):
             padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
             stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.
             initialization (str): type of initialization between: he, xavier
-
-            numba (bool): if true uses numba but doesn't work yet needs improving TODO
         """
     def __init__(self, number_kernels:int, size_kernel:int, stride:int=1, 
                  padding:int=0, initialization:str="xavier"):

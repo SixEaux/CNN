@@ -80,13 +80,6 @@ class Training:
 
         self.normalization(normalize)
 
-        if self.model.CAM_image is not None:
-            self.CAM_image = [
-                self.training_images[i] if isinstance(i, int) else i for i in self.model.CAM_image
-            ]  # images we want to follow in CAM
-        else:
-            self.CAM_image = None
-
     def normalization(self, type: str):
         """Normalize the dataset.
 
@@ -136,28 +129,22 @@ class Training:
             num_batches (int): number of batches that divides dataset
         """
 
-        save = [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
         # permutate the data for new batches
         perm = np.random.permutation(self.training_images.shape[0])
+
+        current_lr = self.optimizer.get_learning_rate(self.finished_epochs)
 
         for batch in trange(num_batches, desc="Batch"):
             batch_index = perm[batch * batch_size : (batch + 1) * batch_size]
             x_batch = self.training_images[batch_index]
             exp_batch = self.training_values[batch_index]
 
-            if self.CAM_image is not None:
-                for i in range(len(self.CAM_image)):
-                    save[i] = self.is_in(self.CAM_image[i], x_batch)
-
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, save)
+            self.model.backward(batch_size, record_cam=True, batch_images=x_batch)
 
-            self.optimizer.update(self.model, self.finished_epochs, batch_size)
-
-            save = (
-                [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
-            )
+            for layer in self.model.layers:
+                self.optimizer.update(layer, current_lr)
 
     def early_stopping(self):
         """For the moment just simple early stopping but in the future try various methods.
@@ -189,7 +176,7 @@ class Training:
             self.validation_exams.append(accuracy_validation)
             self.validation_losses.append(loss_validation)
 
-    def SGD(self, epoch: int = 1, batch_size: int = 1, to_save: str = ""):
+    def train(self, epoch: int = 1, batch_size: int = 1, to_save: str = ""):
         """Training the model wiht or without batches (if no batches batch_size = 1).
 
         Args:

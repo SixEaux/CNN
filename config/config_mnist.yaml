@@ -54,7 +54,7 @@ training:
   early_stop: true
   patience: 2
   min_epoch: 5
-  epochs: 10
+  epochs: 2
   batch_size: 64
   optimizer: 
     type: "SGD"
