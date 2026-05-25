@@ -11,7 +11,9 @@ from src.visualize import (
     confusion_matrix_plot,
     plot_smthg,
 )
-from src.helpers import load_config, get_layer
+from src.helpers import load_config, get_layer, get_optimizer
+
+from src.cam_image import CAM_IMAGE
 
 # =========================
 # Model definition
@@ -24,16 +26,22 @@ layers_config = config["model"]["layers"]
 for i in range(len(layers_config)):
     layers.append(get_layer(layers_config[i]))
 
+optimizer = get_optimizer(config["training"]["optimizer"])
+
+loaded_data = import_data(config["dataset"], config["training"]["validation_part"])  # import data needed
+
+# Prepare CAM images using indices from config
+_, _, test_images, _, _, _, _ = loaded_data
+cam_image_indices = config["CAM_image"] if config["CAM_image"] else []
+cam = CAM_IMAGE(test_images[cam_image_indices]) if cam_image_indices else None
 
 model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
     initialized=config["model"]["initialized"],
-    CAM_image=config["CAM_image"],
+    cam=cam,
 )
-
-loaded_data = import_data(config["dataset"], config["training"]["validation_part"])  # import data needed
 
 test = Testing(config["dataset"], model, loaded_data)
 

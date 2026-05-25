@@ -10,7 +10,6 @@ class Layer:
         """Forward pass: takes input, returns output."""
         pass
     
-    def backward(self, dL_dout: np.ndarray, learning_rate: float, 
-                 momentum_rate: float, batch_size: int) -> np.ndarray:
+    def backward(self, dL_dout: np.ndarray, batch_size: int) -> np.ndarray:
         """Backward pass: takes gradient, returns gradient for previous layer."""
         pass

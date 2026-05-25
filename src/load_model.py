@@ -41,7 +41,7 @@ def load_layers(architecture:list, parameters_layers:list):
         elif architecture[l] == "Convolutional":
             param = parameters_layers[l]
             new_layer = Convolutional(param[0].shape[3], param[2], param[3], param[4])
-            new_layer.kernel = param[0]
+            new_layer.weight = param[0]
             new_layer.bias = param[1]
             new_layer.out_dim = param[5]
 

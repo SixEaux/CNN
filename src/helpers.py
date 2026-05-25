@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from src.optimizer import *
 
 def conversation_save(func:Callable, save_to:str, minus_y:bool, type_thing:str="thing"):
     if save_to != "":
@@ -71,3 +72,14 @@ def get_layer(layer_config: str):
     else:
         raise ValueError("Layer type not found")
 
+def get_optimizer(optimizer_config: dict):
+    optimizer_type = optimizer_config["type"]
+    del optimizer_config["type"]
+    if optimizer_type == "SGD":
+        return SGD(**optimizer_config)
+    elif optimizer_type == "SGD_momentum":
+        return SGD_momentum(**optimizer_config)
+    elif optimizer_type == "Adagrad":
+        return Adagrad(**optimizer_config)
+    else:
+        raise ValueError("Optimizer type not found")

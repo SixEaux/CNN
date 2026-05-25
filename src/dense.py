@@ -39,6 +39,8 @@ class Dense(Layer):
 
         self.bias = np.zeros((1, self.number_neurons)).astype(np.float32)
 
+        self.out_dim = self.number_neurons
+
     def forward(self, x:np.ndarray):
         """Forward propagation dense layer.
 
@@ -51,7 +53,7 @@ class Dense(Layer):
         self.input = x
         return x @ self.weight.T + self.bias #bias broadcasted across batch
     
-    def backward(self, dL_dout:np.ndarray, momentum_rate:float, batch_size:int=1):
+    def backward(self, dL_dout:np.ndarray, batch_size:int=1):
         """Recover gradient layer before and actualise weights.
 
         Args:
@@ -63,7 +65,6 @@ class Dense(Layer):
         Returns:
             ndarray: gradient for layer before. DIM = (batch_size, length_input)
         """
-
         dC_dw = dL_dout.T @ self.input # (number_neurons, length_input) 
         dC_db = np.sum(dL_dout, axis=0, keepdims=True) # here i need a sum across batches
 
@@ -71,11 +72,5 @@ class Dense(Layer):
         
         self.dW = dC_dw / batch_size
         self.dB = dC_db / batch_size
-
-        # actualise weights and bias
-        self.weight -= self.dW + momentum_rate * self.last_variation
-        self.bias -= self.dB + momentum_rate * self.last_variation
-
-        self.last_variation = self.dW
 
         return dL_dout

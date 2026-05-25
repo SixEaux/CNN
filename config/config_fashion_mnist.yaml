@@ -63,17 +63,16 @@ model:
       number_neurons: 10
 
 training:
-  learning_rate: 0.01
   normalize: "division"
-  lr_decay: "exponential"
-  lambda_rate: 0.005
-  momentum_rate: 0.9
   validation_part: 0.2
   early_stop: true
   patience: 3
   min_epoch: 8
   epochs: 10
   batch_size: 64
+  optimizer: 
+    type: "SGD"
+    learning_rate: 0.01
 
 visualization:
   show_plots: true

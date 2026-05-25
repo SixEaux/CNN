@@ -6,6 +6,7 @@ import os
 from src.import_data import import_data
 from src.model import Model
 from src.testing import Testing
+from src.optimizer import Optimizer
 
 from src.save_model import save_model
 from src.helpers import conversation_save
@@ -37,11 +38,8 @@ class Training:
         dataset: str,
         model: Model,
         testing: Testing,
-        learning_rate: float,
+        optimus: Optimizer,
         normalize: str = "division",
-        lr_decay: str = "",
-        lambda_rate: float = 0,
-        momentum_rate: float = 0,
         validation_part: float = 0,
         early_stop: bool = False,
         patience: int = 1,
@@ -62,16 +60,12 @@ class Training:
             _,
         ) = (
             import_data(self.dataset, validation_part) if loaded_data is None else loaded_data
-        )  # import data needed 
+        )  # import data needed
 
         self.model = model
         self.testing = testing
-        self.learning_rate = learning_rate
 
-        self.initial_lr = learning_rate
-        self.lr_decay_method = lr_decay
-        self.lambda_rate = lambda_rate
-        self.momentum_rate = momentum_rate
+        self.optimizer = optimus
 
         self.finished_epochs = 0  # number of finished epochs
         self.losses = []  # keep track of the losses of each iteration
@@ -134,7 +128,7 @@ class Training:
         else:
             return
 
-    def training_iteration(self, batch_size: int, num_batches: int):
+    def training_epoch(self, batch_size: int, num_batches: int):
         """Do an iteration of training.
 
         Args:
@@ -157,27 +151,16 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, self.learning_rate, self.momentum_rate, save)
+            self.model.backward(batch_size, save)
+
+            self.optimizer.update(self.model, self.finished_epochs, batch_size)
 
             save = (
                 [None for _ in range(len(self.CAM_image))] if self.CAM_image is not None else None
             )
 
-    def lr_decay(self):
-        """Decay the learning rate based on the methof used.
-
-        Raises:
-            ValueError: if the method of learning decay is unkown
-        """
-        if self.lr_decay_method == "exponential":
-            self.learning_rate = self.initial_lr * np.exp(-self.lambda_rate * self.finished_epochs)
-        elif self.lr_decay_method == "inverse":
-            self.learning_rate = self.initial_lr / (1 + self.lambda_rate * self.finished_epochs)
-        else:
-            raise ValueError("Not a valid decay method.")
-
     def early_stopping(self):
-        """For the moment just simple early stopping but in the future do various methods.
+        """For the moment just simple early stopping but in the future try various methods.
 
         Returns:
             bool: if True stop
@@ -206,13 +189,6 @@ class Training:
             self.validation_exams.append(accuracy_validation)
             self.validation_losses.append(loss_validation)
 
-        # update learning rate
-        self.learning_rate_update()
-
-    def learning_rate_update(self):
-        if self.lr_decay_method != "":
-            self.lr_decay()
-
     def SGD(self, epoch: int = 1, batch_size: int = 1, to_save: str = ""):
         """Training the model wiht or without batches (if no batches batch_size = 1).
 
@@ -225,7 +201,7 @@ class Training:
 
         for e in trange(epoch, desc="Epochs"):
 
-            self.training_iteration(batch_size, num_batches)
+            self.training_epoch(batch_size, num_batches)
 
             self.end_iteration()
 

@@ -23,17 +23,15 @@ class Convolutional(Layer):
         self.number_kernels = number_kernels
         self.size_kernel = size_kernel
         self.out_dim = None # (height_out_conv, width_out_conv, number_kernels)
-        self.kernel = None # (size_kernel, size_kernel, channels_in, number_kernels)
+        self.weight = None # (size_kernel, size_kernel, channels_in, number_kernels)
         self.bias = None # (1, 1, 1, number_kernels)
 
         self.stride = stride
         self.padding = padding
         self.initialization = initialization
-
-        self.last_variation = np.zeros_like(self.kernel) #keep track of last variation of the weights for momentum
         
-        dC_df = None # gradient for filters
-        dC_db = None # gradient for bias
+        self.dW = None # gradient for weights
+        self.dB = None # gradient for bias
 
 
     def initial_param(self, dim_in:tuple, dim_out:tuple): 
@@ -47,11 +45,11 @@ class Convolutional(Layer):
         h_out, w_out, channels_out = dim_out
 
         if self.initialization == "he":
-            self.kernel = he_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+            self.weight = he_initialization(h_in*w_in, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         elif self.initialization == "xavier":
-            self.kernel = xavier_initialization(h_in*w_in, h_out*w_out, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+            self.weight = xavier_initialization(h_in*w_in, h_out*w_out, self.size_kernel*self.size_kernel*channels_in*self.number_kernels).reshape((self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         elif self.initialization == "random":
-            self.kernel = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
+            self.weight = np.random.uniform(-1, 1, (self.size_kernel, self.size_kernel, channels_in, self.number_kernels)).astype(np.float32)
         else:
             raise ValueError("I don't know this initialization.")
 
@@ -70,7 +68,7 @@ class Convolutional(Layer):
         Returns:
             np.ndarray: output after convolution DIM = (batch_size, output_height, output_width, number_kernels)
         """
-        k_h, k_w, k_c, number_k = self.kernel.shape
+        k_h, k_w, k_c, number_k = self.weight.shape
 
         if self.padding > 0:
             p = np.pad(x, ((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0))) # pad the image
@@ -83,7 +81,7 @@ class Convolutional(Layer):
 
         w = w[:, ::self.stride, ::self.stride, :] #apply stride
 
-        c = np.tensordot(w, self.kernel, axes=[(3, 4, 5), (2, 0, 1)]) #reduction
+        c = np.tensordot(w, self.weight, axes=[(3, 4, 5), (2, 0, 1)]) #reduction
 
         return c
 
@@ -110,7 +108,7 @@ class Convolutional(Layer):
         Returns:
             np.ndarray: _description_
         """
-        k_h, k_w, k_c, number_k = self.kernel.shape
+        k_h, k_w, k_c, number_k = self.weight.shape
 
         if self.padding > 0:
             x = np.pad(self.input, ((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0))) # pad the image
@@ -150,9 +148,9 @@ class Convolutional(Layer):
 
         #Valid convolution with filter rotated
 
-        k_h, k_w, k_c, number_k = self.kernel.shape
+        k_h, k_w, k_c, number_k = self.weight.shape
 
-        rot_kernel = np.rot90(self.kernel, k=2, axes=(0,1))
+        rot_kernel = np.rot90(self.weight, k=2, axes=(0,1))
 
         w = np.lib.stride_tricks.sliding_window_view(out, (k_h, k_w), axis=(1,2)) #window view (! window of size kernel because we want to reduce by w_out, h_out and c_out in order to keep kernel shapes)
 
@@ -172,18 +170,13 @@ class Convolutional(Layer):
         Returns:
             np.ndarray: gradient error wrt input for layer before
         """        
-        dC_df = self.backward_filter_tensordot(dL_dout)
-        dC_db = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
+        dW_local = self.backward_filter_tensordot(dL_dout)
+        dB_local = np.sum(dL_dout, axis=(0, 1, 2), keepdims=True)
 
         dC_dx = self.backward_input_tensordot(dL_dout) 
         
-        self.dK = dC_df / batch_size #variation of kernel weights of this iteration
-        self.dB = dC_db / batch_size #variation of bias of this iteration
-
-        self.kernel -= self.dK 
-        self.bias -= self.dB 
-
-        self.last_variation = self.dK
+        self.dW = dW_local / batch_size #gradient for weights
+        self.dB = dB_local / batch_size #gradient for bias
 
         return dC_dx
     
