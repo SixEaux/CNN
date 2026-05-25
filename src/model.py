@@ -4,23 +4,6 @@
 - following this the data when imported will be (number_images, height, width, number_channels)
 """
 
-"""
-To facilitate passing parameters -> to create a model you need to:
-    Model(
-    layers = [Convolutional(), Activation(), Flatening(), Pooling(), Dense()], 
-    other_parameters)
-"""
-
-"""
-As a convention when i use:
-- x it is an input
-- C cost
-- w weights
-- b biais
-- z = wx + b
-- a = activ(z)
-"""
-
 import numpy as np
 
 from src.loss import Loss
@@ -33,6 +16,7 @@ from src.import_data import import_data
 from src.cam_image import CAM_IMAGE
 
 from src.layer import Layer
+from src.ascii_layers import print_network
 
 
 class Model:
@@ -65,6 +49,8 @@ class Model:
         if not initialized:
             self.model_initial()
 
+        print_network(self.layers, self.loss)
+
     def precompute_fan_out(self, l, dim_in: tuple):
         if isinstance(l, Dense):
             return l.number_neurons
@@ -96,7 +82,6 @@ class Model:
             elif isinstance(l, Flattening):
                 last_dim_out = last_dim_out[0] * last_dim_out[1] * last_dim_out[2]
 
-
     def forward(
         self,
         x: np.ndarray,
@@ -124,9 +109,7 @@ class Model:
         out = x
         for l in self.layers:
 
-            if test and isinstance(
-                l, Dropout
-            ):  # if its a test then dropout not taken into account
+            if test and isinstance(l, Dropout):  # if its a test then dropout not taken into account
                 continue
 
             out = l.forward(out)
