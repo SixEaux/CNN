@@ -62,14 +62,13 @@ class Dense(Layer):
         self.input = x
         return x @ self.weight.T + self.bias  # bias broadcasted across batch
 
-    def backward(self, dL_dout: np.ndarray, batch_size: int = 1):
+    def backward(self, dL_dout: np.ndarray, batch_size: int = 1, just_computation: bool = False):
         """Recover gradient layer before and actualise weights.
 
         Args:
             dL_dout (ndarray): gradient next layer. DIM = (batch_size, number_neurons)
-            learning_rate (float): learning rate
             batch_size (int): size of the batch
-            moemntum_rate (float): dependence on gradient before
+            just_computation (bool): whether to just compute the gradients without updating weights
 
         Returns:
             ndarray: gradient for layer before. DIM = (batch_size, length_input)
@@ -79,7 +78,10 @@ class Dense(Layer):
 
         dL_dout = dL_dout @ self.weight  # gradient for layer before
 
-        self.dW = dC_dw / batch_size
-        self.dB = dC_db / batch_size
+        if not just_computation:
+            self.dW = dC_dw / batch_size
+            self.dB = dC_db / batch_size
 
-        return dL_dout
+            return dL_dout
+        else:
+            return dC_dw / batch_size, dC_db / batch_size

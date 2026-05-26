@@ -1,7 +1,8 @@
 from collections.abc import Callable
 from src.optimizer import *
 
-def conversation_save(func:Callable, save_to:str, minus_y:bool, type_thing:str="thing"):
+
+def conversation_save(func: Callable, save_to: str, minus_y: bool, type_thing: str = "thing"):
     if save_to != "":
 
         if minus_y:
@@ -20,11 +21,11 @@ def conversation_save(func:Callable, save_to:str, minus_y:bool, type_thing:str="
                 elif i == "n":
                     print("You decided not to save.")
                     break
-            
+
                 elif i == "oh no an infinite loop":
                     print("Don't worry, I am here")
                     break
-            
+
                 else:
                     print("Not a valid input.")
 
@@ -72,6 +73,7 @@ def get_layer(layer_config: str):
     else:
         raise ValueError("Layer type not found")
 
+
 def get_optimizer(optimizer_config: dict):
     optimizer_type = optimizer_config["type"]
     del optimizer_config["type"]
@@ -81,5 +83,9 @@ def get_optimizer(optimizer_config: dict):
         return SGD_momentum(**optimizer_config)
     elif optimizer_type == "Adagrad":
         return Adagrad(**optimizer_config)
+    elif optimizer_type == "RMSprop":
+        return RMSprop(**optimizer_config)
+    elif optimizer_type == "Adam":
+        return ADAM(**optimizer_config)
     else:
-        raise ValueError("Optimizer type not found")
+        raise ValueError("Optimizer type not found: " + optimizer_type)

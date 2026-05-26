@@ -1,15 +1,16 @@
 from src.layer import Layer
 import numpy as np
 
+
 class Optimizer:
     """Base class for optimizers."""
-    
+
     def __init__(self, learning_rate: float, decay_rate: float = 0.0, decay_steps: int = 1):
         self.base_learning_rate = learning_rate
         self.decay_rate = decay_rate
         self.decay_steps = decay_steps
         self.current_step = 0
-    
+
     def get_learning_rate(self, epoch: int) -> float:
         """Compute current learning rate with decay."""
         if self.decay_rate > 0:
@@ -22,73 +23,189 @@ class Optimizer:
             else:
                 raise ValueError("Not a valid decay method.")
         return self.base_learning_rate
-    
+
     def update(self, layer: Layer, current_learning_rate: float):
         """Apply gradient updates to layer weights/biases."""
         raise NotImplementedError
-    
+
+
 class SGD(Optimizer):
     """Simple SGD update."""
+
     def update(self, layer: Layer, current_learning_rate: float):
-        if hasattr(layer, 'weight') and hasattr(layer, 'dW'):
+        if hasattr(layer, "weight"):
             layer.weight -= current_learning_rate * layer.dW
-        if hasattr(layer, 'bias') and hasattr(layer, 'dB'):
             layer.bias -= current_learning_rate * layer.dB
+
 
 class SGD_momentum(Optimizer):
     """SGD with momentum."""
-    
-    def __init__(self, learning_rate: float, momentum_rate: float = 0.9, decay_rate: float = 0.0, decay_steps: int = 1):
+
+    def __init__(
+        self,
+        learning_rate: float,
+        momentum_rate: float = 0.9,
+        decay_rate: float = 0.0,
+        decay_steps: int = 1,
+    ):
         super().__init__(learning_rate, decay_rate, decay_steps)
         self.momentum_rate = momentum_rate
-        self.velocity = {}  # to store momentum for each layer
-    
+        self.momentum_cache = {}  # to store momentum for each layer
+
     def update(self, layer: Layer, current_learning_rate: float):
+        if not hasattr(layer, "weight"):
+            return  # Skip layers without weights
+
         id_layer = id(layer)
-        
-        # Initialize velocities if not present
-        if id_layer not in self.velocity:
-            self.velocity[id_layer] = {}
-            if hasattr(layer, 'weight'):
-                self.velocity[id_layer]["w"] = np.zeros_like(layer.weight)
-            if hasattr(layer, 'bias'):
-                self.velocity[id_layer]["b"] = np.zeros_like(layer.bias)
-        
-        # Update weights with momentum
-        if hasattr(layer, 'weight') and hasattr(layer, 'dW'):
-            self.velocity[id_layer]["w"] = self.momentum_rate * self.velocity[id_layer]["w"] + layer.dW
-            layer.weight -= current_learning_rate * self.velocity[id_layer]["w"]
-        
-        # Update bias with momentum
-        if hasattr(layer, 'bias') and hasattr(layer, 'dB'):
-            self.velocity[id_layer]["b"] = self.momentum_rate * self.velocity[id_layer]["b"] + layer.dB
-            layer.bias -= current_learning_rate * self.velocity[id_layer]["b"]
+
+        if id_layer not in self.momentum_cache:
+            self.momentum_cache[id_layer] = {}
+            self.momentum_cache[id_layer]["w"] = np.zeros_like(layer.weight)
+            self.momentum_cache[id_layer]["b"] = np.zeros_like(layer.bias)
+
+        self.momentum_cache[id_layer]["w"] = (
+            self.momentum_rate * self.momentum_cache[id_layer]["w"] + layer.dW
+        )
+        layer.weight -= current_learning_rate * self.momentum_cache[id_layer]["w"]
+
+        self.momentum_cache[id_layer]["b"] = (
+            self.momentum_rate * self.momentum_cache[id_layer]["b"] + layer.dB
+        )
+        layer.bias -= current_learning_rate * self.momentum_cache[id_layer]["b"]
+
 
 class Adagrad(Optimizer):
-    def __init__(self, learning_rate: float, decay_rate: float = 0.0, decay_steps: int = 1):
-        super().__init__(learning_rate, decay_rate, decay_steps)
+    def __init__(self, learning_rate: float):
+        super().__init__(learning_rate, 0, 1000)
         self.epsilon = 1e-8
-        self.cache = {}
+        self.velocity_cache = {}
 
     def get_learning_rate(self, layer: Layer):
         return self.base_learning_rate
 
     def update(self, layer: Layer, current_learning_rate: float):
+        if not hasattr(layer, "weight"):
+            return  # Skip layers without weights
+
         id_layer = id(layer)
 
-        if id_layer not in self.cache:
-            self.cache[id_layer] = {}
-            if hasattr(layer, 'weight'):
-                self.cache[id_layer]["w"] = np.zeros_like(layer.weight)
-            if hasattr(layer, 'bias'):
-                self.cache[id_layer]["b"] = np.zeros_like(layer.bias)
+        if id_layer not in self.velocity_cache:
+            self.velocity_cache[id_layer] = {}
+            self.velocity_cache[id_layer]["w"] = np.zeros_like(layer.weight)
+            self.velocity_cache[id_layer]["b"] = np.zeros_like(layer.bias)
 
-        if hasattr(layer, 'weight') and hasattr(layer, 'dW'):
-            self.cache[id_layer]["w"] += layer.dW ** 2
-            adjusted_lr_w = current_learning_rate / (np.sqrt(self.cache[id_layer]["w"]) + self.epsilon)
-            layer.weight -= adjusted_lr_w * layer.dW
+        self.velocity_cache[id_layer]["w"] += layer.dW**2
+        adjusted_lr_w = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["w"]) + self.epsilon
+        )
+        layer.weight -= adjusted_lr_w * layer.dW
 
-        if hasattr(layer, 'bias') and hasattr(layer, 'dB'):
-            self.cache[id_layer]["b"] += layer.dB ** 2
-            adjusted_lr_b = current_learning_rate / (np.sqrt(self.cache[id_layer]["b"]) + self.epsilon)
-            layer.bias -= adjusted_lr_b * layer.dB
+        self.velocity_cache[id_layer]["b"] += layer.dB**2
+        adjusted_lr_b = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["b"]) + self.epsilon
+        )
+        layer.bias -= adjusted_lr_b * layer.dB
+
+
+class RMSprop(Optimizer):
+    def __init__(self, learning_rate: float, beta: float = 0.9):
+        super().__init__(learning_rate, 0, 1000)
+        self.epsilon = 1e-8
+        self.velocity_rate = beta
+        self.velocity_cache = {}
+
+    def get_learning_rate(self, layer: Layer):
+        return self.base_learning_rate
+
+    def update(self, layer: Layer, current_learning_rate: float):
+        if not hasattr(layer, "weight"):
+            return  # Skip layers without weights
+
+        id_layer = id(layer)
+        if id_layer not in self.velocity_cache:
+            self.velocity_cache[id_layer] = {}
+            self.velocity_cache[id_layer]["w"] = np.zeros_like(layer.weight)
+            self.velocity_cache[id_layer]["b"] = np.zeros_like(layer.bias)
+
+        self.velocity_cache[id_layer]["w"] = (
+            self.velocity_rate * self.velocity_cache[id_layer]["w"]
+            + (1 - self.velocity_rate) * layer.dW**2
+        )
+        adjusted_lr_w = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["w"]) + self.epsilon
+        )
+        layer.weight -= adjusted_lr_w * layer.dW
+
+        self.velocity_cache[id_layer]["b"] = (
+            self.velocity_rate * self.velocity_cache[id_layer]["b"]
+            + (1 - self.velocity_rate) * layer.dB**2
+        )
+        adjusted_lr_b = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["b"]) + self.epsilon
+        )
+        layer.bias -= adjusted_lr_b * layer.dB
+
+
+class ADAM(Optimizer):
+    def __init__(
+        self,
+        learning_rate: float,
+        beta1: float = 0.9,
+        beta2: float = 0.999,
+        epsilon: float = 1e-8,
+    ):
+        super().__init__(learning_rate, 0, 1000)
+        self.momentum_rate = beta1
+        self.velocity_rate = beta2
+        self.epsilon = epsilon
+        self.momentum_cache = {}
+        self.velocity_cache = {}
+
+    def get_learning_rate(self, layer: Layer):
+        return self.base_learning_rate
+
+    def update(self, layer: Layer, current_learning_rate: float):
+        if not hasattr(layer, "weight"):
+            return  # Skip layers without weights
+
+        id_layer = id(layer)
+
+        if id_layer not in self.momentum_cache:
+            self.momentum_cache[id_layer] = {}
+            self.momentum_cache[id_layer]["w"] = np.zeros_like(layer.weight)
+            self.momentum_cache[id_layer]["b"] = np.zeros_like(layer.bias)
+
+        if id_layer not in self.velocity_cache:
+            self.velocity_cache[id_layer] = {}
+            self.velocity_cache[id_layer]["w"] = np.zeros_like(layer.weight)
+            self.velocity_cache[id_layer]["b"] = np.zeros_like(layer.bias)
+
+        # MOMENTUM
+        self.momentum_cache[id_layer]["w"] = (
+            self.momentum_rate * self.momentum_cache[id_layer]["w"] + layer.dW
+        )
+        layer.weight -= current_learning_rate * self.momentum_cache[id_layer]["w"]
+
+        self.momentum_cache[id_layer]["b"] = (
+            self.momentum_rate * self.momentum_cache[id_layer]["b"] + layer.dB
+        )
+        layer.bias -= current_learning_rate * self.momentum_cache[id_layer]["b"]
+
+        # VELOCITY
+        self.velocity_cache[id_layer]["w"] = (
+            self.velocity_rate * self.velocity_cache[id_layer]["w"]
+            + (1 - self.velocity_rate) * layer.dW**2
+        )
+        adjusted_lr_w = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["w"]) + self.epsilon
+        )
+        layer.weight -= adjusted_lr_w * layer.dW
+
+        self.velocity_cache[id_layer]["b"] = (
+            self.velocity_rate * self.velocity_cache[id_layer]["b"]
+            + (1 - self.velocity_rate) * layer.dB**2
+        )
+        adjusted_lr_b = current_learning_rate / (
+            np.sqrt(self.velocity_cache[id_layer]["b"]) + self.epsilon
+        )
+        layer.bias -= adjusted_lr_b * layer.dB

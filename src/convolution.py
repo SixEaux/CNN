@@ -177,14 +177,13 @@ class Convolutional(Layer):
 
         return c
 
-    def backward(self, dL_dout: np.ndarray, batch_size: int = 1):
+    def backward(self, dL_dout: np.ndarray, batch_size: int = 1, just_computation: bool = False):
         """Chef backpropagation convolutional layer. It also adjustes the filters and biases
 
         Args:
             dL_dout (np.ndarray): gradient from next layer
             batch_size (int, optional): size of the batch. Defaults to 1.
-            learning_rate (float): learning rate
-            moemntum_rate (float): dependence on gradient before
+            just_computation (bool, optional): whether to just compute the gradients without updating weights. Defaults to False.
 
         Returns:
             np.ndarray: gradient error wrt input for layer before
@@ -194,7 +193,10 @@ class Convolutional(Layer):
 
         dC_dx = self.backward_input_tensordot(dL_dout)
 
-        self.dW = dW_local / batch_size  # gradient for weights
-        self.dB = dB_local / batch_size  # gradient for bias
+        if not just_computation:
+            self.dW = dW_local / batch_size  # gradient for weights
+            self.dB = dB_local / batch_size  # gradient for bias
 
-        return dC_dx
+            return dC_dx
+        else:
+            return dW_local / batch_size, dB_local / batch_size
