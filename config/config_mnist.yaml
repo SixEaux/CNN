@@ -54,13 +54,13 @@ training:
   early_stop: true
   patience: 2
   min_epoch: 5
-  epochs: 20
+  epochs: 4
   batch_size: 64
   optimizer: 
     type: "Adam"
     learning_rate: 0.001
-    beta1: 0.9
-    beta2: 0.999
+    momentum_rate: 0.9
+    velocity_rate: 0.999
 
 visualization:
   show_plots: true

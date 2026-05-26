@@ -1,16 +1,16 @@
 import os
 import pickle
 
-from cnn.training import Training
-from cnn.testing import Testing
-from cnn.model import Model
+from src.training import Training
+from src.testing import Testing
+from src.model import Model
 
-from cnn.activation import Activation
-from cnn.dense import Dense
-from cnn.flattening import Flattening
-from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool
-from cnn.loss import Loss
+from src.activation import Activation
+from src.dense import Dense
+from src.flattening import Flattening
+from src.convolution import Convolutional
+from src.pooling import MaxPool
+from src.loss import Loss
 
 def load_layers(architecture:list, parameters_layers:list):
     """From the list of layers names get the list of layers objects.

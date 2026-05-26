@@ -48,7 +48,7 @@ class Testing:
 
             for num in errors.keys():
                 y_true = values_test.ravel()
-                y_pred = preds.ravel
+                y_pred = preds.ravel()
                 values_num = (y_true == num) & (y_pred != num)
 
                 indexes = np.nonzero(values_num)

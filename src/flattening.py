@@ -7,7 +7,7 @@ class Flattening(Layer):
         self.input = None
         self.out_dim = None
     
-    def initial_param(self, *args): # just so every layer has one
+    def initial_param(self, *args): 
         self.out_dim = reduce(lambda x, y: x * y, args[0])
 
     def forward(self, x:np.ndarray):

@@ -18,8 +18,6 @@ class Dense(Layer):
         self.number_neurons = number_neurons
         self.initialization = initialization
 
-        self.last_variation = np.zeros_like(self.weight)  # keep track of last variation of the weights for momentum
-
         self.dW = None  # gradient for weights
         self.dB = None  # gradient for bias
 
