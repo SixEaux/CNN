@@ -43,7 +43,7 @@ model:
       function: "relu"
 
     - type: "Dropout"
-      drop_rate: 0.3
+      drop_rate: 0.1
 
     - type: "Dense"
       number_neurons: 10
@@ -52,9 +52,9 @@ training:
   normalize: "division"
   validation_part: 0.2
   early_stop: true
-  patience: 2
-  min_epoch: 5
-  epochs: 4
+  patience: 5        
+  min_epoch: 8       
+  epochs: 5         
   batch_size: 64
   optimizer: 
     type: "Adam"
