@@ -1,13 +1,7 @@
 # old CNN project
 OLD/
-/TODO
 
-test/__pycache__
-test/test_1.py
-test/test_claude.py
-test/numba.py
-test/im2col.py
-test/opti_conv_tries.py
+test/
 
 test/tensorflow_comparison.ipynb
 

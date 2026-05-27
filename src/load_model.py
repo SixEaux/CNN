@@ -1,16 +1,16 @@
 import os
 import pickle
 
-from cnn.training import Training
-from cnn.testing import Testing
-from cnn.model import Model
+from src.training import Training
+from src.testing import Testing
+from src.model import Model
 
-from cnn.activation import Activation
-from cnn.dense import Dense
-from cnn.flattening import Flattening
-from cnn.convolution import Convolutional
-from cnn.pooling import MaxPool
-from cnn.loss import Loss
+from src.activation import Activation
+from src.dense import Dense
+from src.flattening import Flattening
+from src.convolution import Convolutional
+from src.pooling import MaxPool
+from src.loss import Loss
 
 def load_layers(architecture:list, parameters_layers:list):
     """From the list of layers names get the list of layers objects.
@@ -41,7 +41,7 @@ def load_layers(architecture:list, parameters_layers:list):
         elif architecture[l] == "Convolutional":
             param = parameters_layers[l]
             new_layer = Convolutional(param[0].shape[3], param[2], param[3], param[4])
-            new_layer.kernel = param[0]
+            new_layer.weight = param[0]
             new_layer.bias = param[1]
             new_layer.out_dim = param[5]
 

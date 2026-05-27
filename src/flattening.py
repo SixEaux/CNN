@@ -1,12 +1,14 @@
 import numpy as np
 from src.layer import Layer
+from functools import reduce 
 
 class Flattening(Layer):
     def __init__(self):
         self.input = None
+        self.out_dim = None
     
-    def initial_param(self, *args): # just so every layer has one
-        return
+    def initial_param(self, *args): 
+        self.out_dim = reduce(lambda x, y: x * y, args[0])
 
     def forward(self, x:np.ndarray):
         """Reshape input for fully connected layer.
