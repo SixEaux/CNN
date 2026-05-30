@@ -1,8 +1,8 @@
 dataset: "fashion_mnist"
 nb_classes: 10
+initialized: false
 model:
   loss: "CEL"
-  initialized: false
   
   layers:
     - type: "Convolutional"

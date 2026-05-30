@@ -4,7 +4,7 @@ from src.loss import Loss
 from src.model import Model
 
 from src.import_data import import_data
-from src.save_model import save_model
+from src.save_load_model import save_model
 from src.visualize import (
     visual_image,
     visual_outputs,
@@ -41,7 +41,7 @@ model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
-    initialized=config["model"]["initialized"],
+    initialized=config["initialized"],
     cam=cam,
 )
 
@@ -123,4 +123,4 @@ plot_smthg(
     save_to=config["save_file"],
     minus_y=minus_y,
 )
-save_model(model, trainer, config["save_file"], checkpoint=False, minus_y=False)
+save_model(model.layers, load_config("config_mnist.yaml"), "test_save_load")

@@ -5,7 +5,7 @@ import numpy as np
 from src.model import Model
 from src.training import Training
 
-from src.save_model import save_model
+from src.save_load_model import save_model
 
 class Draw:
     def __init__(self, model:Model, train:Training=None, learn_bool:bool=False, size_canva:int=400, bg:str="black", bool_color:bool=False, width:int=20, color_fill:str="white"):

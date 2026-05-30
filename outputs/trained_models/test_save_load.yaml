@@ -1,0 +1,57 @@
+CAM_image: null
+dataset: mnist
+initialized: true
+model:
+  layers:
+  - initialization: he
+    number_kernels: 8
+    padding: 1
+    size_kernel: 3
+    stride: 1
+    type: Convolutional
+  - function: relu
+    type: Activation
+  - size_kernel: 2
+    stride: 2
+    type: MaxPool
+  - initialization: he
+    number_kernels: 16
+    padding: 1
+    size_kernel: 3
+    stride: 1
+    type: Convolutional
+  - function: relu
+    type: Activation
+  - size_kernel: 2
+    stride: 2
+    type: MaxPool
+  - type: Flattening
+  - initialization: he
+    number_neurons: 64
+    type: Dense
+  - function: relu
+    type: Activation
+  - drop_rate: 0.1
+    type: Dropout
+  - number_neurons: 10
+    type: Dense
+  loss: CEL
+nb_classes: 10
+path_parameters: outputs/trained_models/test_save_load.npz
+save_file: ''
+training:
+  batch_size: 64
+  early_stop: true
+  epochs: 5
+  min_epoch: 8
+  normalize: division
+  optimizer:
+    learning_rate: 0.001
+    momentum_rate: 0.9
+    type: Adam
+    velocity_rate: 0.999
+  patience: 5
+  validation_part: 0.2
+visualization:
+  minus_y: false
+  show_plots: true

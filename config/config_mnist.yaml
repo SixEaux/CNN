@@ -1,8 +1,8 @@
 dataset: "mnist"
 nb_classes: 10
+initialized: false
 model:
   loss: "CEL"
-  initialized: false
 
   layers:
     - type: "Convolutional"
@@ -54,7 +54,7 @@ training:
   early_stop: true
   patience: 5        
   min_epoch: 8       
-  epochs: 5         
+  epochs: 5
   batch_size: 64
   optimizer: 
     type: "Adam"

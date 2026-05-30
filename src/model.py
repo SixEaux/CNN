@@ -46,8 +46,7 @@ class Model:
 
         self.input_size = None
 
-        if not initialized:
-            self.model_initial()
+        self.model_initial()
 
         print_network(self.layers, self.loss)
 

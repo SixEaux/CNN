@@ -52,26 +52,28 @@ def load_config(name):
         return None
 
 
-def get_layer(layer_config: str):
+def get_layer(layer_config: str, parameters=None):
     """
     Get initialized layer from name of the layer
     """
     layer_type = layer_config["type"]
     del layer_config["type"]
     if layer_type == "Convolutional":
-        return Convolutional(**layer_config)
+        layer = Convolutional(**layer_config)
     elif layer_type == "Activation":
-        return Activation(**layer_config)
+        layer = Activation(**layer_config)
     elif layer_type == "MaxPool":
-        return MaxPool(**layer_config)
+        layer = MaxPool(**layer_config)
     elif layer_type == "Flattening":
-        return Flattening(**layer_config)
+        layer = Flattening(**layer_config)
     elif layer_type == "Dense":
-        return Dense(**layer_config)
+        layer = Dense(**layer_config)
     elif layer_type == "Dropout":
-        return Dropout(**layer_config)
+        layer = Dropout(**layer_config)
     else:
         raise ValueError("Layer type not found")
+    
+    return layer
 
 
 def get_optimizer(optimizer_config: dict):
