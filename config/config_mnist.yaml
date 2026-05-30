@@ -1,6 +1,8 @@
 dataset: "mnist"
 nb_classes: 10
 initialized: false
+normalization_method: "division"
+file_save: ""
 model:
   loss: "CEL"
 
@@ -49,12 +51,11 @@ model:
       number_neurons: 10
 
 training:
-  normalize: "division"
   validation_part: 0.2
   early_stop: true
   patience: 5        
   min_epoch: 8       
-  epochs: 5
+  epochs: 1
   batch_size: 64
   optimizer: 
     type: "Adam"
@@ -66,5 +67,4 @@ visualization:
   show_plots: true
   minus_y: false
 
-save_file: ""
 CAM_image: null

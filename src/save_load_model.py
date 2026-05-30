@@ -26,7 +26,7 @@ def save_model(layers: list[Layer], config: dict, filename: str):
     np.savez_compressed(file_parameters, **parameters)
 
     config["initialized"] = True
-    config["path_parameters"] = file_parameters
+    config["save_name"] = filename
 
     with open(file_config, "w") as f:
         yaml.dump(config, f)
@@ -41,6 +41,6 @@ def load_model(filename: str):
     with open(f"outputs/trained_models/{filename}.yaml", "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    parameters = np.load(config["path_parameters"])
+    parameters = np.load(config["save_name"])
 
     return parameters, config

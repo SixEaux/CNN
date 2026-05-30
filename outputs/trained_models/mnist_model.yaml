@@ -1,5 +1,6 @@
 CAM_image: null
 dataset: mnist
+file_save: mnist_model
 initialized: true
 model:
   layers:
@@ -37,14 +38,13 @@ model:
     type: Dense
   loss: CEL
 nb_classes: 10
-path_parameters: outputs/trained_models/test_save_load.npz
-save_file: ''
+normalization_method: division
+save_name: mnist_model
 training:
   batch_size: 64
   early_stop: true
-  epochs: 5
+  epochs: 1
   min_epoch: 8
-  normalize: division
   optimizer:
     learning_rate: 0.001
     momentum_rate: 0.9

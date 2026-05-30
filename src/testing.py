@@ -12,9 +12,10 @@ class Testing:
             dataset (str): dataset used
             model (Model): model to test
         """
-        _, _, _, _, self.testing_images, self.testing_values, self.labels = import_data(
-            dataset
-        ) if loaded_data is None else loaded_data  # import data needed
+        data = import_data(dataset) if loaded_data is None else loaded_data  # import data needed
+        self.testing_images = data.test_images
+        self.testing_values = data.test_values
+        self.labels = data.labels
         self.model = model
 
     def exam(

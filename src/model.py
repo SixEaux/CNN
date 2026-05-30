@@ -34,13 +34,13 @@ class Model:
         layers: list[Layer],
         loss: Loss,
         dataset: str,
-        initialized: bool = False,
         cam: CAM_IMAGE = None,
     ):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
-        _, _, _, _, _, _, self.labels = import_data(self.dataset)
+        data = import_data(self.dataset)
+        self.labels = data.labels
 
         self.cam = cam  # CAM_IMAGE instance for tracking/visualization
 

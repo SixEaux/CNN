@@ -19,7 +19,9 @@ from src.cam_image import CAM_IMAGE
 # Model definition
 # =========================
 
-config = load_config("config_mnist.yaml")
+file_config = "config_mnist.yaml"
+
+config = load_config(file_config)
 
 layers = []
 layers_config = config["model"]["layers"]
@@ -29,11 +31,13 @@ for i in range(len(layers_config)):
 optimizer = get_optimizer(config["training"]["optimizer"])
 
 loaded_data = import_data(
-    config["dataset"], config["training"]["validation_part"]
+    config["dataset"],
+    config["training"]["validation_part"],
+    normalization_method=config["normalization_method"],
 )  # import data needed
 
 # Prepare CAM images using indices from config
-_, _, test_images, _, _, _, _ = loaded_data
+test_images = loaded_data.test_images
 cam_image_indices = config["CAM_image"] if config["CAM_image"] else []
 cam = CAM_IMAGE(test_images[cam_image_indices]) if cam_image_indices else None
 
@@ -41,7 +45,6 @@ model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
-    initialized=config["initialized"],
     cam=cam,
 )
 
@@ -57,6 +60,7 @@ trainer = Training(
     test,
     optimus=optimizer,
     loaded_data=loaded_data,
+    config=load_config(file_config),
     **real_training_config,
 )
 
@@ -73,7 +77,6 @@ print("Training...")
 trainer.train(
     config["training"]["epochs"],
     config["training"]["batch_size"],
-    to_save=config["save_file"],
 )
 
 # =========================
@@ -93,7 +96,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Loss",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -102,7 +105,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Accuracy",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -111,7 +114,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Loss",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -120,7 +123,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Accuracy",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
-save_model(model.layers, load_config("config_mnist.yaml"), "test_save_load")
+save_model(model.layers, load_config(file_config), config["file_save"])
