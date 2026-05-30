@@ -8,23 +8,11 @@ DATA_ROOT = ROOT / "data"
 
 DATASETS = {
     "mnist": {
-        "folder": "Mnist",
-        "files": {
-            "train_images": "mnist_train_images",
-            "train_values": "mnist_train_values",
-            "test_images": "mnist_test_images",
-            "test_values": "mnist_test_values",
-        },
+        "file": "mnist.npz",
         "labels": {i: str(i) for i in range(10)},
     },
     "fashion_mnist": {
-        "folder": "fashion_MNIST",
-        "files": {
-            "train_images": "fashion_train_images",
-            "train_values": "fashion_train_values",
-            "test_images": "fashion_test_images",
-            "test_values": "fashion_test_values",
-        },
+        "file": "fashion_mnist.npz",
         "labels": {
             0: "T-shirt/top",
             1: "Trouser",
@@ -41,28 +29,22 @@ DATASETS = {
 }
 
 
-def split(paths: dict[str, Path], validation_part: float):
+def split(path: Path, validation_part: float):
     """Split data in training, testing and validation.
 
     Args:
-        paths (dict[str, Path]): paths to the files
+        path (Path): path to the dataset file
         validation_part (float): part of training to use as validation
 
     Returns:
         tuple: training, testing and validation sets
     """
 
-    with paths["train_images"].open("rb") as f:
-        train_images = pickle.load(f)
-
-    with paths["train_values"].open("rb") as f:
-        train_values = pickle.load(f)
-
-    with paths["test_images"].open("rb") as f:
-        test_images = pickle.load(f)
-
-    with paths["test_values"].open("rb") as f:
-        test_values = pickle.load(f)
+    data = np.load(path, allow_pickle=True)
+    train_images = data["train_images"]
+    train_values = data["train_values"]
+    test_images = data["test_images"]
+    test_values = data["test_values"]
 
     perm_train = np.random.permutation(train_images.shape[0])
     perm_train_images, perm_train_values = train_images[perm_train], train_values[perm_train]
@@ -103,14 +85,12 @@ def import_data(name: str, validation_part: float = 0, data_root: Path | str | N
     if dataset is None:
         raise ValueError(f"Unknown dataset: {name}")
 
-    folder = data_root / dataset["folder"]
-    if not folder.exists():
-        raise FileNotFoundError(f"Dataset folder does not exist: {folder}")
-
-    paths = {key: folder / filename for key, filename in dataset["files"].items()}
+    file = data_root / dataset["file"]
+    if not file.exists():
+        raise FileNotFoundError(f"Dataset file does not exist: {file}")
 
     train_images, train_values, validation_images, validation_values, test_images, test_values = split(
-        paths, validation_part
+        file, validation_part
     )
 
     return (
