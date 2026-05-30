@@ -60,7 +60,7 @@ trainer = Training(
     test,
     optimus=optimizer,
     loaded_data=loaded_data,
-    config=load_config(file_config),
+    config=config,
     **real_training_config,
 )
 
@@ -126,4 +126,4 @@ plot_smthg(
     save_to=config["file_save"],
     minus_y=minus_y,
 )
-save_model(model.layers, load_config(file_config), config["file_save"])
+save_model(model.layers, config, config["file_save"])

@@ -12,6 +12,11 @@ def save_model(layers: list[Layer], config: dict, filename: str):
         config (dict): dict extracted from yaml config file
         filename (str): name of the file where the model will be saved
     """
+
+    if filename == "":
+        print("Error: filename is empty, model not saved")
+        return
+
     file_parameters = f"outputs/trained_models/{filename}.npz"
     file_config = f"outputs/trained_models/{filename}.yaml"
 
