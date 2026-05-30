@@ -1,0 +1,141 @@
+{
+  "dataset": "mnist",
+  "nb_classes": 10,
+  "model": {
+    "loss": "CEL",
+    "initialized": false,
+    "layers": [
+      {
+        "type": "Convolutional",
+        "number_kernels": 16,
+        "size_kernel": 3,
+        "stride": 1,
+        "padding": 1,
+        "initialization": "he"
+      },
+      {
+        "type": "Activation",
+        "function": "relu"
+      },
+      {
+        "type": "MaxPool",
+        "size_kernel": 2,
+        "stride": 2
+      },
+      {
+        "type": "Convolutional",
+        "number_kernels": 32,
+        "size_kernel": 3,
+        "stride": 1,
+        "padding": 1,
+        "initialization": "xavier"
+      },
+      {
+        "type": "Activation",
+        "function": "relu"
+      },
+      {
+        "type": "MaxPool",
+        "size_kernel": 2,
+        "stride": 2
+      },
+      {
+        "type": "Convolutional",
+        "number_kernels": 64,
+        "size_kernel": 3,
+        "stride": 1,
+        "padding": 0,
+        "initialization": "he"
+      },
+      {
+        "type": "Activation",
+        "function": "relu"
+      },
+      {
+        "type": "Flattening"
+      },
+      {
+        "type": "Dense",
+        "number_neurons": 128,
+        "initialization": "xavier"
+      },
+      {
+        "type": "Activation",
+        "function": "relu"
+      },
+      {
+        "type": "Dropout",
+        "drop_rate": 0.3
+      },
+      {
+        "type": "Dense",
+        "number_neurons": 64,
+        "initialization": "he"
+      },
+      {
+        "type": "Activation",
+        "function": "tanh"
+      },
+      {
+        "type": "Dropout",
+        "drop_rate": 0.2
+      },
+      {
+        "type": "Dense",
+        "number_neurons": 32,
+        "initialization": "xavier"
+      },
+      {
+        "type": "Activation",
+        "function": "sigmoid"
+      },
+      {
+        "type": "Dense",
+        "number_neurons": 10
+      }
+    ]
+  },
+  "training": {
+    "normalize": "division",
+    "validation_part": 0.15,
+    "early_stop": true,
+    "patience": 3,
+    "min_epoch": 2,
+    "epochs": 2,
+    "batch_size": 32,
+    "optimizer": {
+      "type": "Adam",
+      "learning_rate": 0.001,
+      "momentum_rate": 0.9,
+      "velocity_rate": 0.999
+    }
+  },
+  "visualization": {
+    "show_plots": false,
+    "minus_y": true
+  },
+  "save_file": "",
+  "CAM_image": null,
+  "test_notes": {
+    "description": "Comprehensive test configuration that exercises all components",
+    "layers_tested": [
+      "Convolutional (multiple kernels and initializations)",
+      "Activation (ReLU, Tanh, Sigmoid)",
+      "MaxPool (multiple pooling stages)",
+      "Dense (various sizes and initializations)",
+      "Dropout (different drop rates)",
+      "Flattening"
+    ],
+    "features_tested": [
+      "He and Xavier parameter initialization",
+      "All activation functions",
+      "Cross-entropy loss (CEL)",
+      "Gradient computation through all layers",
+      "Dropout regularization",
+      "Max pooling forward and backward",
+      "Batch normalization through model",
+      "Early stopping mechanism",
+      "Adam optimizer with learning rate and momentum"
+    ]
+  }
+}

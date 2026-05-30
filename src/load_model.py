@@ -10,9 +10,11 @@ from src.dense import Dense
 from src.flattening import Flattening
 from src.convolution import Convolutional
 from src.pooling import MaxPool
+from src.dropout import Dropout
 from src.loss import Loss
 
-def load_layers(architecture:list, parameters_layers:list):
+
+def load_layers(architecture: list, parameters_layers: list):
     """From the list of layers names get the list of layers objects.
 
     Args:
@@ -46,13 +48,13 @@ def load_layers(architecture:list, parameters_layers:list):
             new_layer.out_dim = param[5]
 
             layers.append(new_layer)
-        
+
         elif architecture[l] == "Activation":
             param = parameters_layers[l]
             new_layer = Activation(param)
 
             layers.append(new_layer)
-        
+
         elif architecture[l] == "MaxPool":
             param = parameters_layers[l]
             new_layer = MaxPool(param[0], param[1])
@@ -65,20 +67,27 @@ def load_layers(architecture:list, parameters_layers:list):
             new_layer = Flattening()
 
             layers.append(new_layer)
-        
+
+        elif architecture[l] == "Dropout":
+            param = parameters_layers[l]
+            new_layer = Dropout(param)
+
+            layers.append(new_layer)
+
         else:
             raise ValueError(f"I don't know this layer: {architecture[l]}")
 
     return layers
 
-def load_model(filename:str):
+
+def load_model(filename: str):
     """Load a model trained.
 
     Args:
-        filename (str): file where the model has been saved 
+        filename (str): file where the model has been saved
 
     Returns:
-        Model | (Model & Training & Testing): if it is a checkpoint training load the 3 objects needed 
+        Model | (Model & Training & Testing): if it is a checkpoint training load the 3 objects needed
         and if it is not a checkpoint for training only load the model
     """
     try:
@@ -92,7 +101,7 @@ def load_model(filename:str):
     loss = Loss(saved["loss"])
     dataset = saved["dataset"]
 
-    #create classes
+    # create classes
 
     model = Model(layers, loss, dataset, initialized=True)
     model.input_size = saved["input_size"]
@@ -101,8 +110,21 @@ def load_model(filename:str):
         return model
     else:
         test = Testing(dataset, model)
-        train = Training(dataset, model, test, saved["learning_rate"], lr_decay=saved["lr_decay"], lambda_rate=saved["lambda_rate"], momentum_rate=saved["momentum_rate"])
+        train = Training(
+            dataset,
+            model,
+            test,
+            saved["learning_rate"],
+            lr_decay=saved["lr_decay"],
+            lambda_rate=saved["lambda_rate"],
+            momentum_rate=saved["momentum_rate"],
+        )
         train.finished_epochs = saved["finished_epochs"]
         train.early_stop = saved["early_stop"]
-        train.losses, train.accuracies, train.validation_exams, train.validation_losses = saved["losses"], saved["accuracies"], saved["validation_accuracy"], saved["validation_losses"]
+        train.losses, train.accuracies, train.validation_exams, train.validation_losses = (
+            saved["losses"],
+            saved["accuracies"],
+            saved["validation_accuracy"],
+            saved["validation_losses"],
+        )
         return model, train, test
