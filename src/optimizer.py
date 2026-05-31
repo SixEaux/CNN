@@ -39,9 +39,11 @@ class SGD(Optimizer):
     """Simple SGD update."""
 
     def update(self, layer: Layer, current_learning_rate: float):
-        if hasattr(layer, "weight"):
-            layer.weight -= current_learning_rate * layer.dW
-            layer.bias -= current_learning_rate * layer.dB
+        if not hasattr(layer, "weight"):
+            return  # Skip layers without weights
+        
+        layer.weight -= current_learning_rate * layer.dW
+        layer.bias -= current_learning_rate * layer.dB
 
 
 class SGD_momentum(Optimizer):

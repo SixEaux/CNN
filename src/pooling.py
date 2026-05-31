@@ -72,7 +72,7 @@ class MaxPool(Layer):
         real_w = w_index * self.stride + col_add
 
         # Place gradients at max positions
-        out[b_index, real_h, real_w, c_index] = dL_dout
+        out[b_index, real_h, real_w, c_index] += dL_dout
 
         return out
     

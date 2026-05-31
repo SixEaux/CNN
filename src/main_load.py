@@ -38,7 +38,7 @@ model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
-    initialized=config["initialized"],
+    loaded_data=loaded_data,
 )
 
 for i in range(len(layers_config)):

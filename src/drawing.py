@@ -168,7 +168,7 @@ class Draw:
 
                 if save == "y":
                     file = input("File name: ")
-                    save_model(self.model, self.train, file)
+                    save_model(self.model.layers, self.train.config, file)
                 elif save == "n":
                     break
                 else:

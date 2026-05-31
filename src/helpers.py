@@ -48,7 +48,7 @@ def load_config(name):
         return config
 
 
-def get_layer(layer_config: str, parameters=None):
+def get_layer(layer_config: str):
     """
     Get initialized layer from name of the layer
     """

@@ -5,6 +5,7 @@ import yaml
 
 from src.layer import Layer
 
+FOLDER_PATH = "outputs/trained_models"
 
 def save_model(layers: list[Layer], config: dict, filename: str):
     """Save model's weights and architecture.
@@ -19,10 +20,10 @@ def save_model(layers: list[Layer], config: dict, filename: str):
         print("Error: filename is empty, model not saved")
         return
     
-    os.makedirs("outputs/trained_models", exist_ok=True)
+    os.makedirs(FOLDER_PATH, exist_ok=True)
 
-    file_parameters = f"outputs/trained_models/{filename}.npz"
-    file_config = f"outputs/trained_models/{filename}.yaml"
+    file_parameters = f"{FOLDER_PATH}/{filename}.npz"
+    file_config = f"{FOLDER_PATH}/{filename}.yaml"
 
     parameters = {}
 
@@ -47,9 +48,9 @@ def load_model(filename: str):
         filename (str): name of the file
     """
 
-    with open(f"outputs/trained_models/{filename}.yaml", "r") as f:
+    with open(f"{FOLDER_PATH}/{filename}.yaml", "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     
-    parameters = np.load(config["save_name"])
+    parameters = np.load(f"{FOLDER_PATH}/{config['save_name']}.npz")
 
     return parameters, config

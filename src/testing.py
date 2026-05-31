@@ -48,16 +48,18 @@ class Testing:
         num_batches = self.testing_images.shape[0] // batch_size
         accuracies = []
         losses = []
+        predictions = []
 
         for batch in trange(num_batches, desc="Testing"):
             batch_index = np.arange(batch * batch_size, (batch + 1) * batch_size)
-            x_batch = self.testing_images[batch_index]
-            exp_batch = self.testing_values[batch_index]
+            x_batch = images_test[batch_index]
+            exp_batch = values_test[batch_index]
 
             out, loss = self.model.forward(x_batch, exp_batch, test=True)
             preds = self.model.choice(out)
             accuracy = np.mean(preds == exp_batch) * 100
             accuracies.append(accuracy)
             losses.append(loss)
+            predictions.append(preds)
 
-        return np.mean(accuracies), np.mean(losses), preds
+        return np.mean(accuracies), np.mean(losses), np.concatenate(predictions)
