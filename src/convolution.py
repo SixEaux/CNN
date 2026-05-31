@@ -8,7 +8,7 @@ class Convolutional(Layer):
 
     Args:
         number_kernels (int): number of kernels
-        size_kernel (int): size of the kernels
+        size_kernel (int): size of the kernels (only square kernels)
 
         padding (int): padded to input (how much we add to input's border) (maybe change it to (pad_start, pad_end) in the future). Defaults to 0.
         stride (int, optional): stride of the convolution (of how much the kernel moves). Defaults to 1.

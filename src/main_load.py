@@ -48,7 +48,7 @@ for i in range(len(layers_config)):
         model.layers[i].bias = parameters_clean[f"layer_{i}"]["bias"]
 
 
-test = Testing(config["dataset"], model, loaded_data)
+test = Testing(model, loaded_data)
 
 real_training_config = {
     k: v for k, v in config["training"].items() if (k not in ["", "epochs", "batch_size", "optimizer"])

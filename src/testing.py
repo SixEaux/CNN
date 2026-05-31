@@ -8,7 +8,7 @@ from src.model import Model
 
 
 class Testing:
-    def __init__(self, dataset: str, model: Model, loaded_data: NamedTuple):
+    def __init__(self, model: Model, loaded_data: NamedTuple):
         """Test the accuracy of the model.
 
         Args:
@@ -17,14 +17,12 @@ class Testing:
         """
         self.testing_images = loaded_data.test_images
         self.testing_values = loaded_data.test_values
-        self.labels = loaded_data.labels
         self.model = model
 
     def exam(
         self,
         images_test: np.ndarray = None,
         values_test: np.ndarray = None,
-        labels: np.ndarray = None,
         batch_size: int = None,
     ):
         """Test accuracy of the model.
@@ -37,15 +35,14 @@ class Testing:
             tuple: accuracy of the model and mean loss
         """
 
-        if images_test is None and values_test is None and labels is None:
+        if images_test is None and values_test is None:
             images_test = self.testing_images
             values_test = self.testing_values
-            labels = self.labels
         
         if batch_size is None:
-            batch_size = self.testing_images.shape[0]
+            batch_size = images_test.shape[0]
         
-        num_batches = self.testing_images.shape[0] // batch_size
+        num_batches = images_test.shape[0] // batch_size
         accuracies = []
         losses = []
         predictions = []

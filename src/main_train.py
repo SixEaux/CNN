@@ -41,7 +41,7 @@ model = Model(
     loaded_data=loaded_data,
 )
 
-test = Testing(config["dataset"], model, loaded_data)
+test = Testing(model, loaded_data)
 
 real_training_config = {
     k: v for k, v in config["training"].items() if (k not in ["", "epochs", "batch_size", "optimizer"])

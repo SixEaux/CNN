@@ -77,22 +77,15 @@ class SGD_momentum(Optimizer):
         self.momentum_cache[id_layer]["k"] += 1
 
         self.momentum_cache[id_layer]["w"] = (
-            self.momentum_rate * self.momentum_cache[id_layer]["w"] + (1 - self.momentum_rate) * layer.dW
+            self.momentum_rate * self.momentum_cache[id_layer]["w"] + layer.dW
         )
 
         self.momentum_cache[id_layer]["b"] = (
-            self.momentum_rate * self.momentum_cache[id_layer]["b"] + (1 - self.momentum_rate) * layer.dB
+            self.momentum_rate * self.momentum_cache[id_layer]["b"] + layer.dB
         ) 
 
-        adjusted_momentum_w = self.momentum_cache[id_layer]["w"] / (
-            1 - self.momentum_rate ** self.momentum_cache[id_layer]["k"]
-        )
-        adjusted_momentum_b = self.momentum_cache[id_layer]["b"] / (
-            1 - self.momentum_rate ** self.momentum_cache[id_layer]["k"]
-        )
-
-        layer.weight -= current_learning_rate * adjusted_momentum_w
-        layer.bias -= current_learning_rate * adjusted_momentum_b
+        layer.weight -= current_learning_rate * self.momentum_cache[id_layer]["w"]
+        layer.bias -= current_learning_rate * self.momentum_cache[id_layer]["b"]
 
 
 class Adagrad(Optimizer):

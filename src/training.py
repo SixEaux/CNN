@@ -32,6 +32,7 @@ class Training:
         early_stop (bool, optional): stop early the training following method. Defaults to False.
         patience (int): how many epochs to wait before early stopping
         min_epoch (int): at which epoch start early stoppoing
+        exam_interval (int): how many epochs to wait before testing the model on validation set
     """
 
     def __init__(
@@ -46,6 +47,7 @@ class Training:
         patience: int = 1,
         min_epoch: int = 5,
         config: dict = None,
+        exam_interval:int=1
     ):
 
         self.dataset = dataset
@@ -73,6 +75,7 @@ class Training:
         self.min_epoch = min_epoch
 
         self.config = config
+        self.exam_interval = exam_interval
 
         if self.early_stop and self.validation_part == 0:
             raise ValueError("Early stopping cannot be used without validation set")
@@ -123,9 +126,10 @@ class Training:
         self.finished_epochs += 1
 
         # add important info of this iteration
-        results = self.testing.exam()
-        self.accuracies.append(results[0])
-        self.losses.append(results[1])
+        if self.finished_epochs % self.exam_interval == 0:
+            results = self.testing.exam()
+            self.accuracies.append(results[0])
+            self.losses.append(results[1])
 
         # add info about validation set
         if self.validation_part > 0:
