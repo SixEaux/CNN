@@ -24,6 +24,7 @@ class Testing:
         values_test: np.ndarray = None,
         labels: np.ndarray = None,
         save_errors: bool = False,
+        batch_size: int = None,
     ):
         """Test accuracy of the model.
 
@@ -39,7 +40,10 @@ class Testing:
             images_test = self.testing_images
             values_test = self.testing_values
             labels = self.labels
-
+        
+        if batch_size is None:
+            batch_size = self.testing_images.shape[0]
+        
         out, loss = self.model.forward(images_test, values_test, test=True)
         preds = self.model.choice(out)
         accuracy = np.mean(preds == values_test) * 100
