@@ -1,0 +1,185 @@
+# =============================================================================
+# BASE CONFIG — CNN 
+# For copying and modifying the copy
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# DATASET
+# -----------------------------------------------------------------------------
+
+# Which dataset to load.
+# Allowed: "mnist" | "fashion_mnist"
+dataset: mnist
+
+# Number of output classes. Must match the dataset.
+# mnist / fashion_mnist → 10
+nb_classes: 10
+
+# Pixel normalisation applied before training.
+# Allowed:
+#   "division"         → pixels / 255  (range [0, 1])
+#   "center-reduction" → (pixels - mean) / std  (zero mean, unit variance)
+#   ""                 → no normalisation (raw pixel values)
+normalization_method: division
+
+
+# -----------------------------------------------------------------------------
+# MODEL
+# -----------------------------------------------------------------------------
+
+model:
+
+  # Loss function.
+  # Allowed:
+  #   "CEL"   → Cross-Entropy Loss  (applies softmax internally — use for classification)
+  #   "MSEL"  → Mean Squared Error Loss  (no softmax — use for regression-style outputs)
+  loss: CEL
+
+  # List of layers in forward order.
+  # Each entry must have a "type" field; remaining fields are constructor arguments.
+  # Remove, reorder, or duplicate blocks freely to change the architecture.
+  layers:
+
+    # --- Convolutional ---
+    - type: Convolutional
+      number_kernels: 32       # int   — number of output feature maps
+      size_kernel: 3           # int   — height and width of each filter (square)
+      stride: 1                # int   — filter step size  (default: 1)
+      padding: 0               # int   — zero-padding added to each side  (default: 0)
+                               #         use padding=(size_kernel-1)//2 to keep spatial size
+      initialization: xavier   # str   — "he" (ReLU) | "xavier" (sigmoid/tanh) | "random"
+
+    # --- Activation ---
+    - type: Activation
+      function: relu           # str   — "relu" | "sigmoid" | "tanh"
+
+    # --- MaxPool ---
+    - type: MaxPool
+      size_kernel: 2           # int   — pooling window size
+      stride: 2                # int   — step between windows  (default: size_kernel)
+
+    # --- Convolutional ---
+    - type: Convolutional
+      number_kernels: 64
+      size_kernel: 3
+      stride: 1
+      padding: 0
+      initialization: xavier
+
+    # --- Activation ---
+    - type: Activation
+      function: relu
+
+    # --- MaxPool ---
+    - type: MaxPool
+      size_kernel: 2
+      stride: 2
+
+    # --- Flattening ---
+    - type: Flattening
+
+    # --- Dropout ---
+    - type: Dropout
+      drop_rate: 0.5           # float — fraction of neurons to zero out  (range: 0.0–1.0)
+
+    # --- Dense ---
+    - type: Dense
+      number_neurons: 128      # int   — number of output neurons
+      initialization: he       # str   — "he" (ReLU) | "xavier" (sigmoid/tanh) | "random"
+
+    # --- Activation ---
+    - type: Activation
+      function: relu
+
+    # --- Dense (output layer) ---
+    - type: Dense
+      number_neurons: 10
+      initialization: xavier
+
+
+# -----------------------------------------------------------------------------
+# TRAINING
+# -----------------------------------------------------------------------------
+
+training:
+
+  epochs: 20               # int   — number of full passes over the training set
+  batch_size: 64           # int   — samples per gradient update (1 = pure SGD)
+  exam_interval: 1         # int   — how many epochs to wait before testing the model on validation set
+  
+  # Fraction of training data held out for validation.
+  # float, range [0.0, 1.0)  (0.0 = no validation set)
+  # Required if early_stop is true.
+  validation_part: 0.1
+
+  # Early stopping — halt training when validation loss stops improving.
+  early_stop: true         # bool  — enable early stopping
+  patience: 3              # int   — consecutive epochs of rising val-loss before stopping
+  min_epoch: 5             # int   — earliest epoch at which early stopping can trigger
+
+  # ---------- Optimizer ----------
+  # Uncomment exactly one block below and delete (or comment) the others.
+
+  # SGD — plain stochastic gradient descent.
+  optimizer:
+    type: SGD
+    learning_rate: 0.01        # float — initial learning rate
+    decay_rate: 0.0            # float — decay strength  (0.0 = no decay)
+    decay_steps: 1             # int   — used only by "step" decay
+    lr_decay_method: exponential
+    #   "exponential" → lr * exp(-decay_rate * epoch)
+    #   "inverse"     → lr / (1 + decay_rate * epoch)
+    #   "step"        → lr * (decay_rate ^ (epoch // decay_steps))
+
+  # SGD with momentum.
+  # optimizer:
+  #   type: SGD_momentum
+  #   learning_rate: 0.01
+  #   momentum_rate: 0.9       # float — EMA coefficient for gradient accumulation  (default: 0.9)
+  #   decay_rate: 0.0          # float — learning-rate decay strength  (0.0 = no decay)
+  #   decay_steps: 1           # int   — used only by "step" decay
+
+  # Adagrad — per-parameter adaptive learning rate (accumulates squared gradients).
+  # optimizer:
+  #   type: Adagrad
+  #   learning_rate: 0.01
+
+  # RMSprop 
+  # optimizer:
+  #   type: RMSprop
+  #   learning_rate: 0.001
+  #   beta: 0.9                # float — EMA coefficient for squared gradients  (default: 0.9)
+
+  # Adam
+  # optimizer:
+  #   type: Adam
+  #   learning_rate: 0.001
+  #   momentum_rate: 0.9       # float — β₁, EMA coefficient for gradients      (default: 0.9)
+  #   velocity_rate: 0.999     # float — β₂, EMA coefficient for squared grads  (default: 0.999)
+  #   epsilon: 1.0e-8          # float — numerical stability constant            (default: 1e-8)
+
+
+# -----------------------------------------------------------------------------
+# OUTPUT / SAVING
+# -----------------------------------------------------------------------------
+
+# Name used for saved weights (.npz) and config (.yaml) under outputs/trained_models/.
+# Leave as "" to skip saving.
+file_save: my_model
+
+# Set automatically to true by save_model() after the first save. Do not edit.
+initialized: false
+
+# -----------------------------------------------------------------------------
+# VISUALIZATION
+# -----------------------------------------------------------------------------
+
+visualization:
+
+  # Show matplotlib plots interactively during / after training.
+  show_plots: false        # bool
+
+  # If true, save plots automatically without asking for confirmation.
+  # If false, the terminal will prompt before each save.
+  minus_y: true            # bool

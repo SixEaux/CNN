@@ -79,6 +79,27 @@ class Training:
 
         if self.early_stop and self.validation_part == 0:
             raise ValueError("Early stopping cannot be used without validation set")
+    
+    def is_in(self, image: np.ndarray, batch: np.ndarray):
+        """None if the image is not in the batch or the position in the batch.
+
+        Args:
+            image (ndarray): to find DIM = (h, w, c)
+            batch (ndarray): batch of images DIM = (b, h, w, c)
+        """
+
+        h, w, c = image.shape
+
+        mask = batch == image
+
+        number_equal_pixels = np.sum(mask, axis=(1, 2, 3))
+
+        mask_2 = number_equal_pixels == h * w * c
+
+        if np.any(mask_2):
+            return np.argmax(mask_2)
+        else:
+            return
 
     def training_epoch(self, batch_size: int, num_batches: int):
         """Do an iteration of training.

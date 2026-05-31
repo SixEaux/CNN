@@ -32,8 +32,6 @@ def plot_smthg(smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y
         if show:
             plt.show()
 
-        
-
         def save():
             dir_plots = os.path.join("outputs", "plots")
             new_folder_path = os.path.join(dir_plots, save_to)
@@ -124,9 +122,6 @@ def visual_image(
         plt.close()
 
     conversation_save(save, save_to, minus_y, type_thing="images")
-
-
-
 
 
 def visual_outputs(
