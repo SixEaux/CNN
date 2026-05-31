@@ -43,13 +43,9 @@ from src.dense import Dense
 
 def load_config(name):
     ROOT = Path(__file__).resolve().parents[1]
-    try:
-        with open(ROOT / "config" / name, "r") as f:
-            config = yaml.load(f, Loader=yaml.FullLoader)
-            return config
-    except FileNotFoundError:
-        print("Error: config.yaml file not found")
-        return None
+    with open(ROOT / "config" / name, "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+        return config
 
 
 def get_layer(layer_config: str, parameters=None):
