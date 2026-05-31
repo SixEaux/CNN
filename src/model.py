@@ -45,6 +45,8 @@ class Model:
 
         self.input_size = loaded_data.train_images.shape[1:]
 
+        self.saved_outputs = {} # epoch: {layer_name: output}
+
         self.model_initial()
 
         print_network(self.layers, self.loss)
@@ -83,6 +85,8 @@ class Model:
         x: np.ndarray,
         expected: np.ndarray = None,
         test: bool = False,
+        save_outputs: bool = False,
+        epoch: int = 0
     ):
         """Forward propagation through all the layers.
 
@@ -98,13 +102,15 @@ class Model:
         assert x.ndim == 4, "Not the right shapes for the input"
 
         out = x
-        for l in self.layers:
+        for i, l in enumerate(self.layers):
 
             if test and isinstance(l, Dropout):  # if its a test then dropout not taken into account
                 continue
 
             out = l.forward(out)
 
+            if save_outputs:
+                self.saved_outputs[epoch][i] = out
            
         if expected is not None:
             loss = self.loss.forward(out, expected)
@@ -115,7 +121,6 @@ class Model:
     def backward(
         self,
         batch_size: int,
-        batch_images: np.ndarray = None,
     ):
         """Backward propagation through the layers.
 

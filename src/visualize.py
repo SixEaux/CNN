@@ -40,90 +40,8 @@ def plot_smthg(smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y
             plt.close()
 
         conversation_save(save, save_to, minus_y)
-
-
-def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray):
-        if prediction.ndim != 1:
-            prediction = prediction.reshape(-1,)
-        
-        if expected.ndim != 1:
-            expected = expected.reshape(-1,)
-        
-
-        confusion = confusion_matrix(expected, prediction)
-
-        disp = ConfusionMatrixDisplay(confusion_matrix=confusion, display_labels=labels)
-
-        disp.plot()
-
-        plt.show()
     
-
-def visual_image(
-    image: np.ndarray,
-    cols: int = 8,
-    cmap: str = "gray",
-    normalize: bool = True,
-    title: str = None, 
-    save_to:str="",
-    minus_y:bool=False,
-    show:bool=True):
-
-    def _prepare(img):
-        if img.shape[-1] == 1:
-            img = img.squeeze(-1)
-        if normalize and img.ndim == 2:
-            vmin, vmax = np.percentile(img, (1, 99))
-            img = np.clip(img, vmin, vmax)
-        return img
-
-    if image.ndim == 3:
-        img = _prepare(image)
-
-        plt.figure(figsize=(4, 4))
-        plt.imshow(img, cmap=cmap if img.ndim == 2 else None)
-        plt.axis("off")
-        if title:
-            plt.title(title, fontsize=14)
-        plt.tight_layout(pad=0)
-        plt.show()
-        return
-
-    if image.ndim != 4:
-        raise ValueError("Image must be 3D or 4D array.")
-
-    n = image.shape[0]
-    rows = int(np.ceil(n / cols))
-
-    fig, axes = plt.subplots(
-        rows, cols,
-        figsize=(cols * 1.5, rows * 1.5),
-        constrained_layout=True
-    )
-    axes = np.atleast_2d(axes)
-
-    for i, ax in enumerate(axes.flat):
-        ax.axis("off")
-        if i < n:
-            img = _prepare(image[i])
-            ax.imshow(img, cmap=cmap if img.ndim == 2 else None)
-
-    if title:
-        fig.suptitle(title, fontsize=16)
-
-    if show:
-        plt.show()
-
-    def save():
-        dir_plots = os.path.join("outputs", "images")
-        new_folder_path = os.path.join(dir_plots, save_to)
-        os.makedirs(new_folder_path, exist_ok=True)
-        plt.savefig(os.path.join(new_folder_path, title))
-        plt.close()
-
-    conversation_save(save, save_to, minus_y, type_thing="images")
-
-
+# TODO need to modify this for visualization of outputs at different epochs
 def visual_outputs(
     model,
     index_layer: int,
@@ -174,7 +92,6 @@ def visual_outputs(
         plt.show()
     
 
-
     def save():
         dir_plots = os.path.join("outputs", "images")
         new_folder_path = os.path.join(dir_plots, save_to)
@@ -186,3 +103,17 @@ def visual_outputs(
 
 
 
+def confusion_matrix_plot(prediction:np.ndarray, expected:np.ndarray, labels:np.ndarray):
+        if prediction.ndim != 1:
+            prediction = prediction.reshape(-1,)
+        
+        if expected.ndim != 1:
+            expected = expected.reshape(-1,)
+
+        confusion = confusion_matrix(expected, prediction)
+
+        disp = ConfusionMatrixDisplay(confusion_matrix=confusion, display_labels=labels)
+
+        disp.plot()
+
+        plt.show()

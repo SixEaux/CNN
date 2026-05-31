@@ -47,7 +47,9 @@ class Training:
         patience: int = 1,
         min_epoch: int = 5,
         config: dict = None,
-        exam_interval:int=1
+        exam_interval:int=1,
+        bool_save_outputs:bool=True,
+        nb_outputs:int=1,
     ):
 
         self.dataset = dataset
@@ -79,27 +81,10 @@ class Training:
 
         if self.early_stop and self.validation_part == 0:
             raise ValueError("Early stopping cannot be used without validation set")
-    
-    def is_in(self, image: np.ndarray, batch: np.ndarray):
-        """None if the image is not in the batch or the position in the batch.
-
-        Args:
-            image (ndarray): to find DIM = (h, w, c)
-            batch (ndarray): batch of images DIM = (b, h, w, c)
-        """
-
-        h, w, c = image.shape
-
-        mask = batch == image
-
-        number_equal_pixels = np.sum(mask, axis=(1, 2, 3))
-
-        mask_2 = number_equal_pixels == h * w * c
-
-        if np.any(mask_2):
-            return np.argmax(mask_2)
-        else:
-            return
+        
+        self.bool_save_outputs = bool_save_outputs
+        self.images_to_save = self.validation_images[:nb_outputs]
+        self.saved_outputs = {}
 
     def training_epoch(self, batch_size: int, num_batches: int):
         """Do an iteration of training.
@@ -121,7 +106,7 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, batch_images=x_batch)
+            self.model.backward(batch_size)
 
             for layer in self.model.layers:
                 self.optimizer.update(layer, current_lr)
@@ -158,6 +143,11 @@ class Training:
             self.validation_exams.append(results_validation[0])
             self.validation_losses.append(results_validation[1])
 
+        # Visualization
+        if self.bool_save_outputs:
+            self.model.forward(self.images_to_save, save_outputs=True, epoch=self.finished_epochs-1)
+            
+
     def train(self, epoch: int = 1, batch_size: int = 1, file_save: str = ""):
         """Training the model wiht or without batches (if no batches batch_size = 1).
 
@@ -190,3 +180,7 @@ class Training:
                         save_model(self.model.layers, self.config, file_save)
                     print(f"Early stop at epoch {e}")
                     break
+        
+        if self.bool_save_outputs:
+            self.saved_outputs = self.model.saved_outputs
+            self.model.saved_outputs = {}

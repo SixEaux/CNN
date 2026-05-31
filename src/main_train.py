@@ -6,7 +6,6 @@ from src.model import Model
 from src.import_data import import_data
 from src.save_load_model import save_model
 from src.visualize import (
-    visual_image,
     visual_outputs,
     confusion_matrix_plot,
     plot_smthg,
@@ -62,8 +61,9 @@ trainer = Training(
 # =========================
 print("=" * 50)
 print("Initial evaluation")
-initial_acc = test.exam()[0]
-print(f"Accuracy: {initial_acc:.4f}")
+initial_acc = test.exam()
+print(f"Accuracy: {initial_acc[0]:.4f}")
+
 
 print("=" * 50)
 print("Training...")
@@ -78,8 +78,8 @@ trainer.train(
 
 print("=" * 50)
 print("Evaluation after training")
-final_acc = test.exam()[0]
-print(f"Accuracy: {final_acc:.4f}")
+final_acc = test.exam()
+print(f"Accuracy: {final_acc[0]:.4f}")
 
 show = config["visualization"]["show_plots"]
 minus_y = config["visualization"]["minus_y"]
@@ -119,4 +119,11 @@ plot_smthg(
     save_to=config["file_save"],
     minus_y=minus_y,
 )
+
+confusion_matrix_plot(
+    final_acc[2],
+    loaded_data.test_values,
+    labels=loaded_data.labels,
+)
+
 save_model(model.layers, config, config["file_save"])

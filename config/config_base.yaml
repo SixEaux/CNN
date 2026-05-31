@@ -118,6 +118,10 @@ training:
   patience: 3              # int   — consecutive epochs of rising val-loss before stopping
   min_epoch: 5             # int   — earliest epoch at which early stopping can trigger
 
+  # Visualization
+  save_outputs: true          # bool  — save model outputs (predictions) on validation set after each epoch
+  nb_outputs: 10              # int   — number of images to save outputs     
+
   # ---------- Optimizer ----------
   # Uncomment exactly one block below and delete (or comment) the others.
 
@@ -183,3 +187,4 @@ visualization:
   # If true, save plots automatically without asking for confirmation.
   # If false, the terminal will prompt before each save.
   minus_y: true            # bool
+
