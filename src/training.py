@@ -120,7 +120,7 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, record_cam=True, batch_images=x_batch)
+            self.model.backward(batch_size, batch_images=x_batch)
 
             for layer in self.model.layers:
                 self.optimizer.update(layer, current_lr)

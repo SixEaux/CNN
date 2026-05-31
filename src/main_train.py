@@ -13,8 +13,6 @@ from src.visualize import (
 )
 from src.helpers import load_config, get_layer, get_optimizer
 
-from src.cam_image import CAM_IMAGE
-
 # =========================
 # Model definition
 # =========================
@@ -36,16 +34,10 @@ loaded_data = import_data(
     normalization_method=config["normalization_method"],
 )  # import data needed
 
-# Prepare CAM images using indices from config
-test_images = loaded_data.test_images
-cam_image_indices = config["CAM_image"] if config["CAM_image"] else []
-cam = CAM_IMAGE(test_images[cam_image_indices]) if cam_image_indices else None
-
 model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
-    cam=cam,
 )
 
 test = Testing(config["dataset"], model, loaded_data)

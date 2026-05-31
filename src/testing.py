@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import trange
 
 from src.import_data import import_data
 from src.model import Model
@@ -23,7 +24,6 @@ class Testing:
         images_test: np.ndarray = None,
         values_test: np.ndarray = None,
         labels: np.ndarray = None,
-        save_errors: bool = False,
         batch_size: int = None,
     ):
         """Test accuracy of the model.
@@ -44,22 +44,19 @@ class Testing:
         if batch_size is None:
             batch_size = self.testing_images.shape[0]
         
-        out, loss = self.model.forward(images_test, values_test, test=True)
-        preds = self.model.choice(out)
-        accuracy = np.mean(preds == values_test) * 100
+        num_batches = self.testing_images.shape[0] // batch_size
+        accuracies = []
+        losses = []
 
-        if save_errors:
-            errors = {i: None for i in range(len(labels))}
+        for batch in trange(num_batches, desc="Testing"):
+            batch_index = np.arange(batch * batch_size, (batch + 1) * batch_size)
+            x_batch = self.testing_images[batch_index]
+            exp_batch = self.testing_values[batch_index]
 
-            for num in errors.keys():
-                y_true = values_test.ravel()
-                y_pred = preds.ravel()
-                values_num = (y_true == num) & (y_pred != num)
+            out, loss = self.model.forward(x_batch, exp_batch, test=True)
+            preds = self.model.choice(out)
+            accuracy = np.mean(preds == exp_batch) * 100
+            accuracies.append(accuracy)
+            losses.append(loss)
 
-                indexes = np.nonzero(values_num)
-
-                errors[num] = images_test[indexes]
-        else:
-            errors = None
-
-        return accuracy, np.mean(loss), preds, errors
+        return np.mean(accuracies), np.mean(losses), preds

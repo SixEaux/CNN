@@ -1,4 +1,3 @@
-CAM_image: null
 dataset: mnist
 file_save: mnist_model
 initialized: true

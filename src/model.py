@@ -13,7 +13,6 @@ from src.flattening import Flattening
 from src.pooling import MaxPool
 from src.dropout import Dropout
 from src.import_data import import_data
-from src.cam_image import CAM_IMAGE
 
 from src.layer import Layer
 from src.ascii_layers import print_network
@@ -34,7 +33,6 @@ class Model:
         layers: list[Layer],
         loss: Loss,
         dataset: str,
-        cam: CAM_IMAGE = None,
     ):
         self.layers = layers
         self.loss = loss
@@ -42,7 +40,6 @@ class Model:
         data = import_data(self.dataset)
         self.labels = data.labels
 
-        self.cam = cam  # CAM_IMAGE instance for tracking/visualization
 
         self.input_size = None
 
@@ -86,7 +83,6 @@ class Model:
         x: np.ndarray,
         expected: np.ndarray = None,
         test: bool = False,
-        record_cam: bool = False,
     ):
         """Forward propagation through all the layers.
 
@@ -94,16 +90,12 @@ class Model:
             x (ndarray): input to model (will be either one image or mini-batch). DIM = (batch_size, flattened_input_shape)
             expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes, 1)
             test (bool): if True, skip dropout layers
-            record_cam (bool): if True and CAM is initialized, record outputs for CAM
 
         Returns:
             tuple: output DIM = (batch_size, number_classes) and loss value of the iteration DIM = (batch_size, 1)
         """
 
         assert x.ndim == 4, "Not the right shapes for the input"
-
-        if record_cam and self.cam is not None:
-            self.cam.start_recording()
 
         out = x
         for l in self.layers:
@@ -113,9 +105,7 @@ class Model:
 
             out = l.forward(out)
 
-            if record_cam and self.cam is not None:
-                self.cam.record_output(out)
-
+           
         if expected is not None:
             loss = self.loss.forward(out, expected)
             return out, loss
@@ -125,24 +115,18 @@ class Model:
     def backward(
         self,
         batch_size: int,
-        record_cam: bool = False,
         batch_images: np.ndarray = None,
     ):
         """Backward propagation through the layers.
 
         Args:
             batch_size (int): size of the batch
-            record_cam (bool): if True and CAM is initialized, record gradients for CAM
-            batch_images (np.ndarray): the batch images. Required if record_cam=True.
-                                       Shape: (batch_size, height, width, channels)
+            batch_images (np.ndarray): the batch images. Shape: (batch_size, height, width, channels)
         """
         delta = self.loss.backward()
 
         for l in reversed(self.layers):
             delta = l.backward(delta, batch_size)
-
-        if record_cam and self.cam is not None and batch_images is not None:
-            self.cam.record_gradient(batch_images, delta)
 
     def choice(self, probabilities: np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).
