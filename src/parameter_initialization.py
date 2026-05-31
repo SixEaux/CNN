@@ -15,8 +15,7 @@ def he_initialization(dim_in, size): # for relu
     return rng.normal(0, np.sqrt(2/dim_in), size)
 
 def xavier_initialization(dim_in, dim_out, size): # for sigmoid
-    """Xavier initialization. Initialize by doing a normal with 
-    mu=0 and sd=sqrt(2/input_dimension).
+    """Xavier initialization. Initialize by doing a a uniform distribution sqrt(6 / (fan_in + fan_out)).
 
     Args:
         dim_in (int): input dimension (for dense flattened input shape and for dense h_in*w_in)

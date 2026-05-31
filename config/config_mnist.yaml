@@ -56,7 +56,7 @@ training:
   patience: 5        
   min_epoch: 8       
   epochs: 1
-  batch_size: 1
+  batch_size: 64
   optimizer: 
     type: "Adam"
     learning_rate: 0.001

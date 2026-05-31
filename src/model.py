@@ -43,7 +43,7 @@ class Model:
     
         self.labels = loaded_data.labels
 
-        self.input_size = None
+        self.input_size = loaded_data.train_images.shape[1:]
 
         self.model_initial()
 
@@ -61,9 +61,7 @@ class Model:
 
     def model_initial(self):
         """Initialize the model based on dimensions input."""
-        dims_dataset = {"mnist": (28, 28, 1), "fashion_mnist": (28, 28, 1)}
-        last_dim_out = dims_dataset[self.dataset]
-        self.input_size = last_dim_out
+        last_dim_out = self.input_size
 
         for l in self.layers:
 
