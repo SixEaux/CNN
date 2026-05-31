@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +10,7 @@ from src.model import Model
 from src.testing import Testing
 from src.optimizer import Optimizer
 
-from src.save_model import save_model
+from src.save_load_model import save_model
 from src.helpers import conversation_save
 
 
@@ -19,7 +21,6 @@ class Training:
         dataset (str): dataset used
         model (Model): model to train
         testing (Testing): object for testing while training
-        normalize (str, optional): type of normalization. Defaults to "division".
         learning_rate (float): learning rate
 
         lr_decay (str): method of learning rate decay
@@ -39,28 +40,21 @@ class Training:
         model: Model,
         testing: Testing,
         optimus: Optimizer,
-        normalize: str = "division",
+        loaded_data: NamedTuple,
         validation_part: float = 0,
         early_stop: bool = False,
         patience: int = 1,
         min_epoch: int = 5,
-        loaded_data: tuple = None,
+        config: dict = None,
     ):
 
         self.dataset = dataset
         self.validation_part = validation_part
 
-        (
-            self.training_images,
-            self.training_values,
-            self.validation_images,
-            self.validation_values,
-            _,
-            _,
-            _,
-        ) = (
-            import_data(self.dataset, validation_part) if loaded_data is None else loaded_data
-        )  # import data needed
+        self.training_images = loaded_data.train_images
+        self.training_values = loaded_data.train_values
+        self.validation_images = loaded_data.validation_images
+        self.validation_values = loaded_data.validation_values
 
         self.model = model
         self.testing = testing
@@ -78,27 +72,10 @@ class Training:
         self.count_stop = 0
         self.min_epoch = min_epoch
 
-        self.normalization(normalize)
+        self.config = config
 
-    def normalization(self, type: str):
-        """Normalize the dataset.
-
-        Args:
-            type (str): type of normalization between: division, center-reduction
-
-        Raises:
-            ValueError: if the type of normalization is not known
-        """
-        if type == "":
-            return
-        elif type == "division":
-            self.training_images = self.training_images / 255
-        elif type == "center-reduction":
-            self.training_images = (self.training_images - np.mean(self.training_images)) / np.std(
-                self.training_images
-            )
-        else:
-            raise ValueError("Type of normalization not known.")
+        if self.early_stop and self.validation_part == 0:
+            raise ValueError("Early stopping cannot be used without validation set")
 
     def is_in(self, image: np.ndarray, batch: np.ndarray):
         """None if the image is not in the batch or the position in the batch.
@@ -141,7 +118,7 @@ class Training:
 
             self.model.forward(x_batch, exp_batch)
 
-            self.model.backward(batch_size, record_cam=True, batch_images=x_batch)
+            self.model.backward(batch_size, batch_images=x_batch)
 
             for layer in self.model.layers:
                 self.optimizer.update(layer, current_lr)
@@ -164,25 +141,23 @@ class Training:
         self.finished_epochs += 1
 
         # add important info of this iteration
-        accuracy, loss, _, _ = self.testing.exam()
-        self.accuracies.append(accuracy)
-        self.losses.append(loss)
+        results = self.testing.exam()
+        self.accuracies.append(results[0])
+        self.losses.append(results[1])
 
         # add info about validation set
         if self.validation_part > 0:
-            accuracy_validation, loss_validation, _, _ = self.testing.exam(
-                self.validation_images, self.validation_values
-            )
-            self.validation_exams.append(accuracy_validation)
-            self.validation_losses.append(loss_validation)
+            results_validation = self.testing.exam(self.validation_images, self.validation_values)
+            self.validation_exams.append(results_validation[0])
+            self.validation_losses.append(results_validation[1])
 
-    def train(self, epoch: int = 1, batch_size: int = 1, to_save: str = ""):
+    def train(self, epoch: int = 1, batch_size: int = 1, file_save: str = ""):
         """Training the model wiht or without batches (if no batches batch_size = 1).
 
         Args:
             epoch (int, optional): number of iterations through the dataset. Defaults to 5.
             batch_size (int): size of the batch
-            to_save (str): if given saves the model to the file every 10 iterations
+            file_save (str): if given saves the model to the file every 10 iterations
         """
         num_batches = self.training_images.shape[0] // batch_size
 
@@ -192,8 +167,8 @@ class Training:
 
             self.end_iteration()
 
-            if to_save != "" and e % 10 == 0:
-                save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
+            if file_save != "" and e % 10 == 0:
+                save_model(self.model, self, file_save, checkpoint=True, minus_y=True)
 
             # early stopping
             if self.early_stop and e >= self.min_epoch:
@@ -204,7 +179,7 @@ class Training:
                     self.count_stop = 0
 
                 if self.count_stop >= self.patience:
-                    if to_save != "":
-                        save_model(self.model, self, to_save, checkpoint=True, minus_y=True)
+                    if file_save != "":
+                        save_model(self.model.layers, self.config, file_save)
                     print(f"Early stop at epoch {e}")
                     break

@@ -17,6 +17,7 @@ class Dense(Layer):
         self.input = None  # input to layer
         self.number_neurons = number_neurons
         self.initialization = initialization
+        self.out_dim = None
 
         self.dW = None  # gradient for weights
         self.dB = None  # gradient for bias
