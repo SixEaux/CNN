@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 import numpy as np
 from tqdm import trange
 
@@ -6,17 +8,16 @@ from src.model import Model
 
 
 class Testing:
-    def __init__(self, dataset: str, model: Model, loaded_data: tuple = None):
+    def __init__(self, dataset: str, model: Model, loaded_data: NamedTuple):
         """Test the accuracy of the model.
 
         Args:
             dataset (str): dataset used
             model (Model): model to test
         """
-        data = import_data(dataset) if loaded_data is None else loaded_data  # import data needed
-        self.testing_images = data.test_images
-        self.testing_values = data.test_values
-        self.labels = data.labels
+        self.testing_images = loaded_data.test_images
+        self.testing_values = loaded_data.test_values
+        self.labels = loaded_data.labels
         self.model = model
 
     def exam(

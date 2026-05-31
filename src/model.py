@@ -17,6 +17,8 @@ from src.import_data import import_data
 from src.layer import Layer
 from src.ascii_layers import print_network
 
+from typing import NamedTuple
+
 
 class Model:
     """Model NN.
@@ -33,13 +35,13 @@ class Model:
         layers: list[Layer],
         loss: Loss,
         dataset: str,
+        loaded_data: NamedTuple,
     ):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
-        data = import_data(self.dataset)
-        self.labels = data.labels
-
+    
+        self.labels = loaded_data.labels
 
         self.input_size = None
 

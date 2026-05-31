@@ -38,6 +38,7 @@ model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
+    loaded_data=loaded_data,
 )
 
 test = Testing(config["dataset"], model, loaded_data)
@@ -50,8 +51,8 @@ trainer = Training(
     config["dataset"],
     model,
     test,
-    optimus=optimizer,
     loaded_data=loaded_data,
+    optimus=optimizer,
     config=config,
     **real_training_config,
 )

@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from tqdm import trange
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,25 +40,21 @@ class Training:
         model: Model,
         testing: Testing,
         optimus: Optimizer,
+        loaded_data: NamedTuple,
         validation_part: float = 0,
         early_stop: bool = False,
         patience: int = 1,
         min_epoch: int = 5,
-        loaded_data: tuple = None,
         config: dict = None,
     ):
 
         self.dataset = dataset
         self.validation_part = validation_part
 
-        data = (
-            import_data(self.dataset, validation_part) if loaded_data is None else loaded_data
-        )  # import data needed
-
-        self.training_images = data.train_images
-        self.training_values = data.train_values
-        self.validation_images = data.validation_images
-        self.validation_values = data.validation_values
+        self.training_images = loaded_data.train_images
+        self.training_values = loaded_data.train_values
+        self.validation_images = loaded_data.validation_images
+        self.validation_values = loaded_data.validation_values
 
         self.model = model
         self.testing = testing

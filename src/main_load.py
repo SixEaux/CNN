@@ -58,8 +58,8 @@ trainer = Training(
     config["dataset"],
     model,
     test,
-    optimus=optimizer,
     loaded_data=loaded_data,
+    optimus=optimizer,
     **real_training_config,
 )
 

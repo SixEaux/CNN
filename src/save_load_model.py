@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import yaml
 
@@ -16,6 +18,8 @@ def save_model(layers: list[Layer], config: dict, filename: str):
     if filename == "":
         print("Error: filename is empty, model not saved")
         return
+    
+    os.makedirs("outputs/trained_models", exist_ok=True)
 
     file_parameters = f"outputs/trained_models/{filename}.npz"
     file_config = f"outputs/trained_models/{filename}.yaml"
