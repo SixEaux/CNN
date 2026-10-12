@@ -1,12 +1,9 @@
-numpy 
+numpy
 pandas
-tqdm
 matplotlib
 tabulate
 scipy
 scikit-learn
-# collections
-# tkinter
-# PIL
 tensorflow
-yaml
+PyYAML
+tqdm

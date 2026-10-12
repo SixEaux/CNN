@@ -1,7 +1,8 @@
 # old CNN project
 OLD/
 
-test/
+test/*
+!test/tests.ipynb
 
 test/tensorflow_comparison.ipynb
 

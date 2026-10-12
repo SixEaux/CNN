@@ -8,7 +8,7 @@ from src.model import Model
 from src.import_data import import_data
 from src.helpers import get_layer, get_optimizer
 
-name_config = "test_save_load"
+name_config = "mnist_model"
 
 parameters, config = load_model(name_config)
 
