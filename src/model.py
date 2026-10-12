@@ -4,23 +4,6 @@
 - following this the data when imported will be (number_images, height, width, number_channels)
 """
 
-"""
-To facilitate passing parameters -> to create a model you need to:
-    Model(
-    layers = [Convolutional(), Activation(), Flatening(), Pooling(), Dense()], 
-    other_parameters)
-"""
-
-"""
-As a convention when i use:
-- x it is an input
-- C or L cost / loss
-- w weights
-- b biais
-- z = wx + b
-- a = activ(z)
-"""
-
 import numpy as np
 
 from src.loss import Loss
@@ -32,6 +15,9 @@ from src.dropout import Dropout
 from src.import_data import import_data
 
 from src.layer import Layer
+from src.ascii_layers import print_network
+
+from typing import NamedTuple
 
 
 class Model:
@@ -49,28 +35,19 @@ class Model:
         layers: list[Layer],
         loss: Loss,
         dataset: str,
-        initialized: bool = False,
-        CAM_image: np.ndarray = None,
+        loaded_data: NamedTuple,
     ):
         self.layers = layers
         self.loss = loss
         self.dataset = dataset
-        _, _, _, _, _, _, self.labels = import_data(self.dataset)
+    
+        self.labels = loaded_data.labels
 
-        self.saved_outputs = []  # to save some outputs from layers
+        self.input_size = loaded_data.train_images.shape[1:]
 
-        self.input_size = None
+        self.model_initial()
 
-        if CAM_image is not None:
-            self.CAM_image = CAM_image
-            self.saved_gradients = [
-                [] for _ in self.CAM_image
-            ]  # to save the gradients of some images during training
-        else:
-            self.CAM_image = CAM_image
-
-        if not initialized:
-            self.model_initial()
+        print_network(self.layers, self.loss)
 
     def precompute_fan_out(self, l, dim_in: tuple):
         if isinstance(l, Dense):
@@ -84,9 +61,7 @@ class Model:
 
     def model_initial(self):
         """Initialize the model based on dimensions input."""
-        dims_dataset = {"mnist": (28, 28, 1), "fashion_mnist": (28, 28, 1)}
-        last_dim_out = dims_dataset[self.dataset]
-        self.input_size = last_dim_out
+        last_dim_out = self.input_size
 
         for l in self.layers:
 
@@ -108,34 +83,29 @@ class Model:
         x: np.ndarray,
         expected: np.ndarray = None,
         test: bool = False,
-        save_out: bool = False,
     ):
         """Forward propagation through all the layers.
 
         Args:
             x (ndarray): input to model (will be either one image or mini-batch). DIM = (batch_size, flattened_input_shape)
             expected (ndarray): value expected in output (will be either one value or mini-batch). DIM = (number_classes, 1)
+            test (bool): if True, skip dropout layers
 
         Returns:
             tuple: output DIM = (batch_size, number_classes) and loss value of the iteration DIM = (batch_size, 1)
         """
 
         assert x.ndim == 4, "Not the right shapes for the input"
-        self.saved_outputs = []
 
         out = x
         for l in self.layers:
 
-            if test and isinstance(
-                l, Dropout
-            ):  # if its a test then dropout not taking into account
+            if test and isinstance(l, Dropout):  # if its a test then dropout not taken into account
                 continue
 
             out = l.forward(out)
 
-            if save_out:
-                self.saved_outputs.append(out)
-
+           
         if expected is not None:
             loss = self.loss.forward(out, expected)
             return out, loss
@@ -145,26 +115,18 @@ class Model:
     def backward(
         self,
         batch_size: int,
-        learning_rate: float,
-        momentum_rate: float,
-        save: list = None,
+        batch_images: np.ndarray = None,
     ):
         """Backward propagation through the layers.
-        
+
         Args:
             batch_size (int): size of the batch
-            learning_rate (float): learning rate
-            momentum_rate (float): dependence on gradient before
+            batch_images (np.ndarray): the batch images. Shape: (batch_size, height, width, channels)
         """
         delta = self.loss.backward()
 
         for l in reversed(self.layers):
-            delta = l.backward(delta, learning_rate, momentum_rate, batch_size)
-
-        if save is not None:
-            for i in range(len(save)):
-                if save[i] is not None:
-                    self.saved_gradients[i].append(delta[save[i]])
+            delta = l.backward(delta, batch_size)
 
     def choice(self, probabilities: np.ndarray):
         """Choose from outputs the one with higher "probability" (logits or smthg like this).

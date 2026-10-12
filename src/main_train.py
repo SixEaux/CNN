@@ -4,46 +4,58 @@ from src.loss import Loss
 from src.model import Model
 
 from src.import_data import import_data
-from src.save_model import save_model
+from src.save_load_model import save_model
 from src.visualize import (
     visual_image,
     visual_outputs,
     confusion_matrix_plot,
     plot_smthg,
 )
-from src.helpers import load_config, get_layer
+from src.helpers import load_config, get_layer, get_optimizer
 
 # =========================
 # Model definition
 # =========================
 
-config = load_config("config_mnist.yaml")
+file_config = "config_mnist.yaml"
+
+config = load_config(file_config)
 
 layers = []
 layers_config = config["model"]["layers"]
 for i in range(len(layers_config)):
     layers.append(get_layer(layers_config[i]))
 
+optimizer = get_optimizer(config["training"]["optimizer"])
+
+loaded_data = import_data(
+    config["dataset"],
+    config["training"]["validation_part"],
+    normalization_method=config["normalization_method"],
+)  # import data needed
 
 model = Model(
     layers=layers,
     loss=Loss(config["model"]["loss"], config["nb_classes"]),
     dataset=config["dataset"],
-    initialized=config["model"]["initialized"],
-    CAM_image=config["CAM_image"],
+    loaded_data=loaded_data,
 )
-
-loaded_data = import_data(config["dataset"], config["training"]["validation_part"])  # import data needed
 
 test = Testing(config["dataset"], model, loaded_data)
 
 real_training_config = {
-    k: v
-    for k, v in config["training"].items()
-    if (k != "" and k != "epochs" and k != "batch_size")
+    k: v for k, v in config["training"].items() if (k not in ["", "epochs", "batch_size", "optimizer"])
 }
 
-trainer = Training(config["dataset"], model, test, loaded_data=loaded_data, **real_training_config)
+trainer = Training(
+    config["dataset"],
+    model,
+    test,
+    loaded_data=loaded_data,
+    optimus=optimizer,
+    config=config,
+    **real_training_config,
+)
 
 # =========================
 # Training
@@ -55,10 +67,9 @@ print(f"Accuracy: {initial_acc:.4f}")
 
 print("=" * 50)
 print("Training...")
-trainer.SGD(
+trainer.train(
     config["training"]["epochs"],
     config["training"]["batch_size"],
-    to_save=config["save_file"],
 )
 
 # =========================
@@ -78,7 +89,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Loss",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -87,7 +98,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Accuracy",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -96,7 +107,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Loss",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
 plot_smthg(
@@ -105,8 +116,7 @@ plot_smthg(
     x_title="Epochs",
     y_title="Accuracy",
     show=show,
-    save_to=config["save_file"],
+    save_to=config["file_save"],
     minus_y=minus_y,
 )
-save_model(model, trainer, config["save_file"], checkpoint=False, minus_y=False)
-
+save_model(model.layers, config, config["file_save"])

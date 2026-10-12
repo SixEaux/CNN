@@ -1,30 +1,37 @@
 import pickle
 from pathlib import Path
+from collections import namedtuple
 import numpy as np
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "data"
 
+# Named tuples for cleaner return values
+RawDataset = namedtuple("RawDataset", ["train_images", "train_values", "test_images", "test_values"])
+SplitDataset = namedtuple(
+    "SplitDataset",
+    ["train_images", "train_values", "validation_images", "validation_values", "test_images", "test_values"],
+)
+Dataset = namedtuple(
+    "Dataset",
+    [
+        "train_images",
+        "train_values",
+        "validation_images",
+        "validation_values",
+        "test_images",
+        "test_values",
+        "labels",
+    ],
+)
+
 DATASETS = {
     "mnist": {
-        "folder": "Mnist",
-        "files": {
-            "train_images": "mnist_train_images",
-            "train_values": "mnist_train_values",
-            "test_images": "mnist_test_images",
-            "test_values": "mnist_test_values",
-        },
+        "file": "mnist.npz",
         "labels": {i: str(i) for i in range(10)},
     },
     "fashion_mnist": {
-        "folder": "fashion_MNIST",
-        "files": {
-            "train_images": "fashion_train_images",
-            "train_values": "fashion_train_values",
-            "test_images": "fashion_test_images",
-            "test_values": "fashion_test_values",
-        },
+        "file": "fashion_mnist.npz",
         "labels": {
             0: "T-shirt/top",
             1: "Trouser",
@@ -41,28 +48,53 @@ DATASETS = {
 }
 
 
-def split(paths: dict[str, Path], validation_part: float):
+def load_from_npz(path: Path, normalization_method: str):
+    """Load and normalize the dataset.
+
+    Args:
+        path (Path): path to the dataset file
+        normalization_method (str): type of normalization between: division, center-reduction
+
+    Raises:
+        ValueError: if the type of normalization is not known
+    """
+    data = np.load(path, allow_pickle=True)
+    train_images = data["train_images"]
+    train_values = data["train_values"]
+    test_images = data["test_images"]
+    test_values = data["test_values"]
+
+    mean = np.mean(train_images)
+    std = np.std(train_images)
+
+    if normalization_method == "":
+        pass
+    elif normalization_method == "division":
+        train_images = train_images / 255
+        test_images = test_images / 255
+    elif normalization_method == "center-reduction":
+        train_images = (train_images - mean) / std if std != 0 else train_images - mean
+        test_images = (test_images - mean) / std if std != 0 else test_images - mean
+    else:
+        raise ValueError("Type of normalization not known.")
+
+    return RawDataset(train_images, train_values, test_images, test_values)
+
+
+def split(path: Path, validation_part: float, normalization_method: str):
     """Split data in training, testing and validation.
 
     Args:
-        paths (dict[str, Path]): paths to the files
+        path (Path): path to the dataset file
         validation_part (float): part of training to use as validation
+        normalization_method (str): type of normalization between: division, center-reduction
 
     Returns:
-        tuple: training, testing and validation sets
+        SplitDataset: training, testing and validation sets
     """
 
-    with paths["train_images"].open("rb") as f:
-        train_images = pickle.load(f)
-
-    with paths["train_values"].open("rb") as f:
-        train_values = pickle.load(f)
-
-    with paths["test_images"].open("rb") as f:
-        test_images = pickle.load(f)
-
-    with paths["test_values"].open("rb") as f:
-        test_values = pickle.load(f)
+    raw_data = load_from_npz(path, normalization_method)
+    train_images, train_values, test_images, test_values = raw_data
 
     perm_train = np.random.permutation(train_images.shape[0])
     perm_train_images, perm_train_values = train_images[perm_train], train_values[perm_train]
@@ -72,7 +104,7 @@ def split(paths: dict[str, Path], validation_part: float):
 
     length_validation = int(train_images.shape[0] * validation_part)
 
-    return (
+    return SplitDataset(
         perm_train_images[length_validation:].astype(np.float32),
         perm_train_values[length_validation:],
         perm_train_images[:length_validation].astype(np.float32),
@@ -82,16 +114,22 @@ def split(paths: dict[str, Path], validation_part: float):
     )
 
 
-def import_data(name: str, validation_part: float = 0, data_root: Path | str | None = None):
+def import_data(
+    name: str,
+    validation_part: float = 0,
+    data_root: Path | str | None = None,
+    normalization_method: str = "division",
+):
     """Import the data based on which dataset is used.
 
     Args:
         name (str): name of the dataset used.
         validation_part (float): part of training to use as validation.
         data_root (Path | str | None): root directory containing the `data/` folder.
+        normalization_method (str): type of normalization between: division, center-reduction.
 
     Returns:
-        tuple: train_images, train_values, validation_images, validation_values, test_images, test_values, labels
+        Dataset: train_images, train_values, validation_images, validation_values, test_images, test_values, labels
     """
 
     if data_root is None:
@@ -103,22 +141,18 @@ def import_data(name: str, validation_part: float = 0, data_root: Path | str | N
     if dataset is None:
         raise ValueError(f"Unknown dataset: {name}")
 
-    folder = data_root / dataset["folder"]
-    if not folder.exists():
-        raise FileNotFoundError(f"Dataset folder does not exist: {folder}")
+    file = data_root / dataset["file"]
+    if not file.exists():
+        raise FileNotFoundError(f"Dataset file does not exist: {file}")
 
-    paths = {key: folder / filename for key, filename in dataset["files"].items()}
+    split_data = split(file, validation_part, normalization_method=normalization_method)
 
-    train_images, train_values, validation_images, validation_values, test_images, test_values = split(
-        paths, validation_part
-    )
-
-    return (
-        train_images,
-        train_values,
-        validation_images,
-        validation_values,
-        test_images,
-        test_values,
+    return Dataset(
+        split_data.train_images.astype(np.float32),
+        split_data.train_values,
+        split_data.validation_images.astype(np.float32),
+        split_data.validation_values,
+        split_data.test_images.astype(np.float32),
+        split_data.test_values,
         dataset["labels"],
     )

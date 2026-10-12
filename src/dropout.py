@@ -5,7 +5,6 @@ class Dropout(Layer):
     def __init__(self, drop_rate:float):
         """Dropout layer. Deactivates some neurons to prevent overfitting /
         relying only in some neurons.
-        I don't know if it is really useful but found it interesting and wanted to try it.
 
         Args:
             drop_rate (float): part to drop
@@ -30,7 +29,7 @@ class Dropout(Layer):
         return x * self.mask / (1-self.drop_rate)
 
     def backward(self, dL_dout:np.ndarray, *args):
-        """Backward pass. Just return the gradient that arrives.
+        """Backward pass.
 
         Args:
             dL_dout (np.ndarray): gradient from next layer
