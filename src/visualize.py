@@ -24,8 +24,6 @@ def plot_smthg(smthg:np.ndarray, save_to:str="", title:str="", x_title:str="", y
         plt.figure(figsize=(10, 6))
         plt.plot(smthg)
         plt.title(title)
-        plt.xlabel("Iteration / Epoch")
-        plt.ylabel("Loss")
         plt.xlabel(x_title)
         plt.ylabel(y_title)
 

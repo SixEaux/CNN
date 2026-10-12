@@ -10,7 +10,7 @@ from src.visualize import (
     confusion_matrix_plot,
     plot_smthg,
 )
-from src.helpers import load_config, get_layer, get_optimizer
+from src.config import load_config, get_layer, get_optimizer
 
 # =========================
 # Model definition
@@ -43,7 +43,7 @@ model = Model(
 test = Testing(model, loaded_data)
 
 real_training_config = {
-    k: v for k, v in config["training"].items() if (k not in ["", "epochs", "batch_size", "optimizer"])
+    k: v for k, v in config["training"].items() if (k not in ["epochs", "batch_size", "optimizer"])
 }
 
 trainer = Training(

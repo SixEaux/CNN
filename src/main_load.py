@@ -6,7 +6,7 @@ from src.loss import Loss
 from src.model import Model
 
 from src.import_data import import_data
-from src.helpers import get_layer, get_optimizer
+from src.config import get_layer, get_optimizer
 
 name_config = "test_save_load"
 

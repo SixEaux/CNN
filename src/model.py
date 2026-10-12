@@ -78,7 +78,7 @@ class Model:
             elif isinstance(l, MaxPool):
                 last_dim_out = l.out_dim
             elif isinstance(l, Flattening):
-                last_dim_out = last_dim_out[0] * last_dim_out[1] * last_dim_out[2]
+                last_dim_out = np.prod(last_dim_out)
 
     def forward(
         self,
@@ -100,6 +100,9 @@ class Model:
         """
 
         assert x.ndim == 4, "Not the right shapes for the input"
+
+        if epoch not in self.saved_outputs: 
+            self.saved_outputs[epoch] = {}
 
         out = x
         for i, l in enumerate(self.layers):

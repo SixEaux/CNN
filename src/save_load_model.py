@@ -2,10 +2,11 @@ import os
 
 import numpy as np
 import yaml
+from pathlib import Path
 
 from src.layer import Layer
 
-FOLDER_PATH = "outputs/trained_models"
+FOLDER_PATH = Path(__file__).resolve().parents[1] / "outputs" / "trained_models"
 
 def save_model(layers: list[Layer], config: dict, filename: str):
     """Save model's weights and architecture.
