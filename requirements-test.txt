@@ -1,0 +1,6 @@
+# Minimal dependencies for tests/test_cnn.py; unittest is part of Python.
+numpy
+scipy
+PyYAML
+tqdm
+matplotlib
